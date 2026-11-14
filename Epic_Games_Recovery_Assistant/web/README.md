@@ -1,58 +1,68 @@
 # Browser-based Recovery Assistant (C++17)
 
-This folder adds a C++17 web server and a browser-based recovery-request builder.
+This folder contains a C++17 web server and a browser-based recovery-request builder.
 
-## Hosting decision
-**Production hosting target: DigitalOcean App Platform.** SellHub is intended to handle storefront sales/checkout; DigitalOcean runs the C++ application. These are separate services.
+## Hosting and SellHub decision
 
-The app is not deployed yet. A successful GitHub build only confirms that the Linux server compiles; it does not create a DigitalOcean app or public website.
+**DigitalOcean is not part of the hosting plan. Do not create or deploy this app on DigitalOcean.**
+
+SellHub at https://sellhub.cx/ is being considered as the storefront/checkout provider. A storefront and an application host are different services: the C++ server needs a continuously running Linux/container host that supports Docker (or an equivalent C++ runtime). I could not verify from publicly accessible SellHub documentation that sellhub.cx runs arbitrary customer C++/Docker applications; direct access to its site returned HTTP 403 during review. Therefore this project must not claim that SellHub hosts the C++ server.
+
+Until SellHub confirms its supported integration and hosting capabilities, treat SellHub only as a possible sales/checkout layer. Choose a separate Docker-compatible host other than DigitalOcean for the C++ web service. No hosting provider has been configured or deployed yet.
+
+## Current deployment status
+
+The GitHub Actions Linux build confirms only that the C++ server compiles. It does not create a public website or deploy a running service.
+
+The container expects HTTP port `8080` (or the `PORT` environment variable). Put it behind a provider-managed HTTPS ingress or a correctly configured reverse proxy with TLS. Do not expose the plain-HTTP container directly to the public internet.
 
 ## Privacy and scope
+
 - Form data is processed in the browser tab only. The server serves the static page and has no form-submission endpoint or account database.
 - Users can export a JSON recovery packet or use the browser Print / Save as PDF feature.
 - The page does not request passwords, account PINs, full card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, or API keys.
 - Historical IP/VPN details are optional context only, never proof of ownership. No IP spoofing, proxy rotation, account dumps, platform bypass, or restriction removal.
 - It does not sign in to accounts, verify ownership, unlink services, change account details, lock accounts, submit tickets, or provide live agent chat.
-- There is no hardcoded login or API key. This client-side form does not need a third-party API. Never put an API secret in browser JavaScript or a public repository.
+- There is no hardcoded login or API key. Never put an API secret in browser JavaScript or a public repository.
 
-## Deploy to DigitalOcean App Platform (recommended)
-DigitalOcean App Platform can deploy a Dockerfile from a GitHub repository and run it as a web-service container.
+## SellHub integration status
 
-1. Sign in to the DigitalOcean Control Panel and choose **Create App**.
-2. Connect the GitHub repository `boooter316/github.test1` and select branch `main`. Authorize access to this private repository when prompted.
-3. Set the source directory to `Epic_Games_Recovery_Assistant/web`.
-4. Choose Dockerfile-based deployment using the Dockerfile in that directory.
-5. Configure the web service to use HTTP port `8080`. The server binds to `0.0.0.0` and reads the assigned `PORT` environment variable.
-6. Deploy, then test the generated DigitalOcean app URL and confirm `/healthz` returns `ok`.
-7. Add a custom domain in App Platform and enable HTTPS/TLS. Keep the app behind DigitalOcean's HTTPS ingress; the container itself serves plain HTTP.
-8. Enable automatic deployment from `main` only after the initial deployment has been tested.
+The current application has no paid-user login, checkout verification, or purchase-entitlement endpoint. Publicly accessible information for the exact `sellhub.cx` service was insufficient to verify its API/webhook contract. Do not confuse `sellhub.cx` with similarly named services or use another provider's API documentation as proof of compatibility.
 
-DigitalOcean's official guides:
-- [App Platform quickstart](https://docs.digitalocean.com/products/app-platform/getting-started/quickstart/)
-- [Create an App](https://docs.digitalocean.com/products/app-platform/how-to/create-apps/)
-- [Dockerfile build reference](https://docs.digitalocean.com/products/app-platform/reference/dockerfile/)
+Before enabling paid access, obtain the exact SellHub.cx seller API/webhook documentation or confirmation from SellHub support. Then implement server-side payment verification only if the provider supports authenticated, signed purchase/refund events or a trusted order-status API. The implementation must validate signatures, reject replayed events, handle refunds/chargebacks, and keep secrets in the chosen host's private environment variables. Never trust a browser redirect, query parameter, screenshot, or user-entered order number as proof of payment. Until that integration is verified and implemented, keep checkout and app access separate.
 
-## SellHub storefront and paid access
-SellHub is intended to be the storefront/checkout layer; it is not the application server in this architecture. The recovery assistant currently has no paid-user login, checkout verification, or purchase-entitlement endpoint.
+## Deploy to a non-DigitalOcean Docker host
 
-Before connecting checkout to access control, confirm that the SellHub account/product plan provides documented, supported order webhooks or an API that can verify completed payments and refunds. Then implement server-side verification with signature validation, replay protection, and least-privilege secrets. Do not trust a browser redirect, query parameter, screenshot, or user-entered order number as proof of payment. Do not add SellHub credentials or API secrets to HTML, JavaScript, GitHub commits, or PDFs. If supported order verification cannot be confirmed, keep checkout and app access separate until a safe integration is available.
+These are provider-neutral requirements; they are not instructions for a specific provider:
 
-## Deploy to a DigitalOcean Droplet (alternative)
-1. Create a supported Linux Droplet and install Docker.
-2. Clone the private repository securely, then build and run the container.
-3. Keep port 8080 private to the host or firewall it from the public internet.
-4. Put Nginx or Caddy in front as a reverse proxy and configure HTTPS with a valid certificate.
-5. Configure the firewall to allow only SSH from trusted IPs and public HTTP/HTTPS; do not expose an unauthenticated admin panel.
+1. Choose a host that explicitly supports continuously running Docker containers or Linux C++ web services.
+2. Connect the private GitHub repository `boooter316/github.test1`, branch `main`.
+3. Set the app's source/build context to `Epic_Games_Recovery_Assistant/web`.
+4. Select the Dockerfile in that directory.
+5. Configure the web service to listen on port `8080` (or pass the provider's assigned `PORT`).
+6. Configure provider-managed HTTPS/TLS and test `/healthz`; it should return `ok`.
+7. Confirm logs, restart behavior, resource limits, and private environment-variable support before making the service public.
+
+Do not enter payment details or create a paid hosting resource until the provider, price, and deployment configuration are understood.
 
 ## API keys and sign-in
-No API key is required for the current static form. A key is only needed if a specific external API integration is added. If a future server-side integration needs a secret, store it as a DigitalOcean encrypted environment variable or a GitHub Actions secret as appropriate, never in source code, HTML, JavaScript, GitHub commits, or PDFs. Use a proper identity provider for any future administrator or paid-user login; do not hardcode credentials in the application.
+
+No API key is required for the current static form. If a future server-side integration needs a secret, store it only as a private environment variable on the selected host or in an appropriate CI secret; never put it in source code, HTML, JavaScript, GitHub commits, or PDFs. Use a proper identity provider for any future administrator or paid-user login; do not hardcode credentials in the application.
 
 ## Run with Docker locally
+
 From this directory:
-    docker build -t recovery-assistant-web .
-    docker run --rm -p 8080:8080 recovery-assistant-web
+
+```sh
+docker build -t recovery-assistant-web .
+docker run --rm -p 8080:8080 recovery-assistant-web
+```
+
 Open http://localhost:8080 for local testing.
 
 ## Build locally
-    g++ -std=c++17 -O2 -Wall -Wextra -pedantic server.cpp -o recovery-web
-    PORT=8080 ./recovery-web
+
+```sh
+g++ -std=c++17 -O2 -Wall -Wextra -pedantic server.cpp -o recovery-web
+PORT=8080 ./recovery-web
+```
