@@ -176,7 +176,7 @@ std::string hexEncode(const std::vector<unsigned char>& data) {
 bool hexDecode(const std::string& s,std::vector<unsigned char>& out) {
  if(s.size()%2) return false; out.clear();
  for(size_t i=0;i<s.size();i+=2) {
-  char pair[3]={s[i],s[i+1],'\\0'}; char* end=nullptr;
+  char pair[3]={s[i],s[i+1],'\0'}; char* end=nullptr;
   unsigned long v=std::strtoul(pair,&end,16);
   if(!end||*end||v>255) return false;
   out.push_back((unsigned char)v);
