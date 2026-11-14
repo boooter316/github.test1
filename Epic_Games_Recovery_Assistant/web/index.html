@@ -33,6 +33,8 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <button type="button" class="tab secondary" id="securityTabButton" aria-selected="false">Discord Security Scanner</button>
 <button type="button" class="tab secondary" id="fortniteTabButton" aria-selected="false">Pro Multi-Platform Scanner</button>
 <button type="button" class="tab secondary" id="accountLinksTabButton" aria-selected="false">Account Links</button>
+<button type="button" class="tab secondary" id="accountConnectionsTabButton" aria-selected="false">Account Connections</button>
+<button type="button" class="tab secondary" id="packetDiagnosticsTabButton" aria-selected="false">Wireshark &amp; Ports</button>
 <button type="button" class="tab secondary" id="accountStatusTabButton" aria-selected="false">Account Status &amp; Details</button>
 </nav>
 <div id="recoveryTab">
@@ -272,6 +274,62 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 </div>
 <p class="hint">If a game or social service supports linked accounts, use its official “Connections,” “Linked accounts,” or “Security” settings. This page does not perform the linking for you.</p>
 </section>
+<section class="panel hidden" id="accountConnectionsTab">
+<h2>Account Connections &amp; Payment Services</h2>
+<p class="hint">Use each provider's own website or app to authorize, review, and remove connections. This page is a secure shortcut directory, not an OAuth client. It does not sign in, verify accounts, link wallets, move money, or read balances.</p>
+<div class="notice"><strong>Verification status:</strong> Not checked by this app. A provider must complete its own sign-in and authorization process before any connection can be considered verified. Never enter passwords, one-time codes, recovery codes, wallet seed phrases, private keys, card numbers, or CVV into this project.</div>
+<h3>Gaming, social &amp; identity accounts</h3>
+<div class="account-link-grid">
+<a class="account-link" href="https://discord.com/login" target="_blank" rel="noopener noreferrer"><strong>Discord</strong><span>Sign in and review Authorized Apps in User Settings</span></a>
+<a class="account-link" href="https://www.disneyplus.com/login" target="_blank" rel="noopener noreferrer"><strong>Disney+</strong><span>Manage account and security on Disney+</span></a>
+<a class="account-link" href="https://www.nvidia.com/en-us/account/" target="_blank" rel="noopener noreferrer"><strong>NVIDIA / GeForce NOW</strong><span>Open NVIDIA account settings</span></a>
+<a class="account-link" href="https://www.lego.com/account/login" target="_blank" rel="noopener noreferrer"><strong>LEGO</strong><span>Manage LEGO account</span></a>
+<a class="account-link" href="https://www.roblox.com/login" target="_blank" rel="noopener noreferrer"><strong>Roblox</strong><span>Manage Roblox account settings</span></a>
+<a class="account-link" href="https://account.microsoft.com/" target="_blank" rel="noopener noreferrer"><strong>Microsoft / Xbox</strong><span>Review Microsoft account security and connected apps</span></a>
+<a class="account-link" href="https://myaccount.google.com/" target="_blank" rel="noopener noreferrer"><strong>Google</strong><span>Review third-party connections and security</span></a>
+<a class="account-link" href="https://www.epicgames.com/account/connections" target="_blank" rel="noopener noreferrer"><strong>Epic Games</strong><span>Review Epic account connections</span></a>
+</div>
+<h3>Payments &amp; wallets</h3>
+<div class="account-link-grid">
+<a class="account-link" href="https://cash.app/" target="_blank" rel="noopener noreferrer"><strong>Cash App / Bitcoin</strong><span>Open Cash App's official service and security settings</span></a>
+<a class="account-link" href="https://www.paypal.com/myaccount/" target="_blank" rel="noopener noreferrer"><strong>PayPal</strong><span>Manage automatic payments and linked permissions</span></a>
+<a class="account-link" href="https://support.apple.com/apple-pay" target="_blank" rel="noopener noreferrer"><strong>Apple Pay</strong><span>Apple's official Apple Pay setup and account guidance</span></a>
+<a class="account-link" href="https://wallet.google/" target="_blank" rel="noopener noreferrer"><strong>Google Pay / Wallet</strong><span>Open Google Wallet and payment settings</span></a>
+</div>
+<div class="notice"><strong>Financial safety:</strong> These are provider links only. No Cash App/Bitcoin wallet, PayPal account, Apple Pay card, or Google Wallet is connected to this project. Do not share seed phrases, private keys, payment-card details, or authentication codes. Verify the provider's domain before signing in.</div>
+<h3>How to verify or remove a connection</h3>
+<ol>
+<li>Open the provider's official account settings and complete its own sign-in and multi-factor checks.</li>
+<li>Find sections named <strong>Connected Apps</strong>, <strong>Authorized Apps</strong>, <strong>Linked Accounts</strong>, <strong>Security</strong>, or <strong>Automatic Payments</strong>.</li>
+<li>Approve only an app you recognize and trust. The provider's confirmation page is the source of truth for authorization.</li>
+<li>To disconnect, use the provider's revoke, remove, unlink, or cancel-automatic-payment control. Some payment wallets require managing cards or devices in the provider's app or device settings.</li>
+<li>Return here only for the shortcut. This app cannot confirm that the provider accepted or removed a connection.</li>
+</ol>
+<p class="hint">Real automatic linking would require separate approved OAuth/API integrations, registered callback URLs, server-side secrets, provider review, and explicit consent for each service. Payment integrations additionally require provider-approved payment APIs and compliance controls. None of those credentials or integrations are configured in this static project.</p>
+</section>
+<section class="panel hidden" id="packetDiagnosticsTab">
+<h2>Wireshark Packet &amp; Port Diagnostics</h2>
+<p class="hint">Use Wireshark only on your own device/network or where you have explicit authorization. This page provides filters and setup guidance; it does not capture packets, sniff remote networks, scan public IP ranges, or transmit traffic.</p>
+<div class="notice"><strong>Privacy:</strong> Packet captures can contain personal data and sometimes authentication material. Capture only the minimum traffic needed, avoid capturing other people's communications, and do not export or share raw captures containing private information.</div>
+<div class="actions no-print"><a class="account-link" href="https://www.wireshark.org/download.html" target="_blank" rel="noopener noreferrer"><strong>Download Wireshark</strong><span>Official Wireshark download page</span></a><a class="account-link" href="https://www.wireshark.org/docs/wsug_html_chunked/" target="_blank" rel="noopener noreferrer"><strong>Wireshark User Guide</strong><span>Official capture and display-filter documentation</span></a></div>
+<h3>Useful display filters</h3>
+<ul>
+<li><code>ip</code> — IPv4 packets</li>
+<li><code>ipv6</code> — IPv6 packets</li>
+<li><code>dns</code> — DNS traffic</li>
+<li><code>tcp</code> — TCP traffic</li>
+<li><code>udp</code> — UDP traffic</li>
+<li><code>tcp.port == 443</code> — TCP port 443</li>
+<li><code>ip.addr == 192.0.2.10</code> — packets involving a specific IPv4 address (replace the example with an address you are authorized to inspect)</li>
+</ul>
+<div class="grid">
+<div><label for="wiresharkPort">Build a port display filter</label><input id="wiresharkPort" type="number" min="1" max="65535" step="1" placeholder="For example, 443"></div>
+<div><label for="wiresharkProtocol">Protocol</label><select id="wiresharkProtocol"><option value="tcp">TCP</option><option value="udp">UDP</option><option value="both">TCP and UDP</option></select></div>
+</div>
+<div class="actions no-print"><button type="button" id="buildWiresharkFilter">Build filter</button></div>
+<label for="wiresharkFilterOutput">Wireshark display filter</label><input id="wiresharkFilterOutput" readonly value="Enter a port and choose Build filter">
+<p class="hint">To capture your own traffic, install Wireshark from its official site, select the correct local network interface, start a short capture, then apply a display filter. A display filter narrows packets already captured; it does not create a connection or open a port. Router/firewall port changes should be made only by the network owner.</p>
+</section>
 </main>
 <script>
 const ids=["name","accountId","display","oldDisplay","email","oldEmail","desiredDisplay","desiredEmail","country","creator","incident","error","date","firstSeen","details","mfaAccess","invoice","provider","last4","billingCity","ip","vpn","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"];
@@ -343,6 +401,8 @@ const pageTabs={
  security:{button:document.getElementById("securityTabButton"),panel:document.getElementById("securityTab")},
  fortnite:{button:document.getElementById("fortniteTabButton"),panel:document.getElementById("fortniteTab")},
  accountLinks:{button:document.getElementById("accountLinksTabButton"),panel:document.getElementById("accountLinksTab")},
+ accountConnections:{button:document.getElementById("accountConnectionsTabButton"),panel:document.getElementById("accountConnectionsTab")},
+ packetDiagnostics:{button:document.getElementById("packetDiagnosticsTabButton"),panel:document.getElementById("packetDiagnosticsTab")},
  accountStatus:{button:document.getElementById("accountStatusTabButton"),panel:document.getElementById("accountStatusTab")}
 };
 function showTab(which){
@@ -354,6 +414,14 @@ function showTab(which){
  }
 }
 for(const [key,item] of Object.entries(pageTabs))item.button.addEventListener("click",()=>showTab(key));
+document.getElementById("buildWiresharkFilter").addEventListener("click",()=>{
+ const raw=document.getElementById("wiresharkPort").value.trim();
+ const port=Number(raw);
+ const protocol=document.getElementById("wiresharkProtocol").value;
+ const out=document.getElementById("wiresharkFilterOutput");
+ if(!/^[0-9]{1,5}$/.test(raw)||!Number.isInteger(port)||port<1||port>65535){out.value="Enter a valid port from 1 to 65535.";return;}
+ out.value=protocol==="both"?"tcp.port == "+port+" || udp.port == "+port:protocol+".port == "+port;
+});
 // Local-only, redacted pattern scan. Never render or retain matched secret values.
 function inspectText(s){const patterns=[
 {name:"JWT-shaped string",re:/\beyJ[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\b/g},
