@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 3.6.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 3.7.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Download the Windows executable
 
@@ -34,8 +34,14 @@ The GitHub Actions workflow also builds a Windows executable whenever the deskto
 - Platform-specific recovery/restriction appeal notes and official support links for Epic, Xbox, PlayStation, Steam, and Nintendo.
 - Linked-service review fields for Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
 - Planning fields for Epic display-name/email changes; actual changes require official sign-in and verification.
-- Exports a local recovery evidence packet: PDF report, JSON data, readable text details, and support-request draft. This exports only information the user enters; it is not an account dump and cannot extract platform databases, credentials, cookies, tokens, or scripts.
+- Exports a local recovery evidence packet: PDF report, JSON data, readable text details, support-request draft, and a copy of `recovery_assistant.cpp` when the source file is beside the program. If it is unavailable, the packet includes `SOURCE_NOT_COPIED.txt`. This exports only information the user enters; it cannot extract platform databases, credentials, cookies, tokens, or account data.
 - Opens official recovery, support, account settings, linked-account and 2FA help pages.
+
+## Version 3.7 additions
+
+- Adds structured case/reference ID, restriction type, date/duration, appeal status, and factual-notes fields for Xbox, PlayStation, Steam, and Nintendo.
+- Adds Steam Community Ban information and Xbox enforcement case-review shortcuts.
+- Copies the C++ source file into the exported packet when it is present beside the executable; otherwise creates a clear notice.
 
 ## Version 3.6 additions
 
