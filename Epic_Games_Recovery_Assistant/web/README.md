@@ -168,4 +168,28 @@ The browser interface groups the existing features into selectable tabs so users
  
 ## Official account links page
 
-The browser interface includes a separate **Account Links** page with shortcuts to official websites for Epic Games/Fortnite, Roblox, GTA/Rockstar Games, Minecraft, Xbox, Steam, PlayStation, Nintendo, TeamSpeak, GitHub, Facebook, Instagram, Twitch, YouTube, TikTok, X, Snapchat, Microsoft, Google, Gmail, and Yahoo. These are external website shortcuts only; they do not connect accounts, read private profile data, sign in, validate credentials, or change linked-account settings. Users must sign in and manage connections directly through each service's official website. The links open in a new tab with `noopener noreferrer`.
+The browser interface includes a separate **Account Links** page with shortcuts to official websites for Epic Games/Fortnite, Roblox, GTA/Rockstar Games, Minecraft, Xbox, Steam, PlayStation, Nintendo, TeamSpeak, GitHub, Facebook, Instagram, Twitch, YouTube, TikTok, X, Snapchat, Microsoft, Google, Gmail, and Yahoo. These are external website shortcuts only; they do not connect accounts, read private profile data, sign in, validate credentials, or change linked-account settings. Users must sign in and manage connections directly through each service's official website. The links open in a new tab with `noopener noreferrer`. The page also includes Discord, Disney+, GeForce NOW, LEGO, Cash App, PayPal, Apple ID/Apple Pay, Google Pay, and Bitcoin wallet-selection information.
+
+
+## Network Security & Wireshark suite
+
+The Pro Multi-Tool includes a separate Network Security & Wireshark sub-tab.
+
+- **Windows connection snapshots:** download and run `network_security_snapshot.ps1` on a Windows computer you own or are authorized to administer. A normal run writes a JSON snapshot; `-Watch` writes periodic JSONL snapshots. It records interface IP configuration, TCP endpoints/states, UDP endpoints, and adapter byte/packet counters. It does not capture packet payloads or collect passwords, cookies, tokens, or message contents.
+- **Wireshark capture analysis:** import authorized `.pcap` or `.pcapng` files (50 MB per file, 250,000 packets parsed per file). The in-browser parser reports packet/protocol counts, endpoint pairs, DNS query names, and TLS ClientHello/SNI metadata where supported. It does not display packet payloads or attempt to decrypt TLS.
+- **Credential-exposure indicator:** optionally inspect an authorized Wireshark text export or log. The detector counts password/token/cookie/session/API-secret-like patterns and discards matched values; it does not test or validate credentials.
+- **Reports:** export the summary to TXT or use browser print/save-as-PDF. DNS names and endpoint metadata can still be sensitive; keep reports private.
+
+The browser cannot directly capture live packets or inspect Windows network interfaces. Use Wireshark for user-initiated packet capture and the PowerShell helper for local metadata snapshots. The helper requires Windows PowerShell with the NetTCPIP/NetAdapter cmdlets; some endpoint details may be unavailable without elevated permissions. The PCAP parser currently supports Ethernet, Linux cooked v1, and raw-IP classic PCAP/PCAPNG captures; unsupported link types or malformed captures may be skipped. This is defensive metadata analysis, not credential interception, traffic decryption, identity attribution, or proof of compromise. Capture only traffic you own or have explicit authorization to inspect.
+
+
+## Account Status & Details workspace
+
+The separate **Account Status & Details** top-level page provides an individual service tab for Epic Games/Fortnite, Roblox, Rockstar/GTA, Minecraft, Xbox, Steam, PlayStation, Nintendo, TeamSpeak, GitHub, Facebook, Instagram, Twitch, YouTube, TikTok, X, Snapchat, Microsoft, Google, Gmail, Yahoo, Discord, Disney+, GeForce NOW, LEGO, Cash App, PayPal, Apple ID/Apple Pay, Google Pay, and Bitcoin wallet information.
+
+- Each service tab links to that provider's official site and provides fields for username/display name, email, public account/profile ID, optional user-supplied IP address, user-reported status, last-checked date, and non-secret notes.
+- The page always labels provider connection as **NOT CONNECTED — official provider authorization is not configured**. Opening an official site is not an OAuth connection and does not retrieve private account data.
+- Values are user-entered and explicitly marked unverified. The TXT export is a copy of those notes, not a provider-issued status report or proof of ownership.
+- Drafts remain in JavaScript memory in the current browser tab only; they are not uploaded or persisted after refresh/close.
+- Real account data access would require a separate provider-approved OAuth/API integration for each service, secure server-side callback/session handling, app registration and credentials, documented scopes, user consent, and provider policy review. This UI does not implement those integrations.
+- Do not enter passwords, 2FA/one-time codes, recovery codes, cookies, session/API tokens, full payment details, wallet seed phrases, or private keys. Bitcoin is a network/asset, not a single account provider; the Bitcoin entry links to wallet-selection information only.

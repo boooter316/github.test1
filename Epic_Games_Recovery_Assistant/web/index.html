@@ -24,6 +24,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 .account-link{display:flex;flex-direction:column;gap:4px;padding:13px;border:1px solid #dce2ea;border-radius:10px;background:#f8fafc;color:#175cd3;text-decoration:none;min-width:0}
 .account-link:hover,.account-link:focus{border-color:#175cd3;background:#eef4ff;outline-offset:2px}
 .account-link span{font-size:.88rem;color:#526174}
+#accountServiceTabs{max-height:190px;overflow:auto}#accountServiceTabs button{flex:0 1 auto;font-size:.88rem;padding:9px 12px}#accountProviderPanels .panel{margin-top:12px}#accountProviderPanel0 .account-link{max-width:360px;margin-bottom:12px}
 </style></head><body><main class="wrap">
 <header><h1>Account Recovery Request Assistant</h1><p>Prepare a factual support request for Epic Games or another platform. This is an independent organizer, not an official support tool.</p>
 <div class="notice"><strong>Privacy:</strong> Your entries stay in this browser tab. This site does not send them to or save them on the hosting server. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, or API keys.</div></header>
@@ -32,6 +33,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <button type="button" class="tab secondary" id="securityTabButton" aria-selected="false">Discord Security Scanner</button>
 <button type="button" class="tab secondary" id="fortniteTabButton" aria-selected="false">Pro Multi-Platform Scanner</button>
 <button type="button" class="tab secondary" id="accountLinksTabButton" aria-selected="false">Account Links</button>
+<button type="button" class="tab secondary" id="accountStatusTabButton" aria-selected="false">Account Status &amp; Details</button>
 </nav>
 <div id="recoveryTab">
 <form id="packet">
@@ -190,8 +192,39 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <p class="hint">A match is only a troubleshooting clue, not proof of an account restriction, ban, or compromise. For errors, verify game files in the Epic Games Launcher, install official updates, and use the official Easy Anti-Cheat repair option if applicable.</p>
 </section>
 <h3>Recommended next steps</h3><ol><li>If a credential-like pattern is found, do not post the file publicly.</li><li>Secure your Epic account through Epic's official account-security page, change a potentially exposed password, and enable two-factor authentication.</li><li>Sign out of sessions using the official account controls where available, and rotate any exposed API key or webhook through its provider.</li><li>Download Fortnite only through official Epic channels and avoid third-party “token checker” tools.</li></ol>
+
+<section class="panel" id="networkSecuritySuite">
+<h3>Network Security &amp; Wireshark</h3>
+<p>Review network metadata from your own Windows device and analyze Wireshark captures you are authorized to inspect.</p>
+<div class="risk"><strong>Safe-use boundary:</strong> The Windows helper reports interface addresses, connection endpoints, ports, states, and byte/packet counters only. The PCAP analyzer reports packet metadata, protocol counts, DNS names, and TLS handshake counts; it does not display packet payloads, passwords, cookies, tokens, or login sessions. Capture only networks and devices you own or are authorized to assess.</div>
+<div class="grid">
+<div><h4>Windows connection snapshot</h4><p class="hint">Download and run the helper on Windows 11. It creates a JSON or JSONL snapshot file for import here.</p><p><a href="./network_security_snapshot.ps1" download>Download Windows network snapshot helper (.ps1)</a></p><label for="networkSnapshotFiles">Import helper output (.json / .jsonl)</label><input id="networkSnapshotFiles" type="file" accept=".json,.jsonl" multiple></div>
+<div><h4>Wireshark capture analyzer</h4><p class="hint">Import an authorized Ethernet PCAP or PCAPNG capture. Maximum file size: 50 MB; maximum packets parsed: 250,000.</p><label for="networkCaptureFiles">Choose capture (.pcap / .pcapng)</label><input id="networkCaptureFiles" type="file" accept=".pcap,.pcapng,.cap" multiple></div>
+</div>
+<div class="actions no-print"><button type="button" id="analyzeNetworkSnapshot">Analyze connection snapshot</button><button type="button" id="analyzeNetworkCapture">Analyze Wireshark capture</button></div>
+<hr>
+<h4>Redacted credential-exposure indicator</h4>
+<p class="hint">Optionally inspect a Wireshark text export or log you are authorized to review. The detector reports category counts only; it never displays matched values. It does not inspect packet payloads in PCAP files.</p>
+<label for="networkLeakFiles">Choose text exports/logs (optional)</label><input id="networkLeakFiles" type="file" accept=".txt,.log,.json,.csv,.md,.conf,.ini" multiple>
+<label for="networkLeakText">Or paste text (remove unrelated personal data first)</label><textarea id="networkLeakText" placeholder="Paste an authorized Wireshark text export or log. Suspected secret values will be counted and discarded."></textarea>
+<div class="actions no-print"><button type="button" class="secondary" id="scanNetworkLeak">Check for exposed-secret patterns</button><button type="button" class="secondary" id="clearNetworkSecurity">Clear inputs and results</button><button type="button" class="secondary" id="downloadNetworkReport" disabled>Download TXT report</button><button type="button" class="secondary" id="printNetworkReport" disabled>Print / Save report as PDF</button></div>
+<h4>Network security report</h4><div id="networkSecurityResult" class="scanner-result" role="status" aria-live="polite">No network analysis has been run.</div>
+<p class="hint">Browser pages cannot capture live network packets or read Windows network interfaces directly. Use the helper for local connection snapshots and Wireshark for authorized packet capture. Some endpoints may be omitted by Windows permissions or application behavior. DNS names and IP addresses can reveal sensitive browsing or network activity; keep reports private.</p>
 </section>
-<p class="foot">Keep exported files private. The browser form processes entries in your tab and does not submit them to this site.</p><section class="panel hidden" id="accountLinksTab">
+</section>
+<p class="foot">Keep exported files private. The browser form processes entries in your tab and does not submit them to this site.</p><section class="panel hidden" id="accountStatusTab">
+<h2>Account Status &amp; Details</h2>
+<p class="hint">Choose a service tab, open its official site to sign in there, then optionally record non-secret account details below. This page does not authenticate or connect accounts, fetch private provider data, check whether an account is active, or verify an IP address.</p>
+<div class="notice"><strong>Connection status:</strong> All providers currently show “Not connected — official authorization is not configured.” The “Open official site” links take you to the provider; they do not connect this page. Real account data access requires a separate approved OAuth/API integration for each provider, secure server-side configuration, and your consent.</div>
+<div class="tool-subnav no-print" id="accountServiceTabs" role="tablist" aria-label="Account services"></div>
+<div id="accountServicePanels"></div>
+<div class="actions no-print" style="margin-top:12px">
+<button type="button" class="secondary" id="exportAccountDetails">Export selected service details (TXT)</button>
+<button type="button" class="secondary" id="clearAccountDetails">Clear selected service fields</button>
+</div>
+<p class="hint">Details entered here remain in this browser tab's memory only and are not sent to a server or stored after the page is closed or refreshed. Account status and IP are user-supplied notes, not verified facts. Do not enter passwords, one-time codes, recovery codes, cookies, tokens, payment-card numbers, bank details, wallet seed phrases, or private keys.</p>
+</section>
+<section class="panel hidden" id="accountLinksTab">
 <h2>Official Account &amp; Platform Links</h2>
 <p class="hint">Open the official website for each service. These are shortcuts only: they do not connect accounts, retrieve private profile data, verify a login, or share passwords between services. Sign in directly on the service's own website and review its security settings there.</p>
 <div class="notice"><strong>Safety:</strong> Check the domain before entering credentials. Never give your password, 2FA code, recovery code, or session token to this assistant or an unfamiliar third-party page. Use official account settings to manage linked accounts.</div>
@@ -224,6 +257,18 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <a class="account-link" href="https://accounts.google.com/" target="_blank" rel="noopener noreferrer"><strong>Google account</strong><span>Google sign-in and security</span></a>
 <a class="account-link" href="https://mail.google.com/" target="_blank" rel="noopener noreferrer"><strong>Gmail</strong><span>Gmail inbox</span></a>
 <a class="account-link" href="https://login.yahoo.com/" target="_blank" rel="noopener noreferrer"><strong>Yahoo</strong><span>Yahoo sign-in and mail</span></a>
+</div>
+<h3>Additional services &amp; payments</h3>
+<div class="account-link-grid">
+<a class="account-link" href="https://discord.com/login" target="_blank" rel="noopener noreferrer"><strong>Discord</strong><span>Discord sign-in</span></a>
+<a class="account-link" href="https://www.disneyplus.com/login" target="_blank" rel="noopener noreferrer"><strong>Disney+</strong><span>Disney+ sign-in</span></a>
+<a class="account-link" href="https://www.nvidia.com/en-us/geforce-now/" target="_blank" rel="noopener noreferrer"><strong>GeForce NOW</strong><span>NVIDIA gaming service</span></a>
+<a class="account-link" href="https://www.lego.com/account/login" target="_blank" rel="noopener noreferrer"><strong>LEGO</strong><span>LEGO account sign-in</span></a>
+<a class="account-link" href="https://cash.app/" target="_blank" rel="noopener noreferrer"><strong>Cash App</strong><span>Cash App official site</span></a>
+<a class="account-link" href="https://www.paypal.com/signin" target="_blank" rel="noopener noreferrer"><strong>PayPal</strong><span>PayPal sign-in</span></a>
+<a class="account-link" href="https://account.apple.com/" target="_blank" rel="noopener noreferrer"><strong>Apple ID / Apple Pay</strong><span>Apple account and Wallet settings</span></a>
+<a class="account-link" href="https://pay.google.com/" target="_blank" rel="noopener noreferrer"><strong>Google Pay</strong><span>Google payments</span></a>
+<a class="account-link" href="https://bitcoin.org/en/choose-your-wallet" target="_blank" rel="noopener noreferrer"><strong>Bitcoin wallet information</strong><span>Wallet selection guidance; never share seed phrases or private keys</span></a>
 </div>
 <p class="hint">If a game or social service supports linked accounts, use its official “Connections,” “Linked accounts,” or “Security” settings. This page does not perform the linking for you.</p>
 </section>
@@ -297,7 +342,8 @@ const pageTabs={
  recovery:{button:document.getElementById("recoveryTabButton"),panel:document.getElementById("recoveryTab")},
  security:{button:document.getElementById("securityTabButton"),panel:document.getElementById("securityTab")},
  fortnite:{button:document.getElementById("fortniteTabButton"),panel:document.getElementById("fortniteTab")},
- accountLinks:{button:document.getElementById("accountLinksTabButton"),panel:document.getElementById("accountLinksTab")}
+ accountLinks:{button:document.getElementById("accountLinksTabButton"),panel:document.getElementById("accountLinksTab")},
+ accountStatus:{button:document.getElementById("accountStatusTabButton"),panel:document.getElementById("accountStatusTab")}
 };
 function showTab(which){
  for(const [key,item] of Object.entries(pageTabs)){
@@ -719,10 +765,141 @@ createToolSubtabs("fortniteTab","proTools",[
   {label:"VPN & Proxy",members:["networkPrivacyPanel"]},
   {label:"IP Evidence Checker",members:["ipAccountConsistency"]},
   {label:"Ownership Packet",members:["ownershipEvidencePacket"]},
-  {label:"Fortnite Diagnostics",members:["fortniteDiagnostics"]}
+  {label:"Fortnite Diagnostics",members:["fortniteDiagnostics"]},
+  {label:"Network Security & Wireshark",members:["networkSecuritySuite"]}
 ]);
 document.getElementById("recoveryTabButton").textContent="Recovery Assistant";
 document.getElementById("securityTabButton").textContent="Discord Scanner";
 document.getElementById("fortniteTabButton").textContent="Pro Multi-Tool";
 document.getElementById("accountLinksTabButton").textContent="Account Links";
-</script></body></html>
+
+document.getElementById("accountStatusTabButton").textContent="Account Status & Details";
+
+// Per-provider account detail workspace. No credentials, tokens, or provider APIs are used.
+const accountProviders=[
+ ["Epic Games / Fortnite","https://www.epicgames.com/id/login"],
+ ["Roblox","https://www.roblox.com/login"],
+ ["GTA / Rockstar Games","https://www.rockstargames.com/"],
+ ["Minecraft","https://www.minecraft.net/"],
+ ["Xbox","https://www.xbox.com/"],
+ ["Steam","https://store.steampowered.com/login/"],
+ ["PlayStation","https://www.playstation.com/"],
+ ["Nintendo","https://www.nintendo.com/"],
+ ["TeamSpeak","https://www.teamspeak.com/"],
+ ["GitHub","https://github.com/login"],
+ ["Facebook","https://www.facebook.com/"],
+ ["Instagram","https://www.instagram.com/"],
+ ["Twitch","https://www.twitch.tv/"],
+ ["YouTube","https://www.youtube.com/"],
+ ["TikTok","https://www.tiktok.com/"],
+ ["X (Twitter)","https://x.com/"],
+ ["Snapchat","https://www.snapchat.com/"],
+ ["Microsoft account","https://account.microsoft.com/"],
+ ["Google account","https://accounts.google.com/"],
+ ["Gmail","https://mail.google.com/"],
+ ["Yahoo","https://login.yahoo.com/"],
+ ["Discord","https://discord.com/login"],
+ ["Disney+","https://www.disneyplus.com/login"],
+ ["GeForce NOW","https://www.nvidia.com/en-us/geforce-now/"],
+ ["LEGO","https://www.lego.com/account/login"],
+ ["Cash App","https://cash.app/"],
+ ["PayPal","https://www.paypal.com/signin"],
+ ["Apple ID / Apple Pay","https://account.apple.com/"],
+ ["Google Pay","https://pay.google.com/"],
+ ["Bitcoin wallet information","https://bitcoin.org/en/choose-your-wallet"]
+];
+const accountDetailDrafts={};
+let activeAccountProvider=0;
+let activeAccountDetailText="";
+function renderAccountProviderTabs(){
+ const nav=document.getElementById("accountServiceTabs"),panels=document.getElementById("accountServicePanels");
+ accountProviders.forEach((provider,index)=>{
+  const button=document.createElement("button");
+  button.type="button";button.className="tool-subtab"+(index===0?"":" secondary");
+  button.id="accountProviderTab"+index;button.setAttribute("role","tab");
+  button.setAttribute("aria-selected",String(index===0));button.textContent=provider[0];
+  button.addEventListener("click",()=>selectAccountProvider(index));
+  nav.appendChild(button);
+  const panel=document.createElement("section");
+  panel.className="panel tool-subpanel"+(index===0?"":" hidden");
+  panel.id="accountProviderPanel"+index;panel.setAttribute("role","tabpanel");
+  const link=document.createElement("a");
+  link.className="account-link";link.href=provider[1];link.target="_blank";link.rel="noopener noreferrer";
+  const strong=document.createElement("strong");strong.textContent="Open official "+provider[0]+" site";
+  const span=document.createElement("span");span.textContent="Opens the provider in a new tab; it does not connect this app.";
+  link.append(strong,span);
+  const status=document.createElement("p");status.className="notice";
+  status.textContent="Connection: NOT CONNECTED — official provider authorization is not configured.";
+  const fields=document.createElement("div");fields.className="grid";
+  const defs=[["username","Username / display name","text"],["email","Account email (optional)","email"],["accountId","Account ID / public profile ID (optional)","text"],["ip","Associated IP address (optional; user-supplied)","text"],["status","Account status (user-supplied)","select"],["checked","Last checked date (your note)","date"]];
+  defs.forEach(([key,label,type])=>{
+   const wrap=document.createElement("div"),lab=document.createElement("label");
+   const id="account_"+index+"_"+key;lab.htmlFor=id;lab.textContent=label;
+   let input;
+   if(type==="select"){
+    input=document.createElement("select");
+    ["Unknown / not checked","Active (user-reported)","Suspended (user-reported)","Pending (user-reported)","Closed (user-reported)"].forEach(v=>{const o=document.createElement("option");o.textContent=v;input.appendChild(o)});
+   }else{input=document.createElement("input");input.type=type;}
+   input.id=id;input.autocomplete="off";wrap.append(lab,input);fields.appendChild(wrap);
+  });
+  const noteWrap=document.createElement("div"),noteLabel=document.createElement("label"),note=document.createElement("textarea");
+  noteLabel.htmlFor="account_"+index+"_note";noteLabel.textContent="Non-secret notes (optional)";
+  note.id="account_"+index+"_note";noteWrap.append(noteLabel,note);fields.appendChild(noteWrap);
+  const save=document.createElement("button");save.type="button";save.textContent="Record details in this tab";
+  const result=document.createElement("div");result.className="scanner-result";result.setAttribute("role","status");result.setAttribute("aria-live","polite");
+  result.textContent="No details recorded for this service in this tab.";
+  save.addEventListener("click",()=>{
+   const values={};defs.forEach(([key])=>values[key]=document.getElementById("account_"+index+"_"+key).value.trim());
+   values.note=document.getElementById("account_"+index+"_note").value.trim();
+   accountDetailDrafts[index]=values;
+   result.textContent="Details recorded in this tab only. Provider connection: NOT CONNECTED. All profile/status/IP values are user-supplied and have not been verified.";
+   activeAccountDetailText=makeAccountDetailReport(index,values);
+  });
+  panel.append(link,status,fields,save,result);panels.appendChild(panel);
+ });
+}
+function selectAccountProvider(index){
+ activeAccountProvider=index;
+ accountProviders.forEach((p,i)=>{
+  const active=i===index;
+  document.getElementById("accountProviderTab"+i).setAttribute("aria-selected",String(active));
+  document.getElementById("accountProviderTab"+i).classList.toggle("secondary",!active);
+  document.getElementById("accountProviderPanel"+i).classList.toggle("hidden",!active);
+ });
+ const values=accountDetailDrafts[index];
+ activeAccountDetailText=values?makeAccountDetailReport(index,values):"No details recorded for "+accountProviders[index][0]+".";
+}
+function makeAccountDetailReport(index,v){
+ return ["ACCOUNT STATUS & DETAILS — USER-SUPPLIED RECORD",
+ "Service: "+accountProviders[index][0],
+ "Generated: "+new Date().toISOString(),
+ "Username/display name: "+(v.username||"Not supplied"),
+ "Email: "+(v.email||"Not supplied"),
+ "Account/public profile ID: "+(v.accountId||"Not supplied"),
+ "Associated IP address: "+(v.ip||"Not supplied"),
+ "Account status: "+(v.status||"Unknown / not checked"),
+ "Last checked (user note): "+(v.checked||"Not supplied"),
+ "Connection status: NOT CONNECTED — official provider authorization is not configured.",
+ "Notes: "+(v.note||"None"),
+ "VERIFICATION: NONE. Values above were entered by the user and were not checked against provider records.",
+ "This page did not sign in, access private account data, query an IP, or send data to the provider. Never include passwords, codes, tokens, cookies, payment credentials, wallet seed phrases, or private keys."
+ ].join("\n");
+}
+renderAccountProviderTabs();
+selectAccountProvider(0);
+document.getElementById("exportAccountDetails").addEventListener("click",()=>{
+ const v=accountDetailDrafts[activeAccountProvider];
+ const report=v?makeAccountDetailReport(activeAccountProvider,v):"No details recorded for "+accountProviders[activeAccountProvider][0]+".";
+ const blob=new Blob([report],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="account-status-"+accountProviders[activeAccountProvider][0].toLowerCase().replace(/[^a-z0-9]+/g,"-")+".txt";
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+document.getElementById("clearAccountDetails").addEventListener("click",()=>{
+ const index=activeAccountProvider;
+ ["username","email","accountId","ip","status","checked","note"].forEach(key=>{const el=document.getElementById("account_"+index+"_"+key);if(el)el.value=key==="status"?"Unknown / not checked":"";});
+ delete accountDetailDrafts[index];activeAccountDetailText="";
+ const result=document.querySelector("#accountProviderPanel"+index+" .scanner-result");
+ if(result)result.textContent="Cleared. No details recorded for this service in this tab.";
+});
+
+</script><script src="./network_security.js"></script></body></html>
