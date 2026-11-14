@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Account Recovery Assistant — Pro Local Security Scanner</title><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<title>Account Recovery Assistant — Pro Local Security Scanner</title><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
+</script>
 <style>
 :root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#18212f;background:#f3f5f8}body{margin:0}.wrap{max-width:900px;margin:auto;padding:22px}
 header,.panel{background:#fff;border:1px solid #dce2ea;border-radius:14px;padding:20px;margin:0 0 16px}h1{font-size:1.55rem;margin:0 0 8px}h2{font-size:1.12rem;margin:0 0 14px}
@@ -11,6 +12,14 @@ input,textarea,select{box-sizing:border-box;width:100%;padding:10px;border:1px s
 .actions{display:flex;gap:10px;flex-wrap:wrap}button{border:0;border-radius:9px;padding:11px 16px;background:#175cd3;color:white;font-weight:650;font-size:1rem}button.secondary{background:#e8edf4;color:#1c2b40}
 small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wrap{max-width:none;padding:0}header,.panel{border:0;break-inside:avoid;padding:8px;margin:0 0 8px}.actions,.no-print{display:none!important}input,textarea,select{border:0;padding:2px;appearance:none}.notice{background:#fff}}
 .tabs{display:flex;gap:8px;margin:0 0 16px}.tabs .tab{flex:1}.tabs .tab[aria-selected="false"]{background:#e8edf4;color:#1c2b40}.tabs .tab[aria-selected="true"]{background:#175cd3;color:#fff}.scanner-result{white-space:pre-wrap;background:#f5f7fa;border:1px solid #dce2ea;border-radius:8px;padding:12px;min-height:80px}.risk{border-left:4px solid #b7791f;background:#fff8e8;padding:10px 14px}.hidden{display:none!important}
+
+.tool-subnav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px;padding-bottom:10px;border-bottom:1px solid #dce2ea}
+.tool-subnav button{flex:1 1 150px;min-width:0}
+.tool-subnav button[aria-selected="false"]{background:#e8edf4;color:#1c2b40}
+.tool-subnav button[aria-selected="true"]{background:#175cd3;color:#fff}
+.tool-subpanel{min-width:0}
+.tool-subpanel.hidden{display:none!important}
+@media(max-width:560px){.tool-subnav{display:grid;grid-template-columns:1fr 1fr}.tool-subnav button{font-size:.9rem;padding:10px 8px}}
 </style></head><body><main class="wrap">
 <header><h1>Account Recovery Request Assistant</h1><p>Prepare a factual support request for Epic Games or another platform. This is an independent organizer, not an official support tool.</p>
 <div class="notice"><strong>Privacy:</strong> Your entries stay in this browser tab. This site does not send them to or save them on the hosting server. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, or API keys.</div></header>
@@ -135,7 +144,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <section class="panel" id="ownershipEvidencePacket">
 <h3>Pro Account Ownership Evidence Packet</h3>
 <div class="notice"><strong>Verification status: Awaiting official platform review.</strong> This tool cannot certify an owner, authenticate documents, or transfer/lock an account. Only the platform can verify its internal records and decide who is entitled to the account. Never use this packet to claim another person's account.</div>
-<p>Build a structured checklist of original evidence you lawfully possess. Select only items you can genuinely provide to official support. Do not upload documents here or enter passwords, verification codes, full card numbers, or private authentication data.</p>
+<p>Build a structured checklist of original evidence you lawfully possess. A historical IP address and its original source/date are required to generate this packet. Use an address copied from an original platform-issued or device record; do not guess, spoof, or substitute a current VPN/proxy address. This requirement does not certify ownership. Do not upload documents here or enter passwords, verification codes, full card numbers, or private authentication data.</p>
 <div class="checks">
 <label class="check"><input type="checkbox" class="ownership-proof" value="Original platform-issued account creation or welcome email"> Original platform-issued account creation / welcome email</label>
 <label class="check"><input type="checkbox" class="ownership-proof" value="Original platform-issued purchase receipt or invoice"> Original platform-issued purchase receipt / invoice</label>
@@ -151,11 +160,13 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div><label for="ownershipCase">Official support case/reference (if one exists)</label><input id="ownershipCase" autocomplete="off"></div>
 <div><label for="ownershipEvidenceDate">Date of oldest original evidence (if known)</label><input id="ownershipEvidenceDate" type="date"></div>
 <div><label for="ownershipReference">Non-secret receipt/order reference (optional)</label><input id="ownershipReference" autocomplete="off" placeholder="Reference only; no payment details"></div>
+<div><label for="ownershipIp">Historical account IP address (required)</label><input id="ownershipIp" autocomplete="off" inputmode="text" required placeholder="Enter an IP shown in original account records"></div>
+<div><label for="ownershipIpSource">Original source and date for this IP (required)</label><input id="ownershipIpSource" required autocomplete="off" placeholder="For example, platform security email, dated YYYY-MM-DD"></div>
 </div>
 <p><label for="ownershipNotes">Evidence notes (source, date, and what it shows; no secrets)</label><textarea id="ownershipNotes" placeholder="Example: original purchase receipt issued by the platform on YYYY-MM-DD; reference ending 1234."></textarea></p>
 <div class="actions no-print"><button type="button" id="buildOwnershipPacket">Build ownership evidence report</button><button type="button" class="secondary" id="printOwnershipPacket" disabled>Print / Save as PDF</button><button type="button" class="secondary" id="downloadOwnershipPacket" disabled>Download .txt</button></div>
 <pre id="ownershipPacketResult" class="scanner-result" role="status" aria-live="polite">No ownership packet generated. Status remains unverified until the platform reviews original evidence.</pre>
-<p class="hint">A checklist selection is a user statement, not proof that a document is genuine. Do not submit altered, fabricated, or someone else's records. Provide original, unedited platform-issued evidence only through the platform's official secure support channel. This report does not establish legal ownership or prove that an account was never accessed by another person.</p>
+<p class="hint">The required IP and its source/date are user-entered claims. An IP can be shared, reassigned, dynamic, or associated with a VPN, proxy, school, workplace, carrier NAT, or household. It cannot identify a person by itself. A checklist selection is a user statement, not proof that a document is genuine. Do not submit altered, fabricated, or someone else's records. Provide original, unedited platform-issued evidence only through the platform's official secure support channel. This report does not establish legal ownership or prove that an account was never accessed by another person.</p>
 </section>
 
 <p><label for="fortniteFiles">Choose account logs, text/config files, or PDFs (PDF text only)</label><input id="fortniteFiles" type="file" accept=".txt,.log,.ini,.cfg,.json,.xml,.csv,.md,.conf,.yaml,.yml,.pdf" multiple></p>
@@ -547,7 +558,13 @@ function buildOwnershipPacket(){
  const caseRef=document.getElementById("ownershipCase").value.trim();
  const evidenceDate=document.getElementById("ownershipEvidenceDate").value;
  const reference=document.getElementById("ownershipReference").value.trim();
+ const ip=document.getElementById("ownershipIp").value.trim();
+ const ipSource=document.getElementById("ownershipIpSource").value.trim();
  const notes=document.getElementById("ownershipNotes").value.trim();
+ const isIPv4=value=>{const parts=value.split(".");return parts.length===4&&parts.every(part=>/^\\d{1,3}$/.test(part)&&Number(part)<=255)};
+ const isIPv6=value=>value.includes(":")&&/^[0-9a-f:]+$/i.test(value)&&value.length<=39&&value.split("::").length<=2;
+ if(!ip||!ipSource){alert("Enter a historical IP address and its original source/date before building this report.");return}
+ if(!isIPv4(ip)&&!isIPv6(ip)){alert("Enter a valid IPv4 or IPv6 address copied from an original record. Do not guess or use a current VPN/proxy address as historical evidence.");return}
  const selected=[...document.querySelectorAll(".ownership-proof:checked")].map(x=>x.value);
  const lines=[
   "PRO ACCOUNT OWNERSHIP EVIDENCE PACKET",
@@ -556,6 +573,11 @@ function buildOwnershipPacket(){
   "Official support case/reference: "+(caseRef||"Not supplied"),
   "Oldest evidence date supplied: "+(evidenceDate||"Not supplied"),
   "Non-secret order/receipt reference: "+(reference||"Not supplied"),
+  "Historical account IP address supplied: "+ip,
+  "Original IP evidence source/date supplied: "+ipSource,
+  "",
+  "IP EVIDENCE REVIEW: USER-SUPPLIED — NOT INDEPENDENTLY MATCHED OR VERIFIED.",
+  "The IP field is required to generate this packet, but this requirement does not approve ownership. The platform must independently compare the address and its timestamp/source with its own account and security records.",
   "",
   "EVIDENCE TYPES THE USER SAYS THEY CAN PROVIDE:",
   ...(selected.length?selected.map((x,i)=>(i+1)+". "+x):["No evidence types selected"]),
@@ -587,4 +609,70 @@ document.getElementById("printOwnershipPacket").addEventListener("click",()=>{
  w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Pro Account Ownership Evidence Packet</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Pro Account Ownership Evidence Packet</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\\/script></body></html>");
  w.document.close();
 });
+
+/* Organize existing tools into independent, keyboard-accessible sub-tabs.
+   Existing controls and event handlers remain attached to their original elements. */
+function createToolSubtabs(rootId,prefix,definitions){
+  const root=document.getElementById(rootId);
+  if(!root||root.dataset.subtabsReady==="true")return;
+  const heading=[...root.children].find(node=>/^H[1-3]$/.test(node.tagName));
+  const nav=document.createElement("nav");
+  nav.className="tool-subnav no-print";
+  nav.setAttribute("aria-label",prefix+" tools");
+  nav.setAttribute("role","tablist");
+  const content=document.createElement("div");
+  content.className="tool-subtab-content";
+  const panels=definitions.map((definition,index)=>{
+    const panel=document.createElement("section");
+    panel.className="tool-subpanel"+(index===0?"":" hidden");
+    panel.id=prefix+"Panel"+index;
+    panel.setAttribute("role","tabpanel");
+    panel.setAttribute("aria-label",definition.label);
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="tool-subtab"+(index===0?"":" secondary");
+    button.id=prefix+"Button"+index;
+    button.textContent=definition.label;
+    button.setAttribute("role","tab");
+    button.setAttribute("aria-controls",panel.id);
+    button.setAttribute("aria-selected",String(index===0));
+    button.addEventListener("click",()=>{
+      definitions.forEach((item,i)=>{
+        const active=i===index;
+        panels[i].classList.toggle("hidden",!active);
+        buttons[i].setAttribute("aria-selected",String(active));
+        buttons[i].classList.toggle("secondary",!active);
+      });
+    });
+    nav.appendChild(button);
+    content.appendChild(panel);
+    return panel;
+  });
+  const buttons=[...nav.querySelectorAll("button")];
+  const assignments=new Map();
+  definitions.forEach((definition,index)=>(definition.members||[]).forEach(id=>assignments.set(id,index)));
+  const original=[...root.children].filter(node=>node!==heading);
+  original.forEach(node=>{
+    const target=assignments.has(node.id)?assignments.get(node.id):0;
+    panels[target].appendChild(node);
+  });
+  if(heading)heading.insertAdjacentElement("afterend",nav);else root.prepend(nav);
+  nav.insertAdjacentElement("afterend",content);
+  root.dataset.subtabsReady="true";
+}
+createToolSubtabs("recoveryTab","recoveryTools",[
+  {label:"Recovery Form",members:["packet"]},
+  {label:"Ticket Manager",members:["ticketManager"]},
+  {label:"Setup & Help",members:["setup-guide"]}
+]);
+createToolSubtabs("fortniteTab","proTools",[
+  {label:"Multi-Platform Scanner",members:[]},
+  {label:"VPN & Proxy",members:["networkPrivacyPanel"]},
+  {label:"IP Evidence Checker",members:["ipAccountConsistency"]},
+  {label:"Ownership Packet",members:["ownershipEvidencePacket"]},
+  {label:"Fortnite Diagnostics",members:["fortniteDiagnostics"]}
+]);
+document.getElementById("recoveryTabButton").textContent="Recovery Assistant";
+document.getElementById("securityTabButton").textContent="Discord Scanner";
+document.getElementById("fortniteTabButton").textContent="Pro Multi-Tool";
 </script></body></html>
