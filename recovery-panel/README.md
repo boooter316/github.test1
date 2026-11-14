@@ -15,7 +15,7 @@ A separate, self-hosted dashboard. It is an independent organizer and is not aff
 - JSON and readable TXT exports downloadable on a phone or computer.
 - Optional generic Discord notifications for panel sign-in, sign-out, and general dashboard errors. No account data or error contents are sent.
 
-Recovery records are stored in browser local storage on the device and are not uploaded to the server or Discord. The PDF scanner also processes selected files in the browser; it does not upload evidence. Image-only PDFs are not OCR-scanned, and encrypted or unreadable files may be skipped. PDF.js is loaded from its CDN, so the browser needs internet access to load the scanner engine. Export backups before clearing browser data or changing devices.
+Recovery records are stored in browser local storage on the device and are not uploaded to the server or Discord. The PDF scanner also processes selected files in the browser; it does not upload evidence. Image-only PDFs are not OCR-scanned, and encrypted or unreadable files may be skipped. Mozilla PDF.js 6.5.438 is loaded as an ES module from jsDelivr with its matching module worker, so the browser needs internet access to load the scanner engine. Export backups before clearing browser data or changing devices.
 
 ## Requirements and setup
 
