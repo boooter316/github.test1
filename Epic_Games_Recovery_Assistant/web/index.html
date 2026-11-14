@@ -83,12 +83,12 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <h2>Fortnite Security Scanner</h2>
 <div class="notice" role="note" aria-label="Legal and authorized-use notice"><strong>Legal and authorized-use notice:</strong> Use this scanner only on files and accounts you own or are expressly authorized to assess, and comply with applicable laws, platform terms, and workplace policies. The scanner performs local pattern matching; it does not establish ownership, validate credentials, or determine whether an account is compromised. Do not use findings to access another person's account, impersonate anyone, bypass security controls, or disclose private information. You are responsible for reviewing files before sharing reports and for promptly revoking or rotating exposed credentials. This independent tool is provided “as is,” without warranty; it is not legal advice and does not guarantee account recovery or security.</div>
 <p>Review Fortnite or Epic text logs and configuration files that you choose on this device. The scan runs locally in this browser tab.</p>
-<div class="risk"><strong>Security boundary:</strong> This tool does not access Fortnite or Epic accounts, browser storage, game memory, saved passwords, cookies, or session stores. It cannot validate logins or retrieve tokens. It shows a numbered findings list with file names, line numbers, match categories, and redacted previews. Email addresses, account IDs, and display names are shown in full in this local browser result. Passwords, tokens, cookies, and session secrets are always redacted.</div>
+<div class="risk"><strong>Security boundary:</strong> This tool does not access Fortnite or Epic accounts, browser storage, game memory, saved passwords, cookies, or session stores. It cannot validate logins or retrieve tokens. It shows every detected match in a numbered findings list with source filename, line number, category, confidence label, and a safely masked preview. Email addresses, account IDs, and display names are shown in full in this local browser result. Passwords, tokens, cookies, and session secrets are always redacted.</div>
 <p><label for="fortniteFiles">Choose Fortnite/Epic text logs or configuration files</label><input id="fortniteFiles" type="file" accept=".txt,.log,.ini,.cfg,.json,.xml,.csv,.md,.conf" multiple></p>
 <p><label for="fortniteText">Or paste text to inspect (optional)</label><textarea id="fortniteText" placeholder="Paste a Fortnite log/config excerpt. Do not paste passwords, active tokens, or 2FA codes."></textarea></p>
 <div class="actions no-print"><button type="button" id="runFortniteScan">Scan Fortnite files</button><button type="button" class="secondary" id="clearFortniteScan">Clear</button><button type="button" class="secondary" id="downloadFortniteReport" disabled>Download findings .txt</button><button type="button" class="secondary" id="printFortniteReport" disabled>Print / Save report as PDF</button></div>
 <h3>Scan result</h3><div id="fortniteResult" class="scanner-result" role="status" aria-live="polite">No scan has been run.</div>
-<p class="hint">Checks for token/JWT-shaped strings, credential-labelled fields, account identifiers, and Fortnite/Epic authentication references. Findings are numbered and show the source file and line. Passwords and tokens are redacted; non-secret account details (emails, account IDs, and display names) are shown in full. A match is not proof of compromise.</p>
+<p class="hint">Checks every match for token/JWT-shaped strings, credential-labelled fields, account identifiers, Fortnite/Epic authentication references, and common SQL, XSS/HTML, command, path-traversal, template, and LDAP injection indicators. Each match is numbered with its source and line. Injection matches are heuristic only. Findings are numbered and show the source file and line. Passwords and tokens are redacted; non-secret account details (emails, account IDs, and display names) are shown in full. A match is not proof of compromise.</p>
 <h3>Recommended next steps</h3><ol><li>If a credential-like pattern is found, do not post the file publicly.</li><li>Secure your Epic account through Epic's official account-security page, change a potentially exposed password, and enable two-factor authentication.</li><li>Sign out of sessions using the official account controls where available, and rotate any exposed API key or webhook through its provider.</li><li>Download Fortnite only through official Epic channels and avoid third-party “token checker” tools.</li></ol>
 </section>
 <p class="foot">Keep exported files private. The browser form processes entries in your tab and does not submit them to this site.</p></main>
@@ -125,30 +125,29 @@ function inspectFortniteText(s,sourceName){
     {name:"Email/account contact",re:/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,account:true,confidence:"High"},
     {name:"Account ID field",re:/["']?((?:(?:epic|fortnite)[_ -]?)?account[_ -]?id|user[_ -]?id|account[_ -]?identifier)["']?\s*[:=]\s*["']?([A-Za-z0-9_-]{5,})/gi,account:true,confidence:"Medium"},
     {name:"Display name field",re:/["']?(?:(epic[_ -]?)?(display[_ -]?name|username|account[_ -]?name|gamertag))["']?\s*[:=]\s*["']?([^,\r\n;}"']{2,50})/gi,account:true,confidence:"Medium"},
+    {name:"SQL injection indicator",re:/\b(?:union\s+(?:all\s+)?select|select\s+.+\s+from\s+|insert\s+into\s+|update\s+\w+\s+set\s+|delete\s+from\s+|drop\s+(?:table|database)\s+|or\s+['"]?1['"]?\s*=\s*['"]?1|information_schema|sleep\s*\(|benchmark\s*\()/gi,security:true,confidence:"Heuristic"},
+    {name:"Cross-site scripting (XSS) indicator",re:/(?:<\s*script\b|javascript\s*:|on(?:error|load|click|mouseover)\s*=|document\.cookie|window\.location\s*=)/gi,security:true,confidence:"Heuristic"},
+    {name:"HTML/script injection indicator",re:/(?:<\s*\/?\s*(?:iframe|object|embed|svg|img|script)\b[^>]*>|data\s*:\s*text\/html)/gi,security:true,confidence:"Heuristic"},
+    {name:"Command injection indicator",re:/(?:;\s*(?:sh|bash|cmd|powershell)\b|&&\s*(?:curl|wget|nc|bash|sh)\b|\|\s*(?:sh|bash)\b|\x60[^\x60]*(?:id|whoami|curl|wget|cat)\b[^\x60]*\x60|\$\([^)]*(?:id|whoami|curl|wget|cat)[^)]*\))/gi,security:true,confidence:"Heuristic"},
+    {name:"Path traversal indicator",re:/(?:\.\.[\\/]){2,}|%2e%2e(?:%2f|%5c)/gi,security:true,confidence:"Heuristic"},
+    {name:"Server-side template injection indicator",re:/(?:\{\{[^}]{1,100}\}\}|\$\{[^}]{1,100}\}|<%=?[^%]{1,100}%>)/g,security:true,confidence:"Heuristic"},
+    {name:"LDAP injection indicator",re:/(?:\(\s*[|&!]\s*\([^)]*=[^)]*\)\s*\)|\*\)\s*\([^)]*=\*)/g,security:true,confidence:"Heuristic"},
     {name:"Fortnite/Epic authentication reference",re:/FortniteGame|EpicOnlineServices|EOS[_-]?(?:Auth|Connect)|OAuth|Authorization/gi,reference:true,confidence:"Context"}
   ];
-  const findings=[];
-  const lines=s.split(/\r?\n/);
+  const findings=[],lines=s.split(/\r?\n/);
   for(let lineIndex=0;lineIndex<lines.length;lineIndex++){
     const line=lines[lineIndex];
     for(const rule of rules){
-      rule.re.lastIndex=0;
-      let match;
+      rule.re.lastIndex=0;let match;
       while((match=rule.re.exec(line))!==null){
         let preview;
         if(rule.secret){
-          const label=match[1]&&rule.name==="Credential-labelled secret"?match[1]+": ":"";
+          const label=rule.name==="Credential-labelled secret"&&match[1]?match[1]+": ":"";
           preview=label+"[REDACTED SECRET VALUE]";
-        }else if(rule.name==="Email/account contact"){
-          preview=match[0];
-        }else if(rule.name==="Account ID field"){
-          preview=match[1]+": "+match[2];
-        }else if(rule.name==="Display name field"){
-          const label=[match[1]||"",match[2]||""].join("");
-          preview=label+": "+String(match[3]||"").trim();
-        }else{
-          preview=match[0].slice(0,90);
-        }
+        }else if(rule.name==="Email/account contact")preview=match[0];
+        else if(rule.name==="Account ID field")preview=match[1]+": "+match[2];
+        else if(rule.name==="Display name field")preview=[match[1]||"",match[2]||""].join("")+": "+String(match[3]||"").trim();
+        else preview=match[0].replace(/\s+/g," ").slice(0,100);
         findings.push({source:sourceName,line:lineIndex+1,type:rule.name,confidence:rule.confidence,preview});
         if(match[0].length===0)rule.re.lastIndex++;
       }
@@ -156,54 +155,36 @@ function inspectFortniteText(s,sourceName){
   }
   return findings;
 }
+
 document.getElementById("runFortniteScan").addEventListener("click",async()=>{
-  const pasted=document.getElementById("fortniteText").value;
-  const files=[...document.getElementById("fortniteFiles").files];
-  const findings=[];
-  const skipped=[];
-  if(pasted.trim())findings.push(...inspectFortniteText(pasted,"Pasted text"));
+  const startedAt=new Date(),pasted=document.getElementById("fortniteText").value;
+  const files=[...document.getElementById("fortniteFiles").files],findings=[],skipped=[],scannedSources=[];
+  if(pasted.trim()){findings.push(...inspectFortniteText(pasted,"Pasted text"));scannedSources.push("Pasted text")}
   for(const file of files){
     if(file.size>2*1024*1024){skipped.push(file.name+" (over 2 MB)");continue}
-    try{findings.push(...inspectFortniteText(await file.text(),file.name))}
+    try{findings.push(...inspectFortniteText(await file.text(),file.name));scannedSources.push(file.name)}
     catch(e){skipped.push(file.name+" (unreadable)")}
   }
-  const out=[];
-  const counts=new Map();
-  const distinctAccountDetails=new Set();
+  const counts=new Map(),perFile=new Map(),distinctAccountDetails=new Set();
   findings.forEach(item=>{
     counts.set(item.type,(counts.get(item.type)||0)+1);
-    if(item.type==="Email/account contact"||item.type==="Account ID field"||item.type==="Display name field"){
-      distinctAccountDetails.add(item.preview);
-    }
+    perFile.set(item.source,(perFile.get(item.source)||0)+1);
+    if(item.type==="Email/account contact"||item.type==="Account ID field"||item.type==="Display name field")distinctAccountDetails.add(item.preview);
   });
-  out.push("Files selected: "+files.length+" | Total findings: "+findings.length);
-  out.push("Finding summary:");
-  if(counts.size){
-    for(const [type,count] of counts.entries())out.push("• "+type+": "+count);
-  }else{
-    out.push("• No matching patterns");
-  }
-  out.push("Distinct account details: "+distinctAccountDetails.size);
-  out.push("Findings are numbered in scan order. Emails, account IDs, and display names are shown in full. Passwords, cookies, tokens, and session secrets are identified but their values are redacted.");
-  out.push("");
-  if(findings.length){
-    findings.forEach((item,index)=>{
-      out.push("#"+(index+1)+" — "+item.type);
-      out.push("Source: "+item.source+" | Line: "+item.line+" | Confidence: "+(item.confidence||"Pattern match"));
-      out.push("Preview: "+item.preview);
-      out.push("");
-    });
-  }else{
-    out.push("No matching patterns were found in the selected text/files.");
-  }
-  if(skipped.length)out.push("Skipped: "+skipped.join(", "));
-  out.push("");
-  out.push("Confidence describes the pattern match only; it does not verify a login, prove ownership, or establish that a secret is active.");
-  out.push("Privacy: secret values are never included in this screen or exported report.");
+  const out=["FORTNITE / EPIC LOCAL SECURITY SCAN","Scan time: "+startedAt.toISOString(),"Sources scanned: "+scannedSources.length+" | Files selected: "+files.length+" | Total findings: "+findings.length,"Sources: "+(scannedSources.length?scannedSources.join(", "):"None"),"","FINDING COUNTS BY TYPE"];
+  if(counts.size){for(const [type,count] of counts.entries())out.push("• "+type+": "+count)}else out.push("• No matching patterns");
+  out.push("Distinct non-secret account details: "+distinctAccountDetails.size,"","FINDING COUNTS BY SOURCE");
+  if(perFile.size){for(const [source,count] of perFile.entries())out.push("• "+source+": "+count)}else out.push("• No findings");
+  out.push("","ALL FINDINGS (one entry per detected match)");
+  if(findings.length)findings.forEach((item,index)=>{out.push("#"+(index+1)+" — "+item.type,"Source: "+item.source+" | Line: "+item.line+" | Confidence: "+item.confidence,"Preview: "+item.preview,"")});
+  else out.push("No matching patterns were found in the scanned sources.");
+  if(skipped.length){out.push("SKIPPED SOURCES");skipped.forEach(x=>out.push("• "+x))}
+  out.push("","Interpretation: confidence labels describe pattern strength only. Injection indicators are heuristic matches, not proof of exploitability or a vulnerability. Authentication-shaped strings are not tested and are not proof of a valid login.","Privacy: password, token, cookie, and session-secret values are redacted in this screen and all reports. This scanner does not validate credentials or access accounts.");
   document.getElementById("fortniteResult").textContent=out.join("\n");
   document.getElementById("downloadFortniteReport").disabled=false;
   document.getElementById("printFortniteReport").disabled=false;
 });
+
 document.getElementById("clearFortniteScan").addEventListener("click",()=>{document.getElementById("fortniteText").value="";document.getElementById("fortniteFiles").value="";document.getElementById("fortniteResult").textContent="Cleared. No scan has been run.";document.getElementById("downloadFortniteReport").disabled=true;document.getElementById("printFortniteReport").disabled=true});
 
 function getFortniteReportText(){
