@@ -275,3 +275,13 @@ Windows EXE build instructions. Python uses PyInstaller, C++17 uses MSVC or
 g++, and C# targets .NET 10. The browser does not execute or upload source
 code. Review all files before running the generated scripts on Windows.
 Changing a file extension does not translate code between languages.
+
+
+## Project update checklist
+
+- ✅✔️ Main website PDF Evidence Scanner tab and dashboard shortcut included.
+- ✅✔️ Recovery Panel includes separate Recovery Records and PDF Evidence Scanner tabs.
+- ✅✔️ Custom red-and-black Ghostface artwork included as a site background.
+- 😈😈 Visual checklist/theme update included.
+
+These checkmarks describe project files and interface features only. They do not indicate Epic account ownership, verification, or a completed recovery decision.
