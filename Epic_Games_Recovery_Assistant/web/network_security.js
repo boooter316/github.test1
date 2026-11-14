@@ -3,13 +3,13 @@ const $=id=>document.getElementById(id);
 let latestReport="";
 const lines=[];
 const add=(s="")=>lines.push(String(s));
-const safeName=s=>String(s||"unnamed").replace(/[\\r\\n]/g," ").slice(0,120);
-function show(){latestReport=lines.join("\\n");$("networkSecurityResult").textContent=latestReport;$("downloadNetworkReport").disabled=!latestReport;$("printNetworkReport").disabled=!latestReport}
+const safeName=s=>String(s||"unnamed").replace(/[\r\n]/g," ").slice(0,120);
+function show(){latestReport=lines.join("\n");$("networkSecurityResult").textContent=latestReport;$("downloadNetworkReport").disabled=!latestReport;$("printNetworkReport").disabled=!latestReport}
 function reset(){lines.length=0}
 function fmtEndpoint(ip,port){return (ip||"?")+":"+(port??"?")}
 function parseSnapshotText(text){
  const objects=[];
- for(const raw of text.split(/\\r?\\n/)){const t=raw.trim();if(!t)continue;try{const x=JSON.parse(t);if(x&&typeof x==="object")objects.push(x)}catch{}}
+ for(const raw of text.split(/\r?\n/)){const t=raw.trim();if(!t)continue;try{const x=JSON.parse(t);if(x&&typeof x==="object")objects.push(x)}catch{}}
  if(!objects.length){try{const x=JSON.parse(text);if(Array.isArray(x))objects.push(...x);else if(x&&typeof x==="object")objects.push(x)}catch{}}
  return objects;
 }
@@ -65,10 +65,10 @@ $("analyzeNetworkCapture").addEventListener("click",async()=>{
  if(!lines.length)add("No capture files were analyzed.");show();
 });
 const secretPatterns=[
- ["Password-like field",/\\b(?:password|passwd|pwd|passphrase)\\s*[:=]\\s*[^\\s,;]+/gi],
- ["Authorization/token field",/\\b(?:authorization|access[_-]?token|refresh[_-]?token|id[_-]?token|bearer)\\s*[:= ]\\s*(?:bearer\\s+)?[^\\s,;]+/gi],
- ["Cookie/session field",/\\b(?:cookie|set-cookie|session[_-]?(?:id|token)?|csrf|xsrf)\\s*[:=]\\s*[^\\r\\n,;]+/gi],
- ["API/client secret field",/\\b(?:api[_-]?key|client[_-]?secret|secret[_-]?key)\\s*[:=]\\s*[^\\s,;]+/gi]
+ ["Password-like field",/\b(?:password|passwd|pwd|passphrase)\s*[:=]\s*[^\s,;]+/gi],
+ ["Authorization/token field",/\b(?:authorization|access[_-]?token|refresh[_-]?token|id[_-]?token|bearer)\s*[:= ]\s*(?:bearer\s+)?[^\s,;]+/gi],
+ ["Cookie/session field",/\b(?:cookie|set-cookie|session[_-]?(?:id|token)?|csrf|xsrf)\s*[:=]\s*[^\r\n,;]+/gi],
+ ["API/client secret field",/\b(?:api[_-]?key|client[_-]?secret|secret[_-]?key)\s*[:=]\s*[^\s,;]+/gi]
 ];
 $("scanNetworkLeak").addEventListener("click",async()=>{
  reset();let texts=[];const files=[...$("networkLeakFiles").files];let total=0;
@@ -81,5 +81,5 @@ $("scanNetworkLeak").addEventListener("click",async()=>{
 });
 $("clearNetworkSecurity").addEventListener("click",()=>{$("networkSnapshotFiles").value="";$("networkCaptureFiles").value="";$("networkLeakFiles").value="";$("networkLeakText").value="";reset();add("Cleared. No analysis results.");show()});
 $("downloadNetworkReport").addEventListener("click",()=>{if(!latestReport)return;const blob=new Blob([latestReport],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="network-security-report.txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)});
-$("printNetworkReport").addEventListener("click",()=>{if(!latestReport)return;const w=window.open("","_blank");if(!w){alert("Allow pop-ups to print or save the report as PDF.");return}const esc=latestReport.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Network Security Report</title><style>body{font:14px system-ui;margin:32px;color:#18212f}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style></head><body><h1>Network Security Report</h1><pre>"+esc+"</pre><script>window.onload=()=>window.print()<\\/script></body></html>");w.document.close()});
+$("printNetworkReport").addEventListener("click",()=>{if(!latestReport)return;const w=window.open("","_blank");if(!w){alert("Allow pop-ups to print or save the report as PDF.");return}const esc=latestReport.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Network Security Report</title><style>body{font:14px system-ui;margin:32px;color:#18212f}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style></head><body><h1>Network Security Report</h1><pre>"+esc+"</pre><script>window.onload=()=>window.print()<\/script></body></html>");w.document.close()});
 })();
