@@ -55,7 +55,7 @@ Do not enter payment details or create a paid hosting resource until the provide
 
 ## API keys and sign-in
 
-No API key is required for the current static form. If a future server-side integration needs a secret, store it only as a private environment variable on the selected host or in an appropriate CI secret; never put it in source code, HTML, JavaScript, GitHub commits, or PDFs. Use a proper identity provider for any future administrator or paid-user login; do not hardcode credentials in the application.
+The recovery-request form itself does not require an API key. Faze Jarvis does use a DeepSeek API key on the server; configure it only as a private host environment variable. Never put API secrets in source code, HTML, JavaScript, GitHub commits, or PDFs. Do not hardcode credentials in the application.
 
 
 ## Faze Jarvis / DeepSeek chat
