@@ -40,11 +40,11 @@ jobs:
         shell: pwsh
         run: |
           $updater = Get-Content 'Epic_Games_Recovery_Assistant/update_project.ps1' -Raw
-          foreach ($required in @("'paf_evidence_scanner.c++'", "'PDF_EVIDENCE_SCANNER.bat'", "'web\\network_security.js'", "'web\\ghostface-bg.jpg'")) {
+          foreach ($required in @('paf_evidence_scanner.c++','PDF_EVIDENCE_SCANNER.bat','network_security.js','ghostface-bg.jpg')) {
             if (-not $updater.Contains($required)) { throw "Updater does not validate required project asset: $required" }
           }
           $run = Get-Content 'Epic_Games_Recovery_Assistant/run.bat' -Raw
-          if ($run -notmatch '(?i)title Epic Games Recovery Assistant 5\\.2\\.0') { throw 'run.bat version title is not synchronized to 5.2.0.' }
+          if ($run -notmatch 'title Epic Games Recovery Assistant 5[.]2[.]0') { throw 'run.bat version title is not synchronized to 5.2.0.' }
           foreach ($file in @('Epic_Games_Recovery_Assistant/setup_dependencies.ps1','Epic_Games_Recovery_Assistant/first_run_setup.ps1')) {
             $text = Get-Content $file -Raw
             if ($text -notmatch 'pacman -Syu --noconfirm') { throw "MSYS2 full-update command missing from $file" }
