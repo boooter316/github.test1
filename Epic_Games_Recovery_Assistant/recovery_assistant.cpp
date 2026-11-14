@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 3.6 - C++17
+// Epic Games Recovery Assistant 3.7 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <cstdlib>
@@ -61,7 +61,7 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.6 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.7 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -114,9 +114,13 @@ int main(){
  add("Requested Epic display-name change (planning only; official account settings required)");
  add("Requested Epic email change (planning only; official verification required)");
  add("Restriction appeal target: Epic / Xbox / PlayStation / Steam / Nintendo / other");
+ add("Xbox case/reference ID"); add("Xbox restriction type (communication / multiplayer / account / other)"); add("Xbox restriction date and end date/duration"); add("Xbox appeal status (not started / submitted / response received / closed)"); add("Xbox factual appeal notes (what happened, policy cited, evidence available)");
  add("Xbox appeal request summary (official review only; no automated enforcement changes)");
+ add("PlayStation case/reference ID"); add("PlayStation restriction type (account suspension / communication suspension / other)"); add("PlayStation restriction date and end date/duration"); add("PlayStation appeal status (not started / submitted / response received / closed)"); add("PlayStation factual appeal notes (what happened, policy cited, evidence available)");
  add("PlayStation appeal request summary (official review only; no automated suspension changes)");
+ add("Steam case/reference ID"); add("Steam restriction type (Community Ban / VAC ban / game ban / account lock / other)"); add("Steam restriction date and end date/duration, if shown"); add("Steam appeal/support status (not started / submitted / response received / closed)"); add("Steam factual appeal notes (game/app, policy cited, evidence available)");
  add("Steam restriction/support request summary (official review only; no automated restriction changes)");
+ add("Nintendo support case/reference ID"); add("Nintendo restriction type (account restriction / online-service restriction / parental-control issue / other)"); add("Nintendo restriction date and end date/duration, if shown"); add("Nintendo support/appeal status (not started / submitted / response received / closed)"); add("Nintendo factual appeal notes (service affected, notice wording, evidence available)");
  add("Nintendo restriction/support request summary (official review only; no automated restriction changes)");
  add("Evidence bundle description: list only lawful, truthful documents you already possess; do not dump credentials, cookies, tokens, or private account databases");
  add("Account data export limitation: this tool exports only the information you type into this form; it cannot extract or dump data from Epic or another platform");
@@ -146,20 +150,24 @@ int main(){
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
  std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.6 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.7 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional context, not proof of ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
  txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 3.6\n\n";
- j<<"{\n \"version\":\"3.6\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
+ j<<"{\n \"version\":\"3.7\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
  j<<" ]\n}\n";
  draft<<"Subject: Request for account recovery / support\n\nHello Support Team,\n\nI am requesting assistance with my account. I can provide truthful, non-secret information through your official secure process and additional evidence if requested.\n\nRequest: "<<request<<"\n\nPlease advise which official verification steps and documents are required. I understand that only your team can verify ownership, review restrictions, or approve account changes.\n\nThank you.\n";
  save(dir/"recovery_details.txt",txt.str());save(dir/"recovery_details.json",j.str());save(dir/"support_request_draft.txt",draft.str());
+ // Copy the C++ source into the packet when it is beside the executable/source.
+ fs::path sourcePath=fs::current_path()/"recovery_assistant.cpp";
+ if(fs::exists(sourcePath)){std::error_code copyEc;fs::copy_file(sourcePath,dir/"recovery_assistant.cpp",fs::copy_options::overwrite_existing,copyEc);if(copyEc)save(dir/"SOURCE_NOT_COPIED.txt","The C++ source file could not be copied: "+copyEc.message());}
+ else save(dir/"SOURCE_NOT_COPIED.txt","recovery_assistant.cpp was not found in the current folder. Place the source file beside the executable and run again to include it.");
  if(!pdf(dir/"recovery_request.pdf",lines))std::cerr<<"PDF export failed; other exports attempted.\n";
- std::cout<<"\nSaved packet to: "<<dir.string()<<"\nIncludes PDF evidence report, JSON evidence packet, readable text details, and support-request draft. This is a user-entered evidence export, not an account/credential dump.\n"
+ std::cout<<"\nSaved packet to: "<<dir.string()<<"\nIncludes PDF evidence report, JSON evidence packet, readable text details, support-request draft, and a copy of recovery_assistant.cpp when the source file is beside the program (otherwise a SOURCE_NOT_COPIED.txt note). This is a user-entered evidence export, not an account/credential dump.\n"
  <<"No account action was taken. If evidence is missing, pause and ask official support about alternatives.\n\n"
  <<"1 Open Epic account recovery request form\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n5 Epic sign-in\n6 Epic display-name help\n7 Epic email-change help\n8 Xbox enforcement/support\n9 PlayStation suspension support\n10 Steam account help\n11 Nintendo support\n12 Epic account settings\n13 Epic lost-2FA help\n14 Epic unlink help\n15 Epic sanctions and appeals\n16 Epic support contact / ticket options\n17 2FA methods and setup guide\n18 Lost access to 2FA help\n19 Epic recovery help\n0 Exit\n";
  std::string choice=ask("Choose an official page");
@@ -182,5 +190,7 @@ int main(){
  else if(choice=="17")openLink("https://www.epicgames.com/help/c-45487929/c-38978022/a11272697");
  else if(choice=="18")openLink("https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US");
  else if(choice=="19")openLink("https://www.epicgames.com/help/c-45487929/a21414514");
+ else if(choice=="20")openLink("https://help.steampowered.com/en/faqs/view/4F62-35F9-F395-5C23");
+ else if(choice=="21")openLink("https://enforcement.xbox.com/");
  return 0;
 }
