@@ -118,13 +118,13 @@ document.getElementById("clearScan").addEventListener("click",()=>{document.getE
 
 function inspectFortniteText(s,sourceName){
   const rules=[
-    {name:"JWT-shaped secret",re:/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,secret:true},
-    {name:"Credential-labelled secret",re:/\b(password|passwd|access[_-]?token|refresh[_-]?token|authorization|client[_-]?secret|api[_-]?key|session[_-]?key|cookie|set-cookie|session[_-]?id|session[_-]?token)\b\s*[:=]\s*["']?([^\s,;"'}]{4,})/gi,secret:true},
-    {name:"Epic/Fortnite token-like value",re:/\b(?:eg1~|bearer\s+)[A-Za-z0-9._~\-]{12,}/gi,secret:true},
-    {name:"Email/account contact",re:/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,account:true},
-    {name:"Account ID field",re:/\b((?:(?:epic|fortnite)[_ -]?)?account[_ -]?id|user[_ -]?id)\b\s*[:=]\s*["']?([A-Za-z0-9_-]{5,})/gi,account:true},
-    {name:"Display name field",re:/\b(?:epic[_ -]?)?(display[_ -]?name|username|account[_ -]?name)\b\s*[:=]\s*["']?([^,\r\n;"']{2,40})/gi,account:true},
-    {name:"Fortnite/Epic authentication reference",re:/FortniteGame|EpicOnlineServices|EOS[_-]?(?:Auth|Connect)|OAuth|Authorization/gi,reference:true}
+    {name:"JWT-shaped token",re:/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,secret:true,confidence:"High"},
+    {name:"Epic/Fortnite bearer or eg1 token",re:/\b(?:eg1~|bearer\s+)[A-Za-z0-9._~\-]{12,}/gi,secret:true,confidence:"High"},
+    {name:"Credential-labelled secret",re:/\b(password|passwd|pwd|passphrase|access[_-]?token|refresh[_-]?token|id[_-]?token|auth[_-]?token|authorization|client[_-]?secret|api[_-]?key|secret[_-]?key|session[_-]?(?:id|key|token)|sid|csrf[_-]?token|xsrf[_-]?token|cookie|set-cookie)\b["']?\s*[:=]\s*(?:"[^"]{4,}"|'[^']{4,}'|[^\s,;}\]]{4,})/gi,secret:true,confidence:"Medium"},
+    {name:"Email/account contact",re:/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,account:true,confidence:"High"},
+    {name:"Account ID field",re:/["']?((?:(?:epic|fortnite)[_ -]?)?account[_ -]?id|user[_ -]?id|account[_ -]?identifier)["']?\s*[:=]\s*["']?([A-Za-z0-9_-]{5,})/gi,account:true,confidence:"Medium"},
+    {name:"Display name field",re:/["']?(?:(epic[_ -]?)?(display[_ -]?name|username|account[_ -]?name|gamertag))["']?\s*[:=]\s*["']?([^,\r\n;}"']{2,50})/gi,account:true,confidence:"Medium"},
+    {name:"Fortnite/Epic authentication reference",re:/FortniteGame|EpicOnlineServices|EOS[_-]?(?:Auth|Connect)|OAuth|Authorization/gi,reference:true,confidence:"Context"}
   ];
   const findings=[];
   const lines=s.split(/\r?\n/);
@@ -137,21 +137,18 @@ function inspectFortniteText(s,sourceName){
         let preview;
         if(rule.secret){
           const label=match[1]&&rule.name==="Credential-labelled secret"?match[1]+": ":"";
-          preview=label+"[REDACTED SECRET]";
-        }else if(rule.account){
-          const value=match[2]||match[0];
-          if(value.includes("@")){
-            const parts=value.split("@");
-            preview=value;
-          }else{
-            const label=match[1]&&match[2]?match[1]+": ":"";
-            const raw=String(value).trim();
-            preview=label+raw;
-          }
+          preview=label+"[REDACTED SECRET VALUE]";
+        }else if(rule.name==="Email/account contact"){
+          preview=match[0];
+        }else if(rule.name==="Account ID field"){
+          preview=match[1]+": "+match[2];
+        }else if(rule.name==="Display name field"){
+          const label=[match[1]||"",match[2]||""].join("");
+          preview=label+": "+String(match[3]||"").trim();
         }else{
           preview=match[0].slice(0,90);
         }
-        findings.push({source:sourceName,line:lineIndex+1,type:rule.name,preview});
+        findings.push({source:sourceName,line:lineIndex+1,type:rule.name,confidence:rule.confidence,preview});
         if(match[0].length===0)rule.re.lastIndex++;
       }
     }
@@ -186,12 +183,12 @@ document.getElementById("runFortniteScan").addEventListener("click",async()=>{
     out.push("• No matching patterns");
   }
   out.push("Distinct account details: "+distinctAccountDetails.size);
-  out.push("Findings are numbered in scan order. Emails, account IDs, and display names are shown in full in this local result. Passwords and tokens remain redacted.");
+  out.push("Findings are numbered in scan order. Emails, account IDs, and display names are shown in full. Passwords, cookies, tokens, and session secrets are identified but their values are redacted.");
   out.push("");
   if(findings.length){
     findings.forEach((item,index)=>{
       out.push("#"+(index+1)+" — "+item.type);
-      out.push("Source: "+item.source+" | Line: "+item.line);
+      out.push("Source: "+item.source+" | Line: "+item.line+" | Confidence: "+(item.confidence||"Pattern match"));
       out.push("Preview: "+item.preview);
       out.push("");
     });
@@ -200,7 +197,8 @@ document.getElementById("runFortniteScan").addEventListener("click",async()=>{
   }
   if(skipped.length)out.push("Skipped: "+skipped.join(", "));
   out.push("");
-  out.push("Important: pattern matches do not verify a login, prove account ownership, or establish that a secret is active.");
+  out.push("Confidence describes the pattern match only; it does not verify a login, prove ownership, or establish that a secret is active.");
+  out.push("Privacy: secret values are never included in this screen or exported report.");
   document.getElementById("fortniteResult").textContent=out.join("\n");
   document.getElementById("downloadFortniteReport").disabled=false;
   document.getElementById("printFortniteReport").disabled=false;
