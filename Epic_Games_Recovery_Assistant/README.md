@@ -35,7 +35,7 @@ The PDF generator is built into the C++ source; no Python or external PDF packag
 
 ## Official Epic resources
 
-- Recovery help: https://www.epicgames.com/help/en-US/c-Category_EpicAccount/c-AccountSecurity/how-to-recover-access-to-your-epic-games-account-a000084667
+- Recovery help: https://www.epicgames.com/help/c-1/a10856556?lang=en-US
 - Support/contact: https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US
 - Linked accounts: https://www.epicgames.com/account/connections
 - 2FA/security settings: https://www.epicgames.com/account/password
