@@ -684,7 +684,8 @@ int main() {
    <<"2. Recovery progress tracker\n"
    <<"3. Official Epic account and support links\n"
    <<"4. Open local project and recovery files\n"
-   <<"5. Local project secret-hygiene scanner\n"\n   <<"6. Help, privacy and safety information\n"
+   <<"5. Local project secret-hygiene scanner\n"
+   <<"6. Help, privacy and safety information\n"
    <<"0. Exit\n";
   std::string choice=ask("Select a dashboard option");
   if(choice=="0") break;
