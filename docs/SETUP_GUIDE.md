@@ -91,7 +91,7 @@ The current package pins direct dependency versions but does not include a commi
 ## 6. PDF evidence scanner
 
 - Native Windows scanner: `paf_evidence_scanner.c++` compiled to `paf_evidence_scanner.exe`; uses Poppler `pdftotext.exe` for text extraction.
-- Browser scanners: PDF.js is loaded from a CDN, so the browser needs internet access to load the library.
+- Browser scanners: Mozilla PDF.js 6.5.438 is loaded as an ES module from jsDelivr with its matching module worker; the browser needs internet access to load both.
 - Neither path performs OCR on image-only pages. A PDF with scanned images may show no readable text.
 - Review evidence yourself. Scanner indicators are not proof of account ownership or credential validity.
 - Keep sensitive source PDFs and exported reports private.
