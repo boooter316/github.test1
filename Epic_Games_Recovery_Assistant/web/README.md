@@ -116,3 +116,16 @@ The browser cannot directly change Windows registry/network settings. Use the do
 ## Fortnite / Epic diagnostic log checks
 
 The Pro Multi-Platform Scanner page also includes a separate local diagnostic check for common crash/fatal errors, launch or installation failures, network/DNS timeouts, Easy Anti-Cheat, Epic Online Services, update/version mismatches, and graphics/device issues. It reports aggregate counts only, limits each selected file to 5 MB, and does not display, save, or transmit log excerpts or credential values. These are troubleshooting indicators, not proof of account status, enforcement, or compromise.
+
+
+## Support ticket manager and recovery retry guard
+
+The Recovery Assistant includes a local ticket-drafting aid for preparing a consolidated new support request or a concise follow-up tied to an existing case. It does not submit tickets, send spam reports, contact Epic, or automatically retry account recovery.
+
+- Local pacing limits: at most two new-ticket drafts in a rolling seven-day window, and one follow-up draft per 48 hours.
+- The user can record an existing case reference and status, then prepare a follow-up that asks support to append new information to that same case.
+- Only rate-limit timestamps are stored in browser local storage; account details and ticket text are not persisted by this feature or sent to the server.
+- The pause message clearly states that it is an assistant-side drafting limit, not evidence that Epic has locked the account.
+- If Epic displays an actual temporary lock or cooldown notice, follow the exact instructions and wait period shown by Epic. Do not repeatedly submit new tickets or reports while a case is pending.
+
+These limits are client-side safeguards and can be cleared by clearing browser site data; they are not enforceable platform-wide limits and do not represent Epic's own ticket policy. Always use the official support channel and submit only accurate, necessary updates.
