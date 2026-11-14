@@ -258,13 +258,13 @@ document.getElementById("runFortniteScan").addEventListener("click",async()=>{
 document.getElementById("clearFortniteScan").addEventListener("click",()=>{document.getElementById("fortniteText").value="";document.getElementById("fortniteFiles").value="";document.getElementById("fortniteResult").textContent="Cleared. No scan has been run.";document.getElementById("downloadFortniteReport").disabled=true;document.getElementById("printFortniteReport").disabled=true});
 
 const diagnosticChecks=[
-  ["Crash or fatal error",/\\b(?:fatal error|crash(?:ed)?|unhandled exception|assertion failed)\\b/gi],
-  ["Launch or installation issue",/\\b(?:failed to launch|launch failed|installation failed|missing files|verify files|manifest error)\\b/gi],
-  ["Network or connection issue",/\\b(?:connection timed out|timeout|network error|unable to connect|connection lost|dns lookup failed|socket error)\\b/gi],
-  ["Easy Anti-Cheat indicator",/\\b(?:easy anti[- ]cheat|easyanticheat|eac)\\b/gi],
-  ["Epic Online Services indicator",/\\b(?:epic online services|eos[_ -]?(?:auth|connect|sdk)|eos error)\\b/gi],
-  ["Update or version mismatch",/\\b(?:version mismatch|outdated version|update required|patch failed|download error)\\b/gi],
-  ["Graphics or device issue",/\\b(?:device removed|gpu crash|directx error|out of video memory|d3d device)\\b/gi]
+  ["Crash or fatal error",/\b(?:fatal error|crash(?:ed)?|unhandled exception|assertion failed)\b/gi],
+  ["Launch or installation issue",/\b(?:failed to launch|launch failed|installation failed|missing files|verify files|manifest error)\b/gi],
+  ["Network or connection issue",/\b(?:connection timed out|timeout|network error|unable to connect|connection lost|dns lookup failed|socket error)\b/gi],
+  ["Easy Anti-Cheat indicator",/\b(?:easy anti[- ]cheat|easyanticheat|eac)\b/gi],
+  ["Epic Online Services indicator",/\b(?:epic online services|eos[_ -]?(?:auth|connect|sdk)|eos error)\b/gi],
+  ["Update or version mismatch",/\b(?:version mismatch|outdated version|update required|patch failed|download error)\b/gi],
+  ["Graphics or device issue",/\b(?:device removed|gpu crash|directx error|out of video memory|d3d device)\b/gi]
 ];
 function countDiagnosticIndicators(value){
   const result={};
@@ -289,7 +289,7 @@ document.getElementById("runDiagnosticScan").addEventListener("click",async()=>{
     ...(skipped.length?["Skipped: "+skipped.join(", ")]:[]),"",
     "Only counts were produced; no log excerpts or credential values were displayed, saved, or transmitted.",
     "These indicators are troubleshooting clues, not an account-status or enforcement check."];
-  document.getElementById("diagnosticResult").textContent=lines.join("\\n");
+  document.getElementById("diagnosticResult").textContent=lines.join("\n");
 });
 document.getElementById("clearDiagnosticScan").addEventListener("click",()=>{
   document.getElementById("diagnosticText").value="";
