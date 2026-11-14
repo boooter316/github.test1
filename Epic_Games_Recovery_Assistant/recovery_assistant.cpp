@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 3.5 - C++17
+// Epic Games Recovery Assistant 3.6 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <cstdlib>
