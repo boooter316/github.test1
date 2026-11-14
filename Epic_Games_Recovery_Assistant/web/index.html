@@ -53,6 +53,24 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <section class="panel"><h2>Review and export</h2><p class="hint">Check details for accuracy before sharing through the platform's official secure support form.</p>
 <div class="actions no-print"><button type="button" id="json">Download JSON packet</button><button type="button" class="secondary" id="pdf">Print / Save as PDF</button><button type="button" class="secondary" id="draft">Create support-request draft</button></div>
 <textarea id="draftText" class="no-print" placeholder="Your support request draft will appear here." style="margin-top:12px"></textarea></section></form>
+<section class="panel" id="ticketManager">
+<h2>Support Ticket Manager &amp; Recovery Retry Guard</h2>
+<p class="hint">Prepare one clear support request and keep track of an existing case. This assistant never submits tickets or reports automatically. Use the platform's official support channel and do not open duplicate cases for the same issue.</p>
+<div class="notice" role="note"><strong>Important:</strong> Repeated recovery attempts can trigger a platform's own security checks or temporary cooldown. This tool cannot unlock an account or determine whether Epic has restricted it. A pause shown here applies only to preparing drafts in this browser; it is not an Epic account lock.</div>
+<div class="grid">
+<div><label for="ticketCaseRef">Existing support case/reference (optional)</label><input id="ticketCaseRef" autocomplete="off" placeholder="Enter the case number supplied by support"></div>
+<div><label for="ticketStatus">Current case status</label><select id="ticketStatus"><option>Not opened yet</option><option>Submitted — awaiting response</option><option>Support requested more information</option><option>Resolved</option><option>Closed by support</option></select></div>
+</div>
+<p><label for="ticketNote">What has changed since the last contact?</label><textarea id="ticketNote" placeholder="Add only new, relevant facts or evidence. Do not repeat the entire request."></textarea></p>
+<div class="actions no-print">
+<button type="button" id="newTicketDraft">Prepare new ticket draft</button>
+<button type="button" class="secondary" id="followupTicketDraft">Prepare follow-up for existing case</button>
+<button type="button" class="secondary" id="ticketStatusRefresh">Check local draft limit</button>
+</div>
+<p id="ticketLimitStatus" class="scanner-result" role="status" aria-live="polite">Local draft limit: 2 new-ticket drafts per rolling 7 days; 1 follow-up draft per 48 hours. These are local safeguards, not Epic limits.</p>
+<label for="ticketDraftOutput">Ticket message draft</label><textarea id="ticketDraftOutput" readonly placeholder="Your prepared message will appear here. Review it, then submit manually through official support."></textarea>
+<p class="hint">This manager stores only local rate-limit timestamps in this browser. It does not store account details, contact Epic, submit reports, send repeated tickets, or bypass a support queue. If a case is already open, use its reference for one concise follow-up after the stated response window.</p>
+</section>
 <section class="panel" id="setup-guide"><h2>Setup &amp; How to Use</h2>
 <p class="hint">This is the browser-based companion form. It is separate from the Windows desktop executable. The page works in a modern browser; running the hosted C++ web server requires a computer or server environment.</p>
 <h3>1. Get the project</h3><ol><li>Open the project repository and download the ZIP archive.</li><li>Extract the ZIP on a computer.</li><li>Open <code>Epic_Games_Recovery_Assistant/web</code> in a terminal.</li></ol>
@@ -121,6 +139,62 @@ function makeDraft(o){const f=o.fields;return ["Hello Support Team,","","I am re
 document.getElementById("json").addEventListener("click",()=>{const b=new Blob([JSON.stringify(collect(),null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="recovery-request.json";a.click();URL.revokeObjectURL(a.href)});
 document.getElementById("pdf").addEventListener("click",()=>window.print());
 document.getElementById("draft").addEventListener("click",()=>document.getElementById("draftText").value=makeDraft(collect()));
+
+ // Local-only ticket pacing. This is a client-side convenience, not an Epic enforcement mechanism.
+const ticketLimitKey="recoveryAssistant.ticketPacing.v1";
+const ticketLimits={newWindowMs:7*24*60*60*1000,maxNew:2,followupCooldownMs:48*60*60*1000};
+function readTicketPacing(){
+  try{const value=JSON.parse(localStorage.getItem(ticketLimitKey)||"{}");return {newDrafts:Array.isArray(value.newDrafts)?value.newDrafts.filter(Number.isFinite):[],lastFollowup:Number.isFinite(value.lastFollowup)?value.lastFollowup:0};}
+  catch(error){return {newDrafts:[],lastFollowup:0};}
+}
+function saveTicketPacing(state){try{localStorage.setItem(ticketLimitKey,JSON.stringify(state));}catch(error){}}
+function updateTicketLimitStatus(message){
+  const state=readTicketPacing(),now=Date.now();
+  state.newDrafts=state.newDrafts.filter(t=>now-t<ticketLimits.newWindowMs);
+  saveTicketPacing(state);
+  const nextNew=state.newDrafts.length>=ticketLimits.maxNew?Math.max(0,ticketLimits.newWindowMs-(now-Math.min(...state.newDrafts))):0;
+  const nextFollow=state.lastFollowup?Math.max(0,ticketLimits.followupCooldownMs-(now-state.lastFollowup)):0;
+  const fmt=ms=>Math.ceil(ms/3600000)+" hour(s)";
+  document.getElementById("ticketLimitStatus").textContent=message||(
+    "New ticket drafts used: "+state.newDrafts.length+"/"+ticketLimits.maxNew+" in the last 7 days. "+
+    (nextNew?"New-ticket drafting paused for about "+fmt(nextNew)+". ":"New-ticket drafting available. ")+
+    (nextFollow?"Next follow-up draft available in about "+fmt(nextFollow)+".":"Follow-up draft available.")+
+    " This is only a local assistant limit; it does not indicate an Epic account lock."
+  );
+}
+function buildTicketDraft(kind){
+  const state=readTicketPacing(),now=Date.now();
+  state.newDrafts=state.newDrafts.filter(t=>now-t<ticketLimits.newWindowMs);
+  const output=document.getElementById("ticketDraftOutput");
+  if(kind==="new"){
+    if(state.newDrafts.length>=ticketLimits.maxNew){
+      updateTicketLimitStatus("Drafting paused: this browser has reached the limit of 2 new-ticket drafts in 7 days. Wait for the cooldown and check your existing case instead. This does not mean Epic has locked your account.");
+      return;
+    }
+    state.newDrafts.push(now);
+    output.value=makeDraft(collect())+"\n\nPlease treat this as my consolidated request. If a case already exists for this issue, please attach this information to that case rather than opening a duplicate.";
+  }else{
+    if(!document.getElementById("ticketCaseRef").value.trim()){
+      updateTicketLimitStatus("Enter the existing support case/reference before preparing a follow-up. If no case exists, use the new-ticket draft option.");
+      return;
+    }
+    if(state.lastFollowup&&now-state.lastFollowup<ticketLimits.followupCooldownMs){
+      updateTicketLimitStatus("Follow-up drafting is temporarily paused to prevent duplicate messages. Wait until the 48-hour cooldown has passed unless official support specifically asks you to respond sooner.");
+      return;
+    }
+    state.lastFollowup=now;
+    const caseRef=document.getElementById("ticketCaseRef").value.trim();
+    const status=document.getElementById("ticketStatus").value;
+    const note=document.getElementById("ticketNote").value.trim();
+    output.value=["Hello Support Team,","","I am following up on my existing account recovery case.","Case/reference: "+caseRef,"Current status: "+status,"","New information since my last message:",note||"No new information; I am checking the status of the existing request.","","Please add this update to the existing case and let me know if any further information is required through your official secure process.","","Thank you."].join("\n");
+  }
+  saveTicketPacing(state);
+  updateTicketLimitStatus(kind==="new"?"New ticket draft prepared. Review it and submit manually through official support. Do not create another case if one is already open.":"Follow-up draft prepared for the existing case. Review it and submit manually through the official case thread.");
+}
+document.getElementById("newTicketDraft").addEventListener("click",()=>buildTicketDraft("new"));
+document.getElementById("followupTicketDraft").addEventListener("click",()=>buildTicketDraft("followup"));
+document.getElementById("ticketStatusRefresh").addEventListener("click",()=>updateTicketLimitStatus());
+updateTicketLimitStatus();
 
 // Page navigation
 const recoveryTabButton=document.getElementById("recoveryTabButton");
