@@ -58,3 +58,8 @@ Never enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, 
 ## Security
 
 The unsafe legacy Discord token-grabber was removed from the current source in PR #44. Do not restore or run it.  The safe Discord Security Scanner remains available in the retained legacy browser source, but is not currently integrated into this native command dashboard.
+
+
+## Ghostface background and project checklist
+
+The main website and Recovery Panel use the existing `ghostface-bg.jpg` artwork as a background with a dark overlay for readability. Both browser interfaces include an interactive project checklist using the requested checkmark and Ghostface emojis. Existing filenames, folder names, and features are preserved.
