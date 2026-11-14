@@ -195,12 +195,15 @@ bool validUsername(const std::string& u) {
  for(unsigned char c:u) if(!std::isalnum(c)&&c!='_'&&c!='-'&&c!='.') return false;
  return true;
 }
-bool derivePasswordHash(const std::string& password,const std::vector<unsigned char>& salt,std::vector<unsigned char>& hash) {
+bool derivePasswordHash(const std::string& password,const std::vector<unsigned char>& salt,std::vector<unsigned char>& hash,ULONG iterations=AUTH_ITERATIONS) {
+ BCRYPT_ALG_HANDLE algorithm=nullptr;
+ if(BCryptOpenAlgorithmProvider(&algorithm,BCRYPT_SHA256_ALGORITHM,nullptr,BCRYPT_ALG_HANDLE_HMAC_FLAG)<0) return false;
  hash.assign(32,0);
- NTSTATUS st=BCryptDeriveKeyPBKDF2(nullptr,
+ NTSTATUS st=BCryptDeriveKeyPBKDF2(algorithm,
   (PUCHAR)password.data(),(ULONG)password.size(),
-  (PUCHAR)salt.data(),(ULONG)salt.size(),AUTH_ITERATIONS,0,
+  (PUCHAR)salt.data(),(ULONG)salt.size(),iterations,0,
   hash.data(),(ULONG)hash.size());
+ BCryptCloseAlgorithmProvider(algorithm,0);
  return st>=0;
 }
 bool constantTimeEqual(const std::vector<unsigned char>& a,const std::vector<unsigned char>& b) {
@@ -249,10 +252,7 @@ bool signInLocalAccount(const fs::path& db) {
   std::vector<unsigned char> salt,expected,actual;
   if(!end||*end||iterations<100000||iterations>1000000||
      !hexDecode(saltText,salt)||!hexDecode(hashText,expected)||expected.size()!=32) break;
-  actual.assign(32,0);
-  NTSTATUS st=BCryptDeriveKeyPBKDF2(nullptr,(PUCHAR)password.data(),(ULONG)password.size(),
-    salt.data(),(ULONG)salt.size(),iterations,0,actual.data(),(ULONG)actual.size());
-  matched=(st>=0)&&constantTimeEqual(actual,expected);
+  matched=derivePasswordHash(password,salt,actual,(ULONG)iterations)&&constantTimeEqual(actual,expected);
   break;
  }
  wipe(password);
