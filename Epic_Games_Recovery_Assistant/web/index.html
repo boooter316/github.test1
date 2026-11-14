@@ -408,15 +408,15 @@ document.getElementById("printFortniteReport").addEventListener("click",()=>{
   w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Fortnite Epic Scan Report</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Fortnite / Epic Local Security Scan Report</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\/script></body></html>");
   w.document.close();
 });
-function validV4(ip){const p=ip.split(".");return p.length===4&&p.every(x=>/^\\d{1,3}$/.test(x)&&+x>=0&&+x<=255)}
+function validV4(ip){const p=ip.split(".");return p.length===4&&p.every(x=>/^\d{1,3}$/.test(x)&&+x>=0&&+x<=255)}
 function ipsOnLine(line){
- const re=/(?<![\\w:])(?:\\d{1,3}\\.){3}\\d{1,3}(?![\\w:])|(?<![\\w:])(?:[0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}(?![\\w:])/g;
+ const re=/(?<![\w:])(?:\d{1,3}\.){3}\d{1,3}(?![\w:])|(?<![\w:])(?:[0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}(?![\w:])/g;
  return [...new Set([...line.matchAll(re)].map(m=>m[0]).filter(ip=>ip.includes(".")?validV4(ip):ip.includes(":")&&ip.length<=39).map(ip=>ip.toLowerCase()))];
 }
 function identityTimestamp(line){
- const iso=line.match(/\\b(20\\d{2}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}(?::\\d{2})?(?:\\.\\d+)?(?:Z|[+-]\\d{2}:?\\d{2})?)\\b/);
+ const iso=line.match(/\b(20\d{2}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)\b/);
  if(iso){const d=new Date(iso[1]);if(!Number.isNaN(d.getTime()))return d}
- const us=line.match(/\\b(\\d{1,2}\\/\\d{1,2}\\/20\\d{2}\\s+\\d{1,2}:\\d{2}(?::\\d{2})?\\s*(?:AM|PM)?)\\b/i);
+ const us=line.match(/\b(\d{1,2}\/\d{1,2}\/20\d{2}\s+\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?)\b/i);
  if(us){const d=new Date(us[1]);if(!Number.isNaN(d.getTime()))return d}
  return null;
 }
@@ -439,12 +439,12 @@ async function runIdentityCheck(){
   for(const file of files)sources.push({name:file.name,text:await file.text()});
   let ipHit=0,ipOther=0,idHit=0,idOther=0,userHit=0,emailHit=0,both=0,dated=0,inWindow=0,outsideWindow=0,lines=0;
   const findings=[],matchedTypes=new Set(),sourceNames=new Set();
-  for(const source of sources)source.text.split(/\\r?\\n/).forEach((line,i)=>{
+  for(const source of sources)source.text.split(/\r?\n/).forEach((line,i)=>{
    lines++;
    const ips=ipsOnLine(line);
-   const ids=[...line.matchAll(/(?:account[_ -]?id|user[_ -]?id|epic[_ -]?id|profile[_ -]?id)\\s*["']?\\s*[:=]\\s*["']?([A-Za-z0-9_-]{5,80})/ig)].map(m=>m[1]);
-   const users=[...line.matchAll(/(?:username|user[_ -]?name|display[_ -]?name|gamertag|screen[_ -]?name)\\s*["']?\\s*[:=]\\s*["']?([^,"'\\s}]{2,80})/ig)].map(m=>m[1].toLowerCase());
-   const emails=[...line.matchAll(/(?:email|email[_ -]?address)\\s*["']?\\s*[:=]\\s*["']?([A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,})/ig)].map(m=>m[1].toLowerCase());
+   const ids=[...line.matchAll(/(?:account[_ -]?id|user[_ -]?id|epic[_ -]?id|profile[_ -]?id)\s*["']?\s*[:=]\s*["']?([A-Za-z0-9_-]{5,80})/ig)].map(m=>m[1]);
+   const users=[...line.matchAll(/(?:username|user[_ -]?name|display[_ -]?name|gamertag|screen[_ -]?name)\s*["']?\s*[:=]\s*["']?([^,"'\s}]{2,80})/ig)].map(m=>m[1].toLowerCase());
+   const emails=[...line.matchAll(/(?:email|email[_ -]?address)\s*["']?\s*[:=]\s*["']?([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/ig)].map(m=>m[1].toLowerCase());
    const ih=!!refIp&&ips.includes(refIp),dh=!!refId&&ids.includes(refId),uh=!!refUser&&users.includes(refUser),eh=!!refEmail&&emails.includes(refEmail);
    if(refIp&&ips.length){if(ih)ipHit++;else ipOther++}
    if(refId&&ids.length){if(dh)idHit++;else idOther++}
@@ -490,7 +490,7 @@ async function runIdentityCheck(){
    "IP addresses can be shared or reassigned and can reflect VPNs, proxies, mobile carrier NAT, schools, workplaces, or household networks. Usernames and emails can change or be copied. Timestamps may be missing, inaccurate, or use different time zones. Selected files may be incomplete or altered.",
    "A PDF export is a convenient copy of this report, not independent verification or proof. For ownership review, submit original platform-issued account records and original purchase receipts through the platform's official secure support process. Only the platform can make an ownership decision.",
    "No IP lookup, geolocation, account login, Epic API call, external upload, or credential validation was performed. Selected evidence remains in this browser tab."
-  ].join("\\n");
+  ].join("\n");
   latestIdentityReport=report;out.textContent=report;
   document.getElementById("printIdentityReport").disabled=false;
   document.getElementById("downloadIdentityReport").disabled=false;
@@ -505,7 +505,7 @@ document.getElementById("printIdentityReport").addEventListener("click",()=>{
  if(!latestIdentityReport)return;
  const w=window.open("","_blank");if(!w){alert("Allow pop-ups to print or save the evidence report as PDF.");return}
  const safe=latestIdentityReport.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
- w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Account and IP Evidence Report</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Account &amp; IP Evidence Consistency Report</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\\/script></body></html>");w.document.close();
+ w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Account and IP Evidence Report</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Account &amp; IP Evidence Consistency Report</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\/script></body></html>");w.document.close();
 });
 document.getElementById("clearIdentityCheck").addEventListener("click",()=>{
  ["referenceIp","referenceAccountId","referenceUsername","referenceEmail","identityWindowStart","identityWindowEnd","identityEvidenceText"].forEach(id=>document.getElementById(id).value="");
