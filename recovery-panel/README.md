@@ -61,3 +61,8 @@ The panel links to Epic's official pages; it does not imitate them, collect Epic
 - iPhone export: use Safari and check Files > Downloads. The dashboard creates a file on demand; it does not email or upload records.
 
 Never share panel passwords, webhook URLs, Epic passwords, 2FA codes, backup codes, cookies, or tokens when asking for help.
+
+
+## Ghostface background and project checklist
+
+The main website and Recovery Panel use the existing `ghostface-bg.jpg` artwork as a background with a dark overlay for readability. Both browser interfaces include an interactive project checklist using the requested checkmark and Ghostface emojis. Existing filenames, folder names, and features are preserved.
