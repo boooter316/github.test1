@@ -21,6 +21,7 @@ The PDF generator is built into the C++ source; no Python, external PDF package,
 - Planning fields for Epic display-name/email changes; actual changes require official sign-in and verification.
 - Exports a local recovery packet: PDF, JSON data dump, readable text details, and support-request draft. The C++ source itself is the buildable program; no separate Python script is used.
 - Opens the current Epic account-recovery request form, support, sign-in, account settings, display-name/email help, linked-account and 2FA recovery pages, plus official Xbox, PlayStation, Steam, and Nintendo support pages.
+- Includes a direct link to Epic’s official Sanctions and Appeals portal; Epic reviews eligible Epic sanctions, while Xbox, PlayStation, Steam, and Nintendo restrictions must be appealed with the respective platform.
 
 ## Security and limitations
 
