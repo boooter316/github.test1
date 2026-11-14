@@ -19,20 +19,19 @@ The PDF generator is built into the C++ source; no Python, external PDF package,
 - Platform-specific recovery/restriction appeal notes and official support links for Epic, Xbox, PlayStation, Steam, and Nintendo.
 - Linked-service review fields for Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
 - Planning fields for Epic display-name/email changes; actual changes require official sign-in and verification.
-- Linked-service review list includes Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
 - Exports a local PDF, JSON file, text details, and support-request draft.
 - Opens official Epic recovery, support, sign-in, account settings, display-name/email help, linked-account, and 2FA/security pages, plus official Xbox, PlayStation, Steam, and Nintendo support pages.
 
 ## Security and limitations
 
-- This app does not sign in to Epic, contact Epic APIs, verify ownership, or submit tickets.
+- This app does not sign in to Epic, contact Epic APIs, verify ownership, or submit tickets. The readiness field is only your own checklist, not an ownership check.
 - It cannot remove restrictions/bans, unlink services, change usernames/emails/payment methods, lock accounts, or guarantee recovery. The relevant platform must approve those actions.
 - It prepares a support draft; it does not provide live agent chat or pretend to be an agent.
 - It does not spoof IP addresses, rotate proxies, bypass 2FA, impersonate a previous network/location, or access databases through PuTTY, C2, or VPS infrastructure.
 - A remembered IP is optional context, not proof of ownership and not required by this app.
 - Never enter passwords, account PINs, CVV, full card numbers, 2FA codes, backup codes, authenticator secrets, session cookies, or access tokens.
 - Billing details and card last four digits are optional. Provide them only through an official secure form if the platform specifically requests them.
-- If ownership evidence is missing, the app advises pausing and contacting official support; it does not lock or disable an account.
+- If ownership evidence is missing, the app advises pausing and contacting official support. It never automatically locks, disables, or temporarily suspends an account.
 - Keep exported files private because they may contain personal information.
 
 ## Official Epic resources
