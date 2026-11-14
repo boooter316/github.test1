@@ -655,7 +655,7 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
   a.href=url;a.download="discord-security-scan-report.txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
  });
  buildButton.addEventListener("click",()=>{
-  const tokenCheck=patterns[0].re.test("aaaaaaaaaaaaaaaaaaaaaaaa.bbbbbb.cccccccccccccccccccccccccccccc");
+  const tokenCheck=patterns[0].re.test("aaaaaaaaaaaaaaaaaaaaaaaa.bbbbbb.cccccccccccccccccccccccccccccccc");
   const webhookCheck=patterns[1].re.test("https://discord.com/api/webhooks/123456/fake_secret");
   const fileCheck=typeof File!=="undefined"&&typeof File.prototype.text==="function";
   const exportCheck=typeof Blob!=="undefined"&&typeof URL.createObjectURL==="function";
@@ -666,7 +666,9 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
   result.textContent="Cleared. No scan results remain in this page.";
   status.textContent="Ready. Select files to begin a new scan.";
  });
-})();\n\nfunction inspectFortniteText(s,sourceName){
+})();
+
+function inspectFortniteText(s,sourceName){
   const rules=[
     {name:"JWT-shaped token",re:/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,secret:true,confidence:"High"},
     {name:"Epic/Fortnite bearer or eg1 token",re:/\b(?:eg1~|bearer\s+)[A-Za-z0-9._~\-]{12,}/gi,secret:true,confidence:"High"},
