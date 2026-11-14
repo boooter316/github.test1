@@ -9,7 +9,7 @@ import shutil
 import webbrowser
 
 APP_NAME = "Epic Games Recovery Assistant"
-APP_VERSION = "1.3"
+APP_VERSION = "1.4"
 SUPPORT_URL = "https://www.epicgames.com/help/en-US/"
 RECOVERY_URL = "https://www.epicgames.com/id/login"
 TWO_FA_URL = "https://www.epicgames.com/account/password"
@@ -20,6 +20,12 @@ LOST_2FA_URL = "https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?l
 VPN_TROUBLESHOOTING_URL = "https://www.epicgames.com/help/c-45487929/c-38854402/a20296521?lang=en-US"
 SANCTIONS_URL = "https://safety.epicgames.com/sanctions-and-appeals?mode=game"
 BAN_HELP_URL = "https://www.epicgames.com/help/c-34254770/c-5719350646299/a12390848?lang=en-US"
+DISPLAY_NAME_URL = "https://www.epicgames.com/help/c-45487929/c-35761596/a18323090?lang=en-US"
+EMAIL_CHANGE_URL = "https://www.epicgames.com/help/c-45487929/c-40721840/a18546270?lang=en-US"
+ACCOUNT_SETTINGS_URL = "https://www.epicgames.com/account/personal"
+XBOX_ENFORCEMENT_URL = "https://enforcement.xbox.com/"
+XBOX_STANDARDS_URL = "https://www.xbox.com/en-US/legal/community-standards"
+PLAYSTATION_SUSPENSIONS_URL = "https://www.playstation.com/en-us/support/account/suspensions/"
 TWO_FA_METHODS = ("Epic Authenticator", "Authenticator app", "Email", "SMS / phone")
 
 class EpicRecoveryAssistant:
@@ -47,15 +53,18 @@ class EpicRecoveryAssistant:
         self.incident_tab = ttk.Frame(tabs, padding=10)
         self.help_tab = ttk.Frame(tabs, padding=10)
         self.ban_tab = ttk.Frame(tabs, padding=10)
+        self.platform_tab = ttk.Frame(tabs, padding=10)
         tabs.add(self.account_tab, text="Account Recovery")
         tabs.add(self.security_tab, text="2-Step & VPN/Proxy")
         tabs.add(self.incident_tab, text="Incident Details")
-        tabs.add(self.ban_tab, text="Ban & Appeal")
+        tabs.add(self.ban_tab, text="Epic Ban & Appeal")
+        tabs.add(self.platform_tab, text="Xbox / PlayStation")
         tabs.add(self.help_tab, text="Official Help")
         self.build_account_tab()
         self.build_security_tab()
         self.build_incident_tab()
         self.build_ban_tab()
+        self.build_platform_tab()
         self.build_help_tab()
         actions = ttk.Frame(main)
         actions.pack(fill="x", pady=(4, 0))
@@ -85,6 +94,8 @@ class EpicRecoveryAssistant:
             ("original_email", "Original Epic account email"),
             ("other_emails", "Other emails ever used on the account"),
             ("username", "Current / most recent Epic display name"),
+            ("desired_username", "Desired new Epic display name (planning only)"),
+            ("desired_email", "Desired new Epic account email (planning only)"),
             ("original_username", "Original Epic display name"),
             ("previous_names", "Other previous display names"),
             ("first_name", "First name used on the account"),
@@ -148,6 +159,38 @@ class EpicRecoveryAssistant:
         ttk.Button(self.ban_tab, text="Open Epic Sanctions & Appeals", command=lambda: webbrowser.open(SANCTIONS_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.ban_tab, text="Read Epic ban and appeal guidance", command=lambda: webbrowser.open(BAN_HELP_URL)).pack(anchor="w", pady=4)
 
+    def build_platform_tab(self):
+        ttk.Label(self.platform_tab, text="Xbox and PlayStation restriction records", font=("Segoe UI", 12, "bold")).pack(anchor="w", pady=(0, 6))
+        ttk.Label(self.platform_tab, text="Organize notices and prepare a factual appeal through the platform owner. This cannot remove restrictions, alter enforcement records, bypass device/account bans, or evade platform rules.", foreground="red", wraplength=850).pack(anchor="w", pady=4)
+        ttk.Label(self.platform_tab, text="Xbox enforcement details", font=("Segoe UI", 10, "bold")).pack(anchor="w", pady=(8, 2))
+        for key, label in [
+            ("xbox_gamertag", "Xbox Gamertag"),
+            ("xbox_enforcement_id", "Xbox enforcement / case reference"),
+            ("xbox_restriction_type", "Xbox restriction type"),
+            ("xbox_restriction_date", "Xbox notice / restriction date"),
+            ("xbox_restriction_duration", "Xbox duration / end date"),
+            ("xbox_appeal_status", "Xbox case review status"),
+        ]:
+            self.add_field(self.platform_tab, key, label)
+        ttk.Label(self.platform_tab, text="Xbox factual case-review notes:").pack(anchor="w", pady=(6, 2))
+        self.xbox_notes = tk.Text(self.platform_tab, height=4, wrap="word")
+        self.xbox_notes.pack(fill="x", expand=False)
+        ttk.Button(self.platform_tab, text="Open Xbox Enforcement History / Case Review", command=lambda: webbrowser.open(XBOX_ENFORCEMENT_URL)).pack(anchor="w", pady=4)
+        ttk.Label(self.platform_tab, text="PlayStation enforcement details", font=("Segoe UI", 10, "bold")).pack(anchor="w", pady=(8, 2))
+        for key, label in [
+            ("psn_online_id", "PlayStation Online ID"),
+            ("ps_restriction_type", "PlayStation restriction type (account / communication / console)"),
+            ("ps_restriction_date", "PlayStation notice / restriction date"),
+            ("ps_restriction_duration", "PlayStation duration / end date"),
+            ("ps_appeal_status", "PlayStation appeal status"),
+        ]:
+            self.add_field(self.platform_tab, key, label)
+        ttk.Label(self.platform_tab, text="PlayStation factual appeal notes:").pack(anchor="w", pady=(6, 2))
+        self.playstation_notes = tk.Text(self.platform_tab, height=4, wrap="word")
+        self.playstation_notes.pack(fill="x", expand=False)
+        ttk.Button(self.platform_tab, text="Open PlayStation suspension guidance", command=lambda: webbrowser.open(PLAYSTATION_SUSPENSIONS_URL)).pack(anchor="w", pady=4)
+        ttk.Button(self.platform_tab, text="Open Xbox Community Standards", command=lambda: webbrowser.open(XBOX_STANDARDS_URL)).pack(anchor="w", pady=4)
+
     def build_help_tab(self):
         info = (
             "OFFICIAL EPIC RECOVERY PROCESS\n\n"
@@ -166,6 +209,9 @@ class EpicRecoveryAssistant:
             "This independent utility is not affiliated with Epic Games. It does not verify ownership, reset passwords, unlock accounts, remove sanctions, or submit requests automatically."
         )
         ttk.Label(self.help_tab, text=info, justify="left", wraplength=850).pack(anchor="w")
+        ttk.Button(self.help_tab, text="How to change Epic display name", command=lambda: webbrowser.open(DISPLAY_NAME_URL)).pack(anchor="w", pady=4)
+        ttk.Button(self.help_tab, text="How to change Epic account email", command=lambda: webbrowser.open(EMAIL_CHANGE_URL)).pack(anchor="w", pady=4)
+        ttk.Button(self.help_tab, text="Open Epic account settings", command=lambda: webbrowser.open(ACCOUNT_SETTINGS_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.help_tab, text="Open Epic account recovery guide", command=lambda: webbrowser.open(RECOVERY_GUIDE_URL)).pack(anchor="w", pady=(12, 4))
         ttk.Button(self.help_tab, text="Open official recovery request form guide", command=lambda: webbrowser.open(RECOVERY_REQUEST_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.help_tab, text="Open official 2FA methods guide", command=lambda: webbrowser.open(TWO_FA_METHODS_URL)).pack(anchor="w", pady=4)
@@ -185,6 +231,8 @@ class EpicRecoveryAssistant:
             "description": self.description.get("1.0", "end").strip(),
             "evidence": self.evidence.get("1.0", "end").strip(),
             "appeal_notes": self.appeal_notes.get("1.0", "end").strip(),
+            "xbox_notes": self.xbox_notes.get("1.0", "end").strip(),
+            "playstation_notes": self.playstation_notes.get("1.0", "end").strip(),
             "prepared_at_local": datetime.now().astimezone().isoformat(timespec="minutes"),
             "app_name": APP_NAME,
             "app_version": APP_VERSION,
@@ -230,7 +278,16 @@ class EpicRecoveryAssistant:
                 ("Sanction ID", "sanction_id"), ("Sanction type", "sanction_type"),
                 ("Date received / applied", "sanction_date"), ("Duration", "sanction_duration"),
                 ("Rule / reason in notice", "sanction_rule"), ("Appeal status", "appeal_status"),
-                ("Factual appeal explanation / notes", "appeal_notes")])
+                ("Factual appeal explanation / notes", "appeal_notes")]),
+            ("XBOX RESTRICTION / CASE REVIEW NOTES", [
+                ("Gamertag", "xbox_gamertag"), ("Enforcement / case reference", "xbox_enforcement_id"),
+                ("Restriction type", "xbox_restriction_type"), ("Notice / restriction date", "xbox_restriction_date"),
+                ("Duration / end date", "xbox_restriction_duration"), ("Case review status", "xbox_appeal_status"),
+                ("Factual notes", "xbox_notes")]),
+            ("PLAYSTATION RESTRICTION / APPEAL NOTES", [
+                ("Online ID", "psn_online_id"), ("Restriction type", "ps_restriction_type"),
+                ("Notice / restriction date", "ps_restriction_date"), ("Duration / end date", "ps_restriction_duration"),
+                ("Appeal status", "ps_appeal_status"), ("Factual notes", "playstation_notes")])
         ]
         for heading, fields in sections:
             story.append(Paragraph(escape(heading), styles["Heading2"]))
@@ -311,6 +368,8 @@ class EpicRecoveryAssistant:
         self.description.delete("1.0", tk.END)
         self.evidence.delete("1.0", tk.END)
         self.appeal_notes.delete("1.0", tk.END)
+        self.xbox_notes.delete("1.0", tk.END)
+        self.playstation_notes.delete("1.0", tk.END)
 
     def open_support(self):
         webbrowser.open(SUPPORT_URL)
