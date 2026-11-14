@@ -98,26 +98,31 @@ std::string csv(const std::string& s) {
  return out+"\"";
 }
 void logHistoricalIPs(const fs::path& dir,const std::string& accountId) {
- std::cout<<"\nOPTIONAL HISTORICAL IP LOG\n"
-  <<"Enter only IP addresses from your own records. This log does NOT test whether an IP belongs to an Epic account.\n";
- std::string choice=ask("Add a historical IP record? (y/n)");
+ std::cout<<"\nOPTIONAL IP HISTORY & OWNERSHIP-EVIDENCE LOG\n"
+  <<"Record only truthful details from your own records. IP/location notes are not proof of ownership.\n"
+  <<"Do not enter passwords, verification codes, full payment details, cookies, or tokens. No IP spoofing or network lookup is performed.\n";
+ std::string choice=ask("Add a historical IP/network-history record? (y/n)");
  fs::path logPath=dir/"ip_history_log.csv";
  bool newFile=!fs::exists(logPath);
  std::ofstream log(logPath,std::ios::app);
  if(!log){std::cerr<<"Could not open IP history log.\n";notifyDiscord("general application error");return;}
- if(newFile) log<<"logged_at_local,epic_account_id,ip_address,ip_used_date,source,verification_status\n";
+ if(newFile) log<<"logged_at_local,epic_account_id,ip_address,ip_used_date,approximate_location,vpn_proxy_history,evidence_reference,record_source,verification_status\n";
  while(choice=="y"||choice=="Y"||choice=="yes"||choice=="YES"){
-  std::string ip=ask("Historical IP address (manual entry only; do not guess)");
+  std::string ip=ask("Historical IP address from your own records (optional; do not guess)");
   std::string date=ask("Approximate date/period this IP was used");
-  std::string source=ask("Source of this record (for example, your router records or old email)");
+  std::string location=ask("Approximate city/region/country associated with this record (if known; user-reported)");
+  std::string vpn=ask("Historical VPN/proxy use, provider, region, and dates (or enter none/unsure)");
+  std::string evidence=ask("Evidence reference: filename/type and date of a relevant receipt, old email, router record, or screenshot (do not paste secrets)");
+  std::string source=ask("Source of the IP/location information (for example, your own router record or old email)");
   std::time_t now=std::time(nullptr); std::tm* local=std::localtime(&now);
   char stamp[32]="unknown";
   if(local) std::strftime(stamp,sizeof(stamp),"%Y-%m-%d %H:%M:%S",local);
-  log<<csv(stamp)<<","<<csv(accountId)<<","<<csv(ip)<<","<<csv(date)<<","<<csv(source)
-     <<","<<csv("NOT VERIFIED - Epic must compare with its own records")<<"\n";
+  log<<csv(stamp)<<","<<csv(accountId)<<","<<csv(ip)<<","<<csv(date)<<","<<csv(location)<<","
+     <<csv(vpn)<<","<<csv(evidence)<<","<<csv(source)<<","
+     <<csv("USER-REPORTED - NOT VERIFIED BY EPIC; Epic must compare with its own records")<<"\n";
   log.flush();
-  std::cout<<"Saved one user-entered historical record. No network lookup or account match was performed.\n";
-  choice=ask("Add another historical IP record? (y/n)");
+  std::cout<<"Saved one user-reported history/evidence reference. No network lookup or account match was performed.\n";
+  choice=ask("Add another historical IP/network-history record? (y/n)");
  }
 }
 
@@ -287,11 +292,11 @@ bool authGate() {
 
 int main(){
  if(!authGate()) return 0;
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.6 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.7 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
- <<"IP/VPN history is optional context, never proof of ownership. No spoofing.\n\n";
+ <<"IP/VPN/location history is optional user-reported context, never proof of ownership. No spoofing.\n\n";
  notifyDiscord("application started");
  add("Your first and last name (as used on purchases)");
  add("Epic display name (current)"); add("Previous Epic display names");
@@ -311,6 +316,8 @@ int main(){
  add("Payment method review request (describe the issue; do not request or enter payment credentials)");
  add("Remembered historical public IP (optional; do not guess)");
  add("Approximate date/period IP was used");
+ add("Approximate city/region/country associated with the historical IP (user-reported; optional)");
+ add("Evidence supporting account ownership: reference genuine receipts, old support emails, account notices, or screenshots by filename/type/date only; do not paste secrets");
  add("VPN/proxy provider and region used (history only; no spoofing)");
  add("VPN/proxy active during recovery attempts? (yes/no/unsure)");
  add("VPN/proxy usage dates and purpose (historical notes only)");
@@ -407,7 +414,7 @@ int main(){
  logHistoricalIPs(dir,epicId);
  logLoginActivity(dir,epicId);
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.6 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.7 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional user-reported context; this app cannot compare it with Epic records or verify account ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, full phone numbers, 2FA codes, or backup codes.",
