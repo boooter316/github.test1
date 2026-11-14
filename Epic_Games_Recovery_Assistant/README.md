@@ -21,12 +21,12 @@ Version 1.5. A Windows Python desktop utility for organizing truthful Epic Games
 - Steam / Nintendo restriction organizer: records account identifiers, support / notice references, restriction type, date, duration, appeal status, and factual notes; links to official support resources. It cannot remove restrictions, clear VAC/game bans, or bypass enforcement.
 - Multi-select 2FA history: Epic Authenticator, third-party authenticator app, email, and SMS/phone; plus access status.
 - VPN/proxy history fields for provider and region, strictly for truthful documentation; includes Epic's current troubleshooting advice to disconnect VPN/hosting/proxy services for the relevant sign-in error.
-- PDF recovery-request summary, including the new profile-change planning fields and Xbox / PlayStation appeal notes.
+- PDF recovery-request summary, including Epic profile-change planning fields and Epic, Xbox, PlayStation, Steam, and Nintendo restriction/support notes.
 - Official Epic instructions for changing the display name and account email. The app records the user's desired changes but does not change account settings itself.
 - **Export Full Recovery Packet** (your local account-recovery export) creates a local folder containing:
   - `recovery_request.pdf`
   - `account_details.json` (structured form export)
-  - `app.py` (copy of the running script, when available)
+  - `app.py` (copy of the running Python script, when available)
   - `README.txt` (handling and security notes)
 
 ## Privacy and security
@@ -52,6 +52,8 @@ Epic's available 2FA methods and recovery steps can change. Check the live offic
 - [PlayStation suspensions and appeals](https://www.playstation.com/en-us/support/account/suspensions/)
 - [Steam Support](https://help.steampowered.com/en/wizard/HelpWithAccount)
 - [Steam Community Ban FAQ](https://help.steampowered.com/en/faqs/view/4F62-35F9-F395-5C23)
+- [Nintendo account suspension guidance](https://en-americas-support.nintendo.com/app/answers/detail/a_id/50788/p/989/c/913)
+- [Nintendo Account recovery process](https://en-americas-support.nintendo.com/app/answers/detail/p/850/a_id/47194)
 - [Nintendo Support](https://en-americas-support.nintendo.com/)
 - [Epic Support](https://www.epicgames.com/help/en-US/)
 
