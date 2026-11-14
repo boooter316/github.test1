@@ -429,8 +429,8 @@ int main(){
  draft<<"\nPlease do not treat an IP address alone as proof of ownership. I will provide any requested information only through Epic's official secure support process.\n\nThank you.\n";
  save(dir/"recovery_details.txt",txt.str());save(dir/"recovery_details.json",j.str());save(dir/"support_request_draft.txt",draft.str());
  // CSV export contains only the non-secret fields the user entered in this form.
- std::ostringstream csvOut; csvOut<<"field,value\\n";
- for(const auto& field:fields) csvOut<<csv(field.label)<<","<<csv(field.value)<<"\\n";
+ std::ostringstream csvOut; csvOut<<"field,value\n";
+ for(const auto& field:fields) csvOut<<csv(field.label)<<","<<csv(field.value)<<"\n";
  save(dir/"recovery_details.csv",csvOut.str());
  // Copy the C++ source into the packet when it is beside the executable/source.
  fs::path appDir=fs::current_path();
