@@ -74,22 +74,6 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <section class="panel"><h2>Review and export</h2><p class="hint">Check details for accuracy before sharing through the platform's official secure support form.</p>
 <div class="actions no-print"><button type="button" id="json">Download JSON packet</button><button type="button" class="secondary" id="pdf">Print / Save as PDF</button><button type="button" class="secondary" id="draft">Create support-request draft</button></div>
 <textarea id="draftText" class="no-print" placeholder="Your support request draft will appear here." style="margin-top:12px"></textarea></section></form>
-<section class="panel hidden" id="fazeJarvisTab">
-<h2>Faze Jarvis — Safe Coding Assistant</h2>
-<p class="hint">Hello! This is Faze Jarvis, your coding assistant. I can help plan projects, explain code, create benign scripts, troubleshoot build errors, and draft defensive security tools. This offline demo does not connect to an AI service; its replies are starter guidance, not generated or executed code.</p>
-<div id="fazeJarvisChat" class="scanner-result" role="log" aria-live="polite">Faze Jarvis: Hello! This is Faze Jarvis. What are we building today?</div>
-<label for="fazeJarvisPrompt">Message Faze Jarvis</label><textarea id="fazeJarvisPrompt" placeholder="Describe a project or paste a non-secret error message."></textarea>
-<div class="actions no-print"><button type="button" id="fazeJarvisSend">Send message</button><button type="button" class="secondary" id="fazeJarvisClear">Clear chat</button></div>
-<p class="hint">Safety boundary: I can assist with authorized defensive testing and ordinary software development, but not malware, credential theft, unauthorized access, exploit deployment, stealth, or evasion.</p>
-</section>
-<section class="panel" id="projectBuilderPanel">
-<h2>Build a Starter Project</h2>
-<p class="hint">Create a downloadable starter source file locally. This does not compile or execute code in your browser.</p>
-<div class="grid"><div><label for="builderProjectName">Project name</label><input id="builderProjectName" value="my-project"></div><div><label for="builderLanguage">Starter type</label><select id="builderLanguage"><option value="html">HTML / JavaScript</option><option value="python">Python</option><option value="powershell">PowerShell</option><option value="cpp">C++17</option></select></div></div>
-<label for="builderDescription">What should the project do?</label><textarea id="builderDescription" placeholder="Describe the safe functionality you want to build."></textarea>
-<div class="actions no-print"><button type="button" id="builderGenerate">Build and download starter source</button></div>
-<p id="builderStatus" class="hint" role="status">Choose a starter type and describe your project.</p>
-</section>
 <section class="panel" id="ticketManager">
 <h2>Support Ticket Manager &amp; Recovery Retry Guard</h2>
 <p class="hint">Prepare one clear support request and keep track of an existing case. This assistant never submits tickets or reports automatically. Use the platform's official support channel and do not open duplicate cases for the same issue.</p>
@@ -122,6 +106,22 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <p class="foot"><strong>Notice:</strong> This is an independent, local-first organizer. It does not access platform databases, verify ownership, guarantee account recovery, or perform account changes. Use each platform's official support and appeal process.</p>
 </section>
 </div>
+<section class="panel hidden" id="fazeJarvisTab">
+<h2>Faze Jarvis — Safe Coding Assistant</h2>
+<p class="hint">Hello! This is Faze Jarvis, your coding assistant. I can help plan projects, explain code, create benign scripts, troubleshoot build errors, and draft defensive security tools. This offline demo does not connect to an AI service; its replies are starter guidance, not generated or executed code.</p>
+<div id="fazeJarvisChat" class="scanner-result" role="log" aria-live="polite">Faze Jarvis: Hello! This is Faze Jarvis. What are we building today?</div>
+<label for="fazeJarvisPrompt">Message Faze Jarvis</label><textarea id="fazeJarvisPrompt" placeholder="Describe a project or paste a non-secret error message."></textarea>
+<div class="actions no-print"><button type="button" id="fazeJarvisSend">Send message</button><button type="button" class="secondary" id="fazeJarvisClear">Clear chat</button></div>
+<p class="hint">Safety boundary: I can assist with authorized defensive testing and ordinary software development, but not malware, credential theft, unauthorized access, exploit deployment, stealth, or evasion.</p>
+</section>
+<section class="panel" id="projectBuilderPanel">
+<h2>Build a Starter Project</h2>
+<p class="hint">Create a downloadable starter source file locally. This does not compile or execute code in your browser.</p>
+<div class="grid"><div><label for="builderProjectName">Project name</label><input id="builderProjectName" value="my-project"></div><div><label for="builderLanguage">Starter type</label><select id="builderLanguage"><option value="html">HTML / JavaScript</option><option value="python">Python</option><option value="powershell">PowerShell</option><option value="cpp">C++17</option></select></div></div>
+<label for="builderDescription">What should the project do?</label><textarea id="builderDescription" placeholder="Describe the safe functionality you want to build."></textarea>
+<div class="actions no-print"><button type="button" id="builderGenerate">Build and download starter source</button></div>
+<p id="builderStatus" class="hint" role="status">Choose a starter type and describe your project.</p>
+</section>
 <section class="panel hidden" id="securityTab">
 <h2>Discord Security Scanner</h2>
 <p>This page checks text files you deliberately select on your device for patterns that resemble exposed credentials. It runs locally in this browser tab.</p>
