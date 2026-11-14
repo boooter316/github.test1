@@ -71,7 +71,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div class="grid">
 <div><label for="sbProjectName">Project name</label><input id="sbProjectName" value="my-script"></div>
 <div><label for="sbLanguage">Source language</label><select id="sbLanguage"><option value="python">Python</option><option value="cpp">C++17</option><option value="csharp">C# (.NET 8)</option></select></div>
-<div><label for="sbIde">Preferred editor / IDE</label><select id="sbIde"><option value="vscode">Visual Studio Code</option><option value="vs2022">Visual Studio 2022</option><option value="both">Both VS Code and Visual Studio</option></select></div>
+<div><label for="sbIde">Preferred editor / IDE</label><select id="sbIde"><option value="vscode">Visual Studio Code</option><option value="vs2022">Visual Studio 2026</option><option value="both">Both VS Code and Visual Studio</option></select></div>
 </div>
 <p><label for="sbFile">Import an existing source file</label><input id="sbFile" type="file" accept=".py,.pyw,.cpp,.cc,.cxx,.cs,.txt"></p>
 <p class="hint">Text source files up to 2 MB are read locally in this tab. Importing a file does not execute it. Select the matching language; changing the language does not automatically translate code.</p>
@@ -81,7 +81,8 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div class="actions no-print">
 <button type="button" id="sbStop" class="secondary">Stop</button>
 <button type="button" id="sbDebug" class="secondary">Debug / Review</button>
-<button type="button" id="sbTest" class="secondary">Create Test Script</button>
+<button type="button" id="sbTest" class="secondary">Test</button>
+<button type="button" id="sbRun" class="secondary">Run on Windows</button>
 <button type="button" id="sbSave" class="secondary">Download Source</button>
 <button type="button" id="sbBuild">Build EXE Package</button>
 </div>
@@ -752,6 +753,23 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
   }
   zipDownload("TEST_"+name+"_files.zip",files);
   setStatus("A single ZIP containing the source and test files was downloaded. Extract it on Windows and run TEST_"+name+".bat; this browser cannot run the compiler.");
+ });
+ $("sbRun").addEventListener("click",()=>{
+  if(!source().trim()){setStatus("Paste or import source code first.");return;}
+  const issues=validate();if(issues.length){setStatus("Review the source issues before preparing a run package:\n• "+issues.join("\n• "));return;}
+  const name=projectName(),file=name+"."+extension(),kind=language.value,files={};
+  files[file]=source();
+  if(kind==="python"){
+   files["RUN_SCRIPT.bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","where py >nul 2>nul","if %errorlevel%==0 (py \""+file+"\") else (python \""+file+"\")","if errorlevel 1 echo Script exited with an error.","pause"].join("\r\n")+"\r\n";
+  }else if(kind==="cpp"){
+   files["RUN_SCRIPT.bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","if not exist \""+name+".exe\" (echo Build the EXE first with BUILD_EXE.bat.& pause& exit /b 1)","start \"\" \"%~dp0"+name+".exe\""].join("\r\n")+"\r\n";
+  }else{
+   files[name+".csproj"]='<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net10.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>\n';
+   files["RUN_SCRIPT.bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","where dotnet >nul 2>nul || (echo Install the .NET 10 SDK first.& pause& exit /b 1)","dotnet run --project \""+name+".csproj\"","if errorlevel 1 echo Script exited with an error.","pause"].join("\r\n")+"\r\n";
+  }
+  files["README_RUN.md"]="# Run "+name+"\n\nReview the source before running. This package does not execute code when downloaded.\n\n1. Extract the ZIP on your Windows PC.\n2. Install the language runtime/compiler listed in the Script Builder instructions.\n3. Double-click RUN_SCRIPT.bat. For C++, build the EXE first with BUILD_EXE.bat.\n4. To stop a console program, press Ctrl+C in its terminal window.\n";
+  zipDownload(name+"_run_package.zip",files);
+  setStatus("Run package downloaded. Extract it on Windows, review the source, then double-click RUN_SCRIPT.bat. The browser does not execute the program.");
  });
  $("sbBuild").addEventListener("click",()=>{
   if(!source().trim()){setStatus("Paste or import source code first.");return;}
