@@ -21,7 +21,7 @@ The separate browser-based prototype in the `web/` folder is not the Windows des
 
 1. Install MinGW-w64/GCC with C++17 support and add `g++` to PATH: https://www.mingw-w64.org/
 2. Open this folder in File Explorer.
-3. Run `build.bat` (or `setup.bat`) to compile `recovery_assistant.cpp`.
+3. Run `build.bat` (or `setup.bat`) to compile `recovery_assistant.c++`.
 4. Run `run.bat` to launch the program.
 
 The GitHub Actions workflow also builds a Windows executable whenever the desktop source or build workflow changes, and can be manually run from the GitHub Actions tab.
@@ -59,14 +59,14 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 - Platform-specific recovery/restriction appeal notes and official support links for Epic, Xbox, PlayStation, Steam, and Nintendo.
 - Linked-service review fields for Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
 - Planning fields for Epic display-name/email changes; actual changes require official sign-in and verification.
-- Exports a local recovery evidence packet: PDF report, JSON data, readable text details, support-request draft, optional IP-history CSV log, optional login-activity CSV log, and a copy of `recovery_assistant.cpp` when `recovery_assistant.cpp` is beside the executable. The checklist can note names of genuine evidence files kept privately on the computer; it does not ingest or extract those files. If it is unavailable, the packet includes `SOURCE_NOT_COPIED.txt`. This exports only information the user enters; it cannot extract platform databases, credentials, cookies, tokens, or account data.
+- Exports a local recovery evidence packet: PDF report, JSON data, readable text details, support-request draft, optional IP-history CSV log, optional login-activity CSV log, and a copy of `recovery_assistant.c++` when `recovery_assistant.c++` is beside the executable. The checklist can note names of genuine evidence files kept privately on the computer; it does not ingest or extract those files. If it is unavailable, the packet includes `SOURCE_NOT_COPIED.txt`. This exports only information the user enters; it cannot extract platform databases, credentials, cookies, tokens, or account data.
 - Includes an offline guided recovery chat for common questions; it is not a live AI model or Epic agent.
 - Prepares a support-request draft and opens Epic's official contact page; the user reviews and submits it. No automatic ticket submission or direct Epic API connection.
 - Opens official recovery, support, account settings, linked-account and 2FA help pages.
 
 ## Version 4.3 additions
 
-- Adds `build.bat` as a one-click build launcher; `setup.bat` performs the C++17 compilation of the correctly named `recovery_assistant.cpp` into `Epic_Games_Recovery_Assistant.exe`.
+- Adds `build.bat` as a one-click build launcher; `setup.bat` performs the C++17 compilation of the correctly named `recovery_assistant.c++` into `Epic_Games_Recovery_Assistant.exe`.
 - Adds an optional local `ip_history_log.csv`. It appends IP addresses manually entered by the user, the Epic Account ID label, approximate use date, record source, and a clear `NOT VERIFIED` status.
 - The logger does not discover the device's IP, make network requests, spoof an address, use a VPN/proxy, or compare an address with Epic's private records. It cannot confirm that an IP belongs to the account; only Epic can perform that verification.
 
