@@ -20,6 +20,10 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 .tool-subpanel{min-width:0}
 .tool-subpanel.hidden{display:none!important}
 @media(max-width:560px){.tool-subnav{display:grid;grid-template-columns:1fr 1fr}.tool-subnav button{font-size:.9rem;padding:10px 8px}}
+.account-link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:10px 0 20px}
+.account-link{display:flex;flex-direction:column;gap:4px;padding:13px;border:1px solid #dce2ea;border-radius:10px;background:#f8fafc;color:#175cd3;text-decoration:none;min-width:0}
+.account-link:hover,.account-link:focus{border-color:#175cd3;background:#eef4ff;outline-offset:2px}
+.account-link span{font-size:.88rem;color:#526174}
 </style></head><body><main class="wrap">
 <header><h1>Account Recovery Request Assistant</h1><p>Prepare a factual support request for Epic Games or another platform. This is an independent organizer, not an official support tool.</p>
 <div class="notice"><strong>Privacy:</strong> Your entries stay in this browser tab. This site does not send them to or save them on the hosting server. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, or API keys.</div></header>
@@ -27,6 +31,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <button type="button" class="tab active" id="recoveryTabButton" aria-selected="true">Recovery Assistant</button>
 <button type="button" class="tab secondary" id="securityTabButton" aria-selected="false">Discord Security Scanner</button>
 <button type="button" class="tab secondary" id="fortniteTabButton" aria-selected="false">Pro Multi-Platform Scanner</button>
+<button type="button" class="tab secondary" id="accountLinksTabButton" aria-selected="false">Account Links</button>
 </nav>
 <div id="recoveryTab">
 <form id="packet">
@@ -186,7 +191,43 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 </section>
 <h3>Recommended next steps</h3><ol><li>If a credential-like pattern is found, do not post the file publicly.</li><li>Secure your Epic account through Epic's official account-security page, change a potentially exposed password, and enable two-factor authentication.</li><li>Sign out of sessions using the official account controls where available, and rotate any exposed API key or webhook through its provider.</li><li>Download Fortnite only through official Epic channels and avoid third-party “token checker” tools.</li></ol>
 </section>
-<p class="foot">Keep exported files private. The browser form processes entries in your tab and does not submit them to this site.</p></main>
+<p class="foot">Keep exported files private. The browser form processes entries in your tab and does not submit them to this site.</p><section class="panel hidden" id="accountLinksTab">
+<h2>Official Account &amp; Platform Links</h2>
+<p class="hint">Open the official website for each service. These are shortcuts only: they do not connect accounts, retrieve private profile data, verify a login, or share passwords between services. Sign in directly on the service's own website and review its security settings there.</p>
+<div class="notice"><strong>Safety:</strong> Check the domain before entering credentials. Never give your password, 2FA code, recovery code, or session token to this assistant or an unfamiliar third-party page. Use official account settings to manage linked accounts.</div>
+<h3>Gaming &amp; platforms</h3>
+<div class="account-link-grid">
+<a class="account-link" href="https://www.epicgames.com/id/login" target="_blank" rel="noopener noreferrer"><strong>Epic Games / Fortnite</strong><span>Epic account sign-in</span></a>
+<a class="account-link" href="https://www.roblox.com/login" target="_blank" rel="noopener noreferrer"><strong>Roblox</strong><span>Roblox sign-in</span></a>
+<a class="account-link" href="https://www.rockstargames.com/" target="_blank" rel="noopener noreferrer"><strong>GTA / Rockstar Games</strong><span>Rockstar Games account and support</span></a>
+<a class="account-link" href="https://www.minecraft.net/" target="_blank" rel="noopener noreferrer"><strong>Minecraft</strong><span>Minecraft account and game site</span></a>
+<a class="account-link" href="https://www.xbox.com/" target="_blank" rel="noopener noreferrer"><strong>Xbox</strong><span>Xbox account and services</span></a>
+<a class="account-link" href="https://store.steampowered.com/login/" target="_blank" rel="noopener noreferrer"><strong>Steam</strong><span>Steam sign-in</span></a>
+<a class="account-link" href="https://www.playstation.com/" target="_blank" rel="noopener noreferrer"><strong>PlayStation</strong><span>PlayStation account and support</span></a>
+<a class="account-link" href="https://www.nintendo.com/" target="_blank" rel="noopener noreferrer"><strong>Nintendo</strong><span>Nintendo account and services</span></a>
+<a class="account-link" href="https://www.teamspeak.com/" target="_blank" rel="noopener noreferrer"><strong>TeamSpeak</strong><span>TeamSpeak official site</span></a>
+<a class="account-link" href="https://github.com/login" target="_blank" rel="noopener noreferrer"><strong>GitHub</strong><span>GitHub sign-in and repositories</span></a>
+</div>
+<h3>Social, streaming &amp; video</h3>
+<div class="account-link-grid">
+<a class="account-link" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer"><strong>Facebook</strong><span>Facebook</span></a>
+<a class="account-link" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer"><strong>Instagram</strong><span>Instagram</span></a>
+<a class="account-link" href="https://www.twitch.tv/" target="_blank" rel="noopener noreferrer"><strong>Twitch</strong><span>Twitch</span></a>
+<a class="account-link" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer"><strong>YouTube</strong><span>YouTube</span></a>
+<a class="account-link" href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer"><strong>TikTok</strong><span>TikTok</span></a>
+<a class="account-link" href="https://x.com/" target="_blank" rel="noopener noreferrer"><strong>X (Twitter)</strong><span>X</span></a>
+<a class="account-link" href="https://www.snapchat.com/" target="_blank" rel="noopener noreferrer"><strong>Snapchat</strong><span>Snapchat</span></a>
+</div>
+<h3>Email &amp; identity providers</h3>
+<div class="account-link-grid">
+<a class="account-link" href="https://account.microsoft.com/" target="_blank" rel="noopener noreferrer"><strong>Microsoft account</strong><span>Microsoft account settings</span></a>
+<a class="account-link" href="https://accounts.google.com/" target="_blank" rel="noopener noreferrer"><strong>Google account</strong><span>Google sign-in and security</span></a>
+<a class="account-link" href="https://mail.google.com/" target="_blank" rel="noopener noreferrer"><strong>Gmail</strong><span>Gmail inbox</span></a>
+<a class="account-link" href="https://login.yahoo.com/" target="_blank" rel="noopener noreferrer"><strong>Yahoo</strong><span>Yahoo sign-in and mail</span></a>
+</div>
+<p class="hint">If a game or social service supports linked accounts, use its official “Connections,” “Linked accounts,” or “Security” settings. This page does not perform the linking for you.</p>
+</section>
+</main>
 <script>
 const ids=["name","accountId","display","oldDisplay","email","oldEmail","desiredDisplay","desiredEmail","country","creator","incident","error","date","firstSeen","details","mfaAccess","invoice","provider","last4","billingCity","ip","vpn","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"];
 function collect(){const o={app:"Account Recovery Request Assistant",schemaVersion:1,createdAt:new Date().toISOString(),fields:{}};ids.forEach(id=>o.fields[id]=document.getElementById(id).value.trim());o.fields.twoStepMethods=[...document.querySelectorAll('input[name="mfa"]:checked')].map(x=>x.value);return o}
@@ -252,13 +293,21 @@ document.getElementById("ticketStatusRefresh").addEventListener("click",()=>upda
 updateTicketLimitStatus();
 
 // Page navigation
-const recoveryTabButton=document.getElementById("recoveryTabButton");
-const securityTabButton=document.getElementById("securityTabButton");
-const fortniteTabButton=document.getElementById("fortniteTabButton");
-function showTab(which){const active={recovery:which==="recovery",security:which==="security",fortnite:which==="fortnite"};for(const [key,on] of Object.entries(active)){document.getElementById(key==="recovery"?"recoveryTab":key==="security"?"securityTab":"fortniteTab").classList.toggle("hidden",!on);const btn=key==="recovery"?recoveryTabButton:key==="security"?securityTabButton:fortniteTabButton;btn.setAttribute("aria-selected",String(on));btn.classList.toggle("secondary",!on)}}
-recoveryTabButton.addEventListener("click",()=>showTab("recovery"));
-securityTabButton.addEventListener("click",()=>showTab("security"));
-fortniteTabButton.addEventListener("click",()=>showTab("fortnite"));
+const pageTabs={
+ recovery:{button:document.getElementById("recoveryTabButton"),panel:document.getElementById("recoveryTab")},
+ security:{button:document.getElementById("securityTabButton"),panel:document.getElementById("securityTab")},
+ fortnite:{button:document.getElementById("fortniteTabButton"),panel:document.getElementById("fortniteTab")},
+ accountLinks:{button:document.getElementById("accountLinksTabButton"),panel:document.getElementById("accountLinksTab")}
+};
+function showTab(which){
+ for(const [key,item] of Object.entries(pageTabs)){
+  const active=key===which;
+  item.panel.classList.toggle("hidden",!active);
+  item.button.setAttribute("aria-selected",String(active));
+  item.button.classList.toggle("secondary",!active);
+ }
+}
+for(const [key,item] of Object.entries(pageTabs))item.button.addEventListener("click",()=>showTab(key));
 // Local-only, redacted pattern scan. Never render or retain matched secret values.
 function inspectText(s){const patterns=[
 {name:"JWT-shaped string",re:/\beyJ[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\b/g},
@@ -675,4 +724,5 @@ createToolSubtabs("fortniteTab","proTools",[
 document.getElementById("recoveryTabButton").textContent="Recovery Assistant";
 document.getElementById("securityTabButton").textContent="Discord Scanner";
 document.getElementById("fortniteTabButton").textContent="Pro Multi-Tool";
+document.getElementById("accountLinksTabButton").textContent="Account Links";
 </script></body></html>
