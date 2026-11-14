@@ -1,22 +1,25 @@
-# Enables or removes a daily Windows task for the project updater.
+# Installs or removes the daily Windows task for checksum-verified project updates.
 [CmdletBinding()]
 param([switch]$Remove)
 $ErrorActionPreference = 'Stop'
 $TaskName = 'Epic Recovery Assistant - Daily Project Update'
 $Updater = Join-Path $PSScriptRoot 'update_project.ps1'
 if ($Remove) {
-  Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
-  Write-Host 'Daily update task removed.'
-  exit 0
+    Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
+    Write-Host 'Daily update task removed (if it was installed).'
+    exit 0
 }
-if (!(Test-Path $Updater)) { throw 'update_project.ps1 was not found in this folder.' }
-if (!(Get-Command gh -ErrorAction SilentlyContinue)) { throw 'Install GitHub CLI from https://cli.github.com/ first.' }
-& gh auth status 2>$null | Out-Null
-if ($LASTEXITCODE -ne 0) { throw "Run 'gh auth login' before enabling automatic updates." }
-$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -NonInteractive -ExecutionPolicy Bypass -File `"$Updater`" -Quiet"
-$trigger = New-ScheduledTaskTrigger -Daily -At 9:00AM
-$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Minutes 20)
-$principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
-Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Description 'Downloads checksum-verified project updates from authenticated GitHub main builds; does not run downloaded scripts.' -Force | Out-Null
-Write-Host 'Daily update check enabled for 9:00 AM when this Windows user is logged in.'
-Write-Host "To remove: powershell -ExecutionPolicy Bypass -File `"$PSScriptRoot\install_auto_update.ps1`" -Remove"
+if (-not (Test-Path -LiteralPath $Updater -PathType Leaf)) { throw "update_project.ps1 was not found: $Updater" }
+if (-not (Get-Command gh -ErrorAction SilentlyContinue)) { throw "Install GitHub CLI from https://cli.github.com/ and run 'gh auth login' first." }
+& gh auth status *> $null
+if ($LASTEXITCODE -ne 0) { throw "GitHub CLI is not authenticated. Run 'gh auth login' with access to boooter316/github.test1." }
+$PowerShell = (Get-Command powershell.exe -ErrorAction Stop).Source
+$Arguments = '-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "' + $Updater + '" -Quiet'
+$Action = New-ScheduledTaskAction -Execute $PowerShell -Argument $Arguments
+$Trigger = New-ScheduledTaskTrigger -Daily -At 9:00AM
+$Settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 20)
+$CurrentUser = [Security.Principal.WindowsIdentity]::GetCurrent().Name
+$Principal = New-ScheduledTaskPrincipal -UserId $CurrentUser -LogonType Interactive -RunLevel Limited
+Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Settings $Settings -Principal $Principal -Description 'Downloads checksum-verified project updates from authenticated GitHub main builds; does not execute downloaded code.' -Force | Out-Null
+Write-Host 'Daily project update check enabled for 9:00 AM while this Windows user is signed in.'
+Write-Host 'To remove it, run .\install_auto_update.ps1 -Remove from this folder.'

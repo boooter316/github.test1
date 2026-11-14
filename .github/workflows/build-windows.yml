@@ -45,13 +45,25 @@ jobs:
           }
           console.log(`Validated ${scripts.length} inline script block(s) and network_security.js.`);
           '@ | node
-      - name: Build Windows executable
+      - name: Validate Windows batch launchers
         shell: pwsh
+        run: |
+          $required = @('build.bat', 'setup.bat', 'run.bat')
+          foreach ($name in $required) {
+            $path = Join-Path $PWD "Epic_Games_Recovery_Assistant/$name"
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing launcher: $name" }
+            $content = Get-Content -LiteralPath $path -Raw
+            if ($content -notmatch '(?i)@echo off') { throw "Invalid batch launcher: $name" }
+          }
+          Write-Host 'All three Windows batch launchers are present.'
+      - name: Build Windows executable through one-click builder
+        shell: cmd
         working-directory: Epic_Games_Recovery_Assistant
         run: |
-          g++ --version
-          g++ -std=c++17 -O2 -Wall -Wextra recovery_assistant.c++ -o Epic_Games_Recovery_Assistant.exe -static -static-libgcc -static-libstdc++ -lshell32 -lwinhttp -lbcrypt
-          if ($LASTEXITCODE -ne 0) { throw "C++ build failed" }
+          set BUILD_NO_PAUSE=1
+          call build.bat
+          if errorlevel 1 exit /b 1
+          if not exist Epic_Games_Recovery_Assistant.exe exit /b 1
       - name: Upload Windows executable
         uses: actions/upload-artifact@v4
         with:
