@@ -52,7 +52,7 @@ try {
         'build.bat', 'setup.bat', 'run.bat', 'PDF_EVIDENCE_SCANNER.bat', 'install_auto_update.ps1', 'update_project.ps1',
         'recovery_assistant.c++', 'paf_evidence_scanner.c++', 'README.md', 'SETUP_AND_USAGE.txt',
         'OPEN_PROJECT.bat', 'FIRST_RUN_SETUP.bat', 'first_run_setup.ps1', 'setup_dependencies.ps1',
-        'web\index.html', 'web\server.mjs', 'web\server.cpp', 'web\Dockerfile',
+        'web\index.html', 'web\server.mjs', 'web\server.cpp', 'web\Dockerfile', 'web\ghostface-bg.jpg',
         'web\README.md', 'web\SETUP_AND_USAGE.txt', 'web\FAZE_JARVIS_SETUP.md',
         'web\TELEGRAM_FORTNITE_SETUP.md', 'web\network_security.js',
         'web\network-tools.html', 'web\network_tools.ps1', 'web\network_security_snapshot.ps1'
