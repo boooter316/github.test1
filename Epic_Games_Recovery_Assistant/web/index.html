@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Account Recovery Assistant — Pro Local Security Scanner</title><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
+<title>Account Recovery Assistant — Pro Local Security Scanner</title><script type="module">
+import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.min.mjs";
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.min.mjs";
+window.pdfjsLib = pdfjsLib;
 </script>
 <style>
 :root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#18212f;background:#090609}body{margin:0;min-height:100vh;background:#090609 url('ghostface-bg.jpg') center center/cover fixed no-repeat;position:relative}body:before{content:"";position:fixed;inset:0;background:rgba(5,0,5,.48);pointer-events:none;z-index:0}.wrap{max-width:900px;margin:auto;padding:22px;position:relative;z-index:1;padding-bottom:76px}body:after{content:"✅✅✔️✔️😈😈";position:fixed;z-index:5;left:0;right:0;bottom:0;padding:12px 8px;text-align:center;font-size:clamp(24px,5vw,38px);letter-spacing:5px;background:rgba(8,0,8,.78);border-top:1px solid rgba(255,50,70,.65);text-shadow:0 0 12px #ff1744;pointer-events:none}
@@ -959,7 +962,7 @@ document.getElementById("runPdfEvidenceScan").addEventListener("click",async()=>
  const result=document.getElementById("pdfEvidenceResult");
  if(!files.length){result.textContent="Choose one or more PDF files first.";return}
  if(!window.pdfjsLib){result.textContent="PDF engine did not load. Check the internet connection and reload this page.";return}
- window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+ window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.min.mjs";
  for(const file of files){
   out.push("FILE: "+file.name);
   if(file.size>50*1024*1024){out.push("Skipped: file exceeds 50 MB.","");continue}
@@ -985,7 +988,7 @@ document.getElementById("downloadPdfEvidenceReport").addEventListener("click",()
 
 async function extractPdfText(file){
   if(!window.pdfjsLib)throw new Error("PDF text engine did not load; connect to the internet and retry.");
-  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.min.mjs";
   const data=new Uint8Array(await file.arrayBuffer());
   const pdf=await window.pdfjsLib.getDocument({data}).promise;
   const pages=[];
