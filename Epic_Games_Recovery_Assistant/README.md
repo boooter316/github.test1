@@ -21,7 +21,7 @@ The separate browser-based prototype in the `web/` folder is not the Windows des
 
 1. Install MinGW-w64/GCC with C++17 support and add `g++` to PATH: https://www.mingw-w64.org/
 2. Open this folder in File Explorer.
-3. Run `setup.bat` to compile `recovery_assistant.cpp`.
+3. Run `build.bat` (or `setup.bat`) to compile `recovery_assistant.cpp`.
 4. Run `run.bat` to launch the program.
 
 The GitHub Actions workflow also builds a Windows executable whenever the desktop source or build workflow changes, and can be manually run from the GitHub Actions tab.
@@ -65,6 +65,12 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 - Opens official recovery, support, account settings, linked-account and 2FA help pages.
 
 ## Version 4.3 additions
+
+- Adds `build.bat` as a one-click build launcher; `setup.bat` performs the C++17 compilation of the correctly named `recovery_assistant.cpp` into `Epic_Games_Recovery_Assistant.exe`.
+- Adds an optional local `ip_history_log.csv`. It appends IP addresses manually entered by the user, the Epic Account ID label, approximate use date, record source, and a clear `NOT VERIFIED` status.
+- The logger does not discover the device's IP, make network requests, spoof an address, use a VPN/proxy, or compare an address with Epic's private records. It cannot confirm that an IP belongs to the account; only Epic can perform that verification.
+
+## Version 4.2 additions
 
 - Adds an expanded linked-service inventory for Xbox, PlayStation, Nintendo, Steam, Twitch, YouTube, Instagram, TikTok, Facebook, Google/Gmail, LEGO, Roblox, and GTA/Rockstar Games. It records public profile identifiers and link-status notes only.
 - Adds password-change planning and phone-number-control status without collecting passwords, full phone numbers, or verification codes.
