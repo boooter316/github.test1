@@ -61,7 +61,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && url.pathname === "/api/chat") {
     if (!API_KEY || !CHAT_PASSWORD) return json(res, 503, { error: "Chat is not configured. Set DEEPSEEK_API_KEY and CHAT_ACCESS_PASSWORD on the server." });
     if (!sameSecret(req.headers["x-chat-access"], CHAT_PASSWORD)) return json(res, 401, { error: "The app access password is incorrect." });
-    const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown").split(",")[0].trim();
+    const ip = req.socket.remoteAddress || "unknown";
     if (!allowedRate(ip)) return json(res, 429, { error: "Too many requests. Wait a minute and try again." });
     let input;
     try { input = await readBody(req); }
@@ -112,7 +112,10 @@ const server = http.createServer(async (req, res) => {
   const entry = files.get(url.pathname);
   if (!entry) return json(res, 404, { error: "Not found." });
   try {
-    const body = await readFile(path.join(ROOT, entry[0]));
+    let body = await readFile(path.join(ROOT, entry[0]));
+    if (url.pathname === "/" || url.pathname === "/index.html") {
+      body = Buffer.from(body.toString("utf8").replace("</nav>", "<a class=\\"tab\\" href=\\"/network-tools.html\\" style=\\"display:inline-block;text-decoration:none;text-align:center\\">IP &amp; Network Tools</a></nav>"));
+    }
     res.writeHead(200, {
       "Content-Type": entry[1],
       "Cache-Control": "no-store",
