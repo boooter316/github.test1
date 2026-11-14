@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 4.0.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 4.1.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Download the Windows executable
 
@@ -48,6 +48,8 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 
 ## Features
 
+- Dedicated failed-recovery tracking and an Epic follow-up ticket draft, included in the local evidence packet.
+
 - Organizes Epic Account ID and optional Epic-provided account-number/reference (both exported to PDF, JSON, and text), current/previous display names and emails, account dates, creator code, invoice/order ID, purchase name, optional billing address, payment provider, and card last four digits only.
 - Records each 2FA method (Epic Authenticator, third-party authenticator app, email, SMS/phone), preferred method, and separate access-status notes for each method. It can record which official recovery contact method the user wants to discuss with support. It does not store phone numbers or verification codes.
 - Optional historical IP and VPN/proxy provider/region/use/date notes for truthful context only; the app does not connect to, configure, rotate, or use a VPN/proxy.
@@ -58,6 +60,13 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 - Includes an offline guided recovery chat for common questions; it is not a live AI model or Epic agent.
 - Prepares a support-request draft and opens Epic's official contact page; the user reviews and submits it. No automatic ticket submission or direct Epic API connection.
 - Opens official recovery, support, account settings, linked-account and 2FA help pages.
+
+## Version 4.1 additions
+
+- Adds an Account Recovery Failed section to record whether an attempt failed, date/time, exact error text, failed step, Epic request/reference number, prior troubleshooting, waiting instructions, and prior support response.
+- Includes those failure details in the PDF, JSON, and readable text evidence exports.
+- Reworks the support-request draft into a recovery-failure follow-up message that includes the recorded failure details and asks Epic for approved next steps or alternative verification options.
+- The app does not automatically retry recovery, submit tickets, bypass waiting periods, or guarantee account restoration.
 
 ## Version 4.0 additions
 
