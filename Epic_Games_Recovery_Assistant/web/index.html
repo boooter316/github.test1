@@ -38,6 +38,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <button type="button" class="tab secondary" id="fazeJarvisTabButton" aria-selected="false">Faze Jarvis AI</button>
 <button type="button" class="tab secondary" id="securityTabButton" aria-selected="false">Discord Security Scanner</button>
 <button type="button" class="tab secondary" id="fortniteTabButton" aria-selected="false">Pro Multi-Platform Scanner</button>
+<button type="button" class="tab secondary" id="pdfEvidenceTabButton" aria-selected="false">PDF Evidence Scanner</button>
 <button type="button" class="tab secondary" id="accountLinksTabButton" aria-selected="false">Account Links</button>
 <button type="button" class="tab secondary" id="accountConnectionsTabButton" aria-selected="false">Account Connections</button>
 <button type="button" class="tab secondary" id="packetDiagnosticsTabButton" aria-selected="false">Wireshark &amp; Ports</button>
@@ -324,6 +325,16 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <p class="hint">Browser pages cannot capture live network packets or read Windows network interfaces directly. Use the helper for local connection snapshots and Wireshark for authorized packet capture. Some endpoints may be omitted by Windows permissions or application behavior. DNS names and IP addresses can reveal sensitive browsing or network activity; keep reports private.</p>
 </section>
 </section>
+
+<section class="panel hidden" id="pdfEvidenceTab">
+<h2>Local PDF Evidence Scanner</h2>
+<p class="hint">Scan text-based PDFs selected from this device. The browser extracts text locally and displays only page numbers and indicator categories—not document text or matched secret values.</p>
+<div class="risk"><strong>Privacy and limitations:</strong> PDF contents are not uploaded by this scanner. Image-only/scanned PDFs are not OCR-scanned. Encrypted, damaged, oversized, or very large documents may be skipped or only partially inspected. Findings are indicators only and do not verify account ownership or document authenticity.</div>
+<p><label for="pdfEvidenceFiles">Choose PDF files (maximum 50 MB each; up to 2,000 pages)</label><input id="pdfEvidenceFiles" type="file" accept="application/pdf,.pdf" multiple></p>
+<div class="actions no-print"><button type="button" id="runPdfEvidenceScan">Scan PDFs locally</button><button type="button" class="secondary" id="clearPdfEvidenceScan">Clear</button><button type="button" class="secondary" id="downloadPdfEvidenceReport" disabled>Download TXT report</button></div>
+<pre id="pdfEvidenceResult" class="scanner-result" role="status" aria-live="polite">No PDF scan has been run.</pre>
+</section>
+
 <p class="foot">Keep exported files private. The browser form processes entries in your tab and does not submit them to this site.</p><section class="panel hidden" id="accountStatusTab">
 <h2>Account Status &amp; Details</h2>
 <p class="hint">Choose a service tab, open its official site to sign in there, then optionally record non-secret account details below. This page does not authenticate or connect accounts, fetch private provider data, check whether an account is active, or verify an IP address.</p>
@@ -535,6 +546,7 @@ const pageTabs={
  fazeJarvis:{button:document.getElementById("fazeJarvisTabButton"),panel:document.getElementById("fazeJarvisTab")},
  security:{button:document.getElementById("securityTabButton"),panel:document.getElementById("securityTab")},
  fortnite:{button:document.getElementById("fortniteTabButton"),panel:document.getElementById("fortniteTab")},
+ pdfEvidence:{button:document.getElementById("pdfEvidenceTabButton"),panel:document.getElementById("pdfEvidenceTab")},
  accountLinks:{button:document.getElementById("accountLinksTabButton"),panel:document.getElementById("accountLinksTab")},
  accountConnections:{button:document.getElementById("accountConnectionsTabButton"),panel:document.getElementById("accountConnectionsTab")},
  packetDiagnostics:{button:document.getElementById("packetDiagnosticsTabButton"),panel:document.getElementById("packetDiagnosticsTab")},
@@ -925,6 +937,48 @@ function inspectFortniteText(s,sourceName){
   }
   return findings;
 }
+
+let pdfEvidenceReport="";
+function pdfEvidenceCategories(text){
+ const rules=[
+  ["Purchase/order reference",/\b(?:purchase|receipt|invoice|order|transaction|payment)\b/i],
+  ["Epic/Fortnite reference",/\b(?:epic games|fortnite|epic account)\b/i],
+  ["Date reference",/\b(?:\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\b/],
+  ["Account identifier label",/\b(?:account id|account number|display name|username|support case|ticket number)\b/i],
+  ["Email address present",/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i],
+  ["Possible sensitive-data pattern",/\b(?:password|passwd|token|cookie|session|2fa|verification code|backup code|card number|cvv)\b/i]
+ ];
+ return rules.filter(([,re])=>re.test(text)).map(([label])=>label);
+}
+document.getElementById("runPdfEvidenceScan").addEventListener("click",async()=>{
+ const files=[...document.getElementById("pdfEvidenceFiles").files],out=["LOCAL PDF EVIDENCE INDICATOR REPORT","Generated: "+new Date().toISOString(),"Selected files: "+files.length,"","No document text or matched secret values are included."];
+ const result=document.getElementById("pdfEvidenceResult");
+ if(!files.length){result.textContent="Choose one or more PDF files first.";return}
+ if(!window.pdfjsLib){result.textContent="PDF engine did not load. Check the internet connection and reload this page.";return}
+ window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+ for(const file of files){
+  out.push("FILE: "+file.name);
+  if(file.size>50*1024*1024){out.push("Skipped: file exceeds 50 MB.","");continue}
+  try{
+   const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+   const maxPages=Math.min(doc.numPages,2000);let readable=0,indicators=0;
+   for(let pageNo=1;pageNo<=maxPages;pageNo++){
+    const page=await doc.getPage(pageNo),content=await page.getTextContent(),pageText=content.items.map(x=>x.str||"").join(" ");
+    if(!pageText.trim()){out.push("Page "+pageNo+": no extractable text (possibly image-only; OCR not included).");continue}
+    readable++;const labels=pdfEvidenceCategories(pageText);
+    if(labels.length){indicators+=labels.length;out.push("Page "+pageNo+": "+labels.join("; "))}
+   }
+   out.push("Pages: "+doc.numPages+" | Text-readable pages: "+readable+" | Indicator matches: "+indicators);
+   if(doc.numPages>maxPages)out.push("Only first "+maxPages+" pages checked; remaining pages not inspected.");
+  }catch(_){out.push("Not inspected: PDF may be encrypted, damaged, or unreadable.")}
+  out.push("");
+ }
+ out.push("Limitations: indicators are keyword/pattern matches, not proof of ownership or authenticity. Scanned-image pages are not OCR-scanned. PDF extraction runs in this browser; no PDF content is uploaded by this scanner.");
+ pdfEvidenceReport=out.join("\n");result.textContent=pdfEvidenceReport;document.getElementById("downloadPdfEvidenceReport").disabled=false;
+});
+document.getElementById("clearPdfEvidenceScan").addEventListener("click",()=>{document.getElementById("pdfEvidenceFiles").value="";document.getElementById("pdfEvidenceResult").textContent="Cleared. No scan has been run.";pdfEvidenceReport="";document.getElementById("downloadPdfEvidenceReport").disabled=true});
+document.getElementById("downloadPdfEvidenceReport").addEventListener("click",()=>{if(!pdfEvidenceReport)return;const blob=new Blob([pdfEvidenceReport],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="local-pdf-evidence-report.txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+
 async function extractPdfText(file){
   if(!window.pdfjsLib)throw new Error("PDF text engine did not load; connect to the internet and retry.");
   window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
