@@ -1,74 +1,64 @@
 # Epic Games Recovery Assistant
 
-Version 1.9. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
-
-## Requirements
-- Windows 10 or Windows 11
-- Python 3.10 or newer
-- ReportLab (install with `py -m pip install -r requirements.txt`)
+Version 2.0. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information, preparing support-request drafts, and exporting a local recovery packet.
 
 ## Install and run
+
+- Windows 10 or Windows 11
+- Python 3.10 or newer
+- ReportLab (installed by the included setup script)
+
 1. Install Python from https://www.python.org/downloads/ and enable **Add Python to PATH**.
 2. Open this folder in File Explorer.
-3. Run `setup.bat` to install the PDF dependency and launch the app.
-4. Use `run.bat` for later launches.
+3. Run `setup.bat` to install/update the PDF dependency and launch the app.
+4. Run `run.bat` for later launches.
 
-## Features
-- Account details: current and previous emails/display names, desired new Epic display name/email (planning fields only), creation country/date, Epic Account ID, invoice ID, phone used for SMS 2FA, linked accounts and approximate linking dates, purchase payment types, and optional remembered original IP.
-- Incident categories and a description/evidence section, plus an Epic recovery-response tracker for status, case reference, submission date, exact error message, and follow-up notes (including canceled, disabled/locked, denied, or pending states).
-- Epic ban and sanction organizer: sanction ID, type, date, duration, stated rule, appeal status, and factual appeal notes; includes the official Sanctions and Appeals portal. This does not unlock accounts or remove bans.
-- Xbox / PlayStation restriction organizer: records Gamertag / Online ID, notice reference, restriction type, date, duration, appeal status, and factual notes; links to the platform owners' official enforcement / suspension guidance.
-- Steam / Nintendo restriction organizer: records account identifiers, support / notice references, restriction type, date, duration, appeal status, and factual notes; links to official support resources. It cannot remove restrictions, clear VAC/game bans, or bypass enforcement.
-- Multi-select 2FA history: Epic Authenticator, third-party authenticator app, email, and SMS/phone; plus access status.
-- VPN/proxy history fields for provider and region, strictly for truthful documentation; includes Epic's current troubleshooting advice to disconnect VPN/hosting/proxy services for the relevant sign-in error.
-- PDF recovery-request summary, including Epic profile-change planning fields and Epic, Xbox, PlayStation, Steam, and Nintendo restriction/support notes.
-- Official Epic instructions for changing the display name and account email. The app records the user's desired changes but does not change account settings itself.
-- **Export Full Recovery Packet** (your local account-recovery export) creates a local folder containing:
-  - `recovery_request.pdf`
-  - `account_details.json` (structured form export)
-  - `app.py` (copy of the running Python script, when available)
-  - `README.txt` (handling and security notes)
-- The app also creates a ZIP archive of the complete packet folder for easier storage or transfer.
-- **Support Ticket Builder** prepares a local draft for Epic Games, Xbox, PlayStation, Steam, Nintendo, Apple, LEGO, Google, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, or a payment provider, or an additional manually named service, with request categories for account recovery, compromised accounts, restriction appeals, platform unlink requests, payment-method changes, and profile changes. The selected destination opens that service's general official support page. The draft is included in the PDF and packet as `support_request_draft.txt`; it is never submitted automatically. Whether a service can be linked to or unlinked from Epic depends on Epic's current Connections settings and the service owner's rules.
-- The ticket builder links to the official Epic Support Assistant/contact page and Epic linked-account settings. It includes a local ownership-evidence readiness check: if the user marks evidence unavailable, the draft warns them to pause and use official recovery; the check does not verify ownership. Other platform buttons open their official support destinations. Live agent availability depends on the platform and account; the app does not simulate a live chat.
+## Version 2.0 features
 
-- Version 1.9 adds an **Other service** destination and a field to name a service not listed. It also adds an ownership-evidence readiness check before preparing a support request. This is a reminder only, not an ownership verification or account lock.
-- Support destinations are support links and request-drafting options, not proof that every service can be connected to an Epic account.
+- **Account recovery organizer:** current, original, and previous email/display names; desired display name/email planning fields; first/last name; country and region; account creation date; Epic Account ID; purchase Invoice ID; linked account identifiers and approximate linking dates.
+- **Expanded optional ownership context:** Support-A-Creator code; name and billing address/city/state/ZIP used for past purchases; payment provider; card last four digits only; remembered original public IP and approximate date it was used. These are optional context fields, not proof of ownership. Never enter a full card number, CVV, account PIN, password, or verification code.
+- **Two-step verification guide:** records whether Epic Authenticator, a third-party authenticator app, email, or SMS/phone was enabled and whether you can still access it. It never collects codes or backup codes.
+- **VPN/proxy history:** records prior provider/region as context only. It never connects to VPNs/proxies, spoofs or rotates IP addresses, imitates an old location, or bypasses security checks.
+- **Incident and recovery tracker:** incident description, non-secret evidence notes, recovery case ID, status, submission date, exact error/response message, and follow-up notes.
+- **Restriction and appeal organizers:** Epic sanctions, Xbox, PlayStation, Steam, and Nintendo notice details, case references, dates, duration, status, and factual notes. The app cannot remove restrictions, clear bans, or bypass enforcement.
+- **Support request builder:** drafts requests for Epic Games, Xbox, PlayStation, Steam, Nintendo, Apple, LEGO, Google, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, payment providers, or a custom service. Request types include recovery, compromised-account review, restriction appeal, unlinking, payment-method review, and profile changes.
+- **Official support/contact links:** opens the service's official support page. Epic agent/live-chat availability varies; the app cannot create a live agent session or submit a ticket for you.
+- **Ownership evidence readiness reminder:** if evidence is unavailable, it advises pausing and using the official recovery flow. It does not verify identity or lock/disable an account.
+- **PDF and complete local export:** Generate a PDF or export a folder/ZIP containing `recovery_request.pdf`, `account_details.json`, a copy of `app.py` when available, `support_request_draft.txt`, and `README.txt`.
 
-## Privacy and security
-- Packet files are saved to the folder you choose; this app does not upload or send them anywhere.
-- The packet contains personal account information. Keep it private and share only through Epic's official recovery process.
-- Never enter or store passwords, one-time verification codes, backup codes, authenticator setup keys, session cookies, or full payment-card numbers.
-- VPN/proxy fields document past use only. Epic's current guidance says VPN/proxy use or submitting from a previously unused location can contribute to recovery-request denial; disconnect VPN/hosting/proxy services for the relevant sign-in error and do not submit a recovery request through a VPN/proxy. The app does not connect to a VPN/proxy, spoof or rotate IP addresses, recreate an old IP, or bypass Epic verification.
-- Correct information does not guarantee approval; Epic independently reviews and verifies every recovery request. Check the recovery status page with the Recovery ID, and follow Epic's wait guidance rather than repeatedly retrying rate-limited requests.
-- If ownership evidence is unavailable or uncertain, pause and use the official platform recovery flow. The app does not automatically lock, disable, or close an account based on missing evidence.
-- Unlinking a platform or changing/removing a payment method must be done by the account owner through verified account settings or the platform's official support process. The app only records the requested action and prepares a draft.
-- This is an independent organizer. It does not verify ownership, reset passwords, connect to Epic, unlock accounts, remove bans, evade sanctions, or submit recovery/appeal requests automatically.
+## Account dump / export
 
-## Official Epic guidance
-Epic's available 2FA methods and recovery steps can change. Check the live official pages before acting:
-- [Epic account recovery guide](https://www.epicgames.com/help/c-1/a10856556?lang=en-US)
-- [How to submit an account recovery request](https://www.epicgames.com/help/c-45487929/a21414514)
-- [Check the status of an account recovery request](https://www.epicgames.com/help/recovery-status-check/)
-- [Why an account recovery request may be denied](https://www.epicgames.com/help/c-45487929/c-38978022/a14929060?lang=en-US)
-- [Too many requests error during recovery or email change](https://www.epicgames.com/help/c-45487929/c-40721840/i-m-getting-a-too-many-requests-please-try-again-later-error-when-trying-to-recover-my-account-or-change-my-email-address-a15637378)
-- [Available 2FA methods](https://www.epicgames.com/help/c-45487929/c-38978022/a11272697)
-- [Locked out of authenticator or SMS 2FA](https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US)
-- [VPN/proxy sign-in troubleshooting](https://www.epicgames.com/help/c-45487929/c-38854402/a20296521?lang=en-US)
-- [Epic ban / sanction explanation](https://www.epicgames.com/help/c-34254770/c-5719350646299/a12390848?lang=en-US)
-- [Epic Sanctions and Appeals portal](https://safety.epicgames.com/sanctions-and-appeals?mode=game)
-- [How to change Epic display name](https://www.epicgames.com/help/c-45487929/c-35761596/a18323090?lang=en-US)
-- [How to change Epic account email](https://www.epicgames.com/help/c-45487929/c-40721840/a18546270?lang=en-US)
-- [How to unlink a console account from an Epic account](https://www.epicgames.com/help/c-Category_EpicAccounts/c-38854402/a17347934?lang=en-US)
-- [How to unlink Facebook, Google, or Apple from an Epic account](https://www.epicgames.com/help/c-45487929/c-38854402/a21442299)
-- [Xbox Enforcement History / Case Review](https://enforcement.xbox.com/)
-- [Xbox Community Standards](https://www.xbox.com/en-US/legal/community-standards)
-- [PlayStation suspensions and appeals](https://www.playstation.com/en-us/support/account/suspensions/)
-- [Steam Support](https://help.steampowered.com/en/wizard/HelpWithAccount)
-- [Steam Community Ban FAQ](https://help.steampowered.com/en/faqs/view/4F62-35F9-F395-5C23)
-- [Nintendo account suspension guidance](https://en-americas-support.nintendo.com/app/answers/detail/a_id/50788/p/989/c/913)
-- [Nintendo Account recovery process](https://en-americas-support.nintendo.com/app/answers/detail/a_id/47194/c/495)
-- [Nintendo Support](https://en-americas-support.nintendo.com/)
+The **Export Full Recovery Packet** button creates a local, user-controlled export of the form information, PDF summary, support-request draft, and application script. This is a personal records export—not a credential dump. It does not collect passwords, cookies, authentication secrets, or other login tokens. The app does not upload the packet anywhere.
+
+## Important security boundaries
+
+- A remembered IP address is not reliable proof of account ownership. IP addresses can change or be shared by households, mobile carriers, workplaces, VPNs, and internet providers. Never spoof an IP or pretend to be at a previous location.
+- Epic's current recovery instructions ask for account-identifying details and may include Account ID, Invoice ID, past emails/display names, linked-account information, phone/2FA history, and payment details. Provide only accurate information requested in Epic's official form. You can skip information you do not know.
+- Billing address, city, ZIP/postal code, payment provider, and card last four digits are optional notes. Share them only through Epic's official recovery process if requested. Never put full card numbers, CVVs, bank passwords, account PINs, 2FA codes, backup codes, authenticator setup keys, session cookies, or passwords in this app.
+- Epic's current help page says VPN/proxy use during an account recovery request may contribute to denial. For the relevant sign-in error, Epic instructs users to disconnect VPN/hosting/proxy services. This app records history only and does not activate or configure proxies/VPNs.
+- Missing evidence does not trigger an account lock, disablement, or closure. The app only warns you to pause; only the platform can verify ownership or secure an account.
+- The app does not access Epic's database, use PuTTY/C2/VPS infrastructure, alter account records, unlink accounts, change payment methods, remove restrictions, or submit recovery/appeal tickets automatically.
+- All platform restriction decisions and account recovery outcomes are made by the relevant service. Correct information does not guarantee approval.
+
+## Current official Epic guidance
+
+- [Recover access to your Epic Games account](https://www.epicgames.com/help/c-1/a10856556?lang=en-US)
+- [Submit an account recovery request](https://www.epicgames.com/help/c-45487929/a21414514)
+- [Check recovery request status](https://www.epicgames.com/help/recovery-status-check/)
+- [Appeal a recovery decision](https://www.epicgames.com/help/c-1/a17781729)
+- [Why a recovery request may be denied](https://www.epicgames.com/help/en-US/account-c-202300000001645/account-security-c-202300000001755/why-was-my-account-recovery-request-denied-a202300000012540)
+- [Available Epic 2FA methods](https://www.epicgames.com/help/c-45487929/c-38978022/a11272697)
+- [Enable 2FA](https://www.epicgames.com/help/c-45487929/a10075388?lang=en-US)
+- [Epic sign-in and VPN/proxy troubleshooting](https://www.epicgames.com/help/c-45487929/c-38854402/a20296521)
+- [Epic account connections](https://www.epicgames.com/account/connections)
 - [Epic Support](https://www.epicgames.com/help/en-US/)
+- [Epic Support contact / assistant](https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US)
+- [Epic Sanctions and Appeals](https://safety.epicgames.com/sanctions-and-appeals?mode=game)
+- [Xbox Enforcement](https://enforcement.xbox.com/)
+- [PlayStation suspensions](https://www.playstation.com/en-us/support/account/suspensions/)
+- [Steam Support](https://help.steampowered.com/en/wizard/HelpWithAccount)
+- [Nintendo Support](https://en-americas-support.nintendo.com/)
 
-The app does not guarantee that Epic will accept a recovery request. Epic makes all account ownership and recovery decisions.
+## Privacy
+
+This is an independent organizer and is not affiliated with Epic Games. The app saves files only where you choose and does not send data to Epic or any other service. Keep exports private and share information only through the appropriate official support flow.
