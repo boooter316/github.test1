@@ -19,7 +19,7 @@ Recovery records are stored in browser local storage on the device and are not u
 
 ## Requirements and setup
 
-Requires Node.js 20+. Generate a scrypt password hash from a strong unique panel password:
+Requires Node.js 26 LTS or newer. The panel's CI installs the pinned direct dependencies, checks server syntax, and runs an npm audit for high/critical production advisories. Generate a scrypt password hash from a strong unique panel password:
 
     node -e "const c=require('node:crypto');const s=c.randomBytes(16).toString('hex');const h=c.scryptSync('REPLACE_WITH_A_LONG_UNIQUE_PANEL_PASSWORD',s,64).toString('hex');console.log(s+':'+h)"
 
@@ -43,7 +43,7 @@ Open http://localhost:3000 on the same computer. For phone access, the server mu
 
 ## Production caution
 
-This starter uses Express MemoryStore for sessions. MemoryStore is not suitable for production or multi-instance hosting. Before public deployment, replace it with a maintained persistent session store, configure HTTPS, restrict network access, and review hosting backups and logs. This is not a completed security audit.
+The panel currently uses Express MemoryStore for sessions. MemoryStore is not suitable for production or multi-instance hosting. Do not expose this panel publicly until you configure a maintained persistent session store, enforce HTTPS, restrict network access, and review hosting backups and logs. The app emits a production warning; this update does not certify the panel as production-ready. This is not a completed security audit.
 
 ## Official Epic links
 

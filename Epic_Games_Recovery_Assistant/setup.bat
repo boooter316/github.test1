@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title Epic Games Recovery Assistant 5.0 - C++ Builder
+title Epic Games Recovery Assistant 5.2.0 - C++ Builder
 cd /d "%~dp0" || goto :failed
 where g++ >nul 2>nul
 if errorlevel 1 (
