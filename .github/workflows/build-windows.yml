@@ -32,3 +32,22 @@ jobs:
           path: Epic_Games_Recovery_Assistant/Epic_Games_Recovery_Assistant.exe
           if-no-files-found: error
           retention-days: 30
+
+      - name: Send generic Discord build notification
+        if: always()
+        shell: pwsh
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          BUILD_RESULT: ${{ job.status }}
+        run: |
+          if (-not $env:DISCORD_WEBHOOK_URL) {
+            Write-Host "Discord webhook secret is not configured; notification skipped."
+            exit 0
+          }
+          $payload = @{ content = "Epic Games Recovery Assistant Windows build: $($env:BUILD_RESULT)." } | ConvertTo-Json -Compress
+          try {
+            Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK_URL -Method Post -ContentType "application/json" -Body $payload | Out-Null
+            Write-Host "Generic Discord build notification sent."
+          } catch {
+            Write-Warning "Discord build notification failed; build result is unchanged."
+          }
