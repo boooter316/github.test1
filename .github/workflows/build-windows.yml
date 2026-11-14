@@ -36,7 +36,7 @@ jobs:
           @'
           const fs = require('fs');
           const html = fs.readFileSync('Epic_Games_Recovery_Assistant/web/index.html', 'utf8');
-          const scripts = [...html.matchAll(/<script(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/gi)];
+          const scripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)];
           if (!scripts.length) throw new Error('No inline JavaScript blocks found');
           for (const [i, match] of scripts.entries()) {
             if (match[1].trim()) new Function(match[1]);
