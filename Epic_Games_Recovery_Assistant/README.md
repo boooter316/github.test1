@@ -39,11 +39,13 @@ The GitHub Actions workflow also builds a Windows executable whenever the deskto
 
 ## Version 3.8 additions
 
-- Adds structured case/reference ID, restriction type, date/duration, appeal status, and factual-notes fields for Xbox, PlayStation, Steam, and Nintendo.
-- Adds Steam Community Ban information and Xbox enforcement case-review shortcuts.
-- Copies the C++ source file into the exported packet when it is present beside the executable; otherwise creates a clear notice.
+- Adds Epic recovery request status, request ID, last-submission date/waiting-period, and missing non-secret evidence tracking.
+- Copies the C++ source file from beside the running executable into the export packet, including when launched from a desktop shortcut.
+- Aligns the setup and launcher scripts with the executable filename produced by GitHub Actions.
+- Retains structured case/reference ID, restriction type, date/duration, appeal status, and factual-notes fields for Xbox, PlayStation, Steam, and Nintendo.
+- Keeps export limited to user-entered evidence; no platform account dump, credential dump, or account-extraction script is included.
 
-## Version 3.8 additions
+## Earlier features
 
 - Separate access-status fields for email, SMS/phone, Epic Authenticator, and third-party authenticator apps.
 - Additional historical VPN/proxy-use notes and explicit prompts to use only remembered, truthful network history.
