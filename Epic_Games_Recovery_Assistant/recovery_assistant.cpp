@@ -181,7 +181,7 @@ int main(){
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
  j<<" ]\n}\n";
  draft<<"Subject: Follow-up: Epic account recovery attempt was unsuccessful\n\nHello Epic Support,\n\nI am following up because my account recovery attempt was unsuccessful. Please review the information below and let me know whether there are approved alternative verification steps or additional non-secret evidence I can provide. I understand that Epic Support alone determines account ownership and recovery eligibility.\n\nMy request: "<<request<<"\n\nRecovery failure details (as entered by me):\n";
- for(const auto& field:fields) if(field.label.find("ACCOUNT RECOVERY FAILED:")==0) draft<<field.label.substr(26)<<": "<<field.value<<"\n";
+ for(const auto& field:fields) if(field.label.find("ACCOUNT RECOVERY FAILED:")==0) draft<<field.label.substr(std::string("ACCOUNT RECOVERY FAILED:").size())<<": "<<field.value<<"\n";
  draft<<"\nPlease do not treat an IP address alone as proof of ownership. I will provide any requested information only through Epic's official secure support process.\n\nThank you.\n";
  save(dir/"recovery_details.txt",txt.str());save(dir/"recovery_details.json",j.str());save(dir/"support_request_draft.txt",draft.str());
  // Copy the C++ source into the packet when it is beside the executable/source.
