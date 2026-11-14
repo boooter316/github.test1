@@ -38,3 +38,8 @@ Official Epic resources:
 - Recovery help: https://www.epicgames.com/help/c-45487929/a21414514
 - Support/contact: https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US
 - Linked accounts: https://www.epicgames.com/account/connections
+
+
+## Project checklist
+
+The main website and Recovery Panel include an optional on-page checklist for tracking the included Recovery Assistant, local PDF scanner, navigation tabs, and background artwork. Checklist selections are temporary in the current page and are not saved or uploaded.

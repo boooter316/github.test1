@@ -275,3 +275,8 @@ Windows EXE build instructions. Python uses PyInstaller, C++17 uses MSVC or
 g++, and C# targets .NET 10. The browser does not execute or upload source
 code. Review all files before running the generated scripts on Windows.
 Changing a file extension does not translate code between languages.
+
+
+## Project checklist
+
+The main website and Recovery Panel include an optional on-page checklist for tracking the included Recovery Assistant, local PDF scanner, navigation tabs, and background artwork. Checklist selections are temporary in the current page and are not saved or uploaded.

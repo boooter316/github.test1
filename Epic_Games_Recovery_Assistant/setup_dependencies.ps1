@@ -19,7 +19,7 @@ if (-not (Test-Path -LiteralPath $MsysBash)) {
 }
 $Packages = 'mingw-w64-ucrt-x86_64-gcc'
 if ($InstallPdfTools) { $Packages += ' mingw-w64-ucrt-x86_64-poppler' }
-& $MsysBash -lc ("pacman -Sy --noconfirm && pacman -S --needed --noconfirm " + $Packages)
+& $MsysBash -lc ("pacman -Syu --noconfirm && pacman -S --needed --noconfirm " + $Packages)
 if ($LASTEXITCODE -ne 0) { throw 'MSYS2 dependency installation failed.' }
 $GccBin = 'C:\msys64\ucrt64\bin'
 $env:Path = $GccBin + ';' + $env:Path

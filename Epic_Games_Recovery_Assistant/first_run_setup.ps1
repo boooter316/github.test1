@@ -24,7 +24,7 @@ if (-not (Test-Command 'g++')) {
     $bashPath = $bash | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
     if (-not $bashPath) { throw 'MSYS2 was installed but bash.exe was not found at C:\msys64. Install MSYS2 using its default location and retry.' }
     Write-Step 'Installing the GCC C++17 compiler inside MSYS2'
-    & $bashPath -lc 'pacman -Sy --noconfirm && pacman -S --needed --noconfirm mingw-w64-ucrt-x86_64-gcc'
+    & $bashPath -lc 'pacman -Syu --noconfirm && pacman -S --needed --noconfirm mingw-w64-ucrt-x86_64-gcc'
     if ($LASTEXITCODE -ne 0) { throw 'MSYS2 could not install GCC. Open the MSYS2 UCRT64 terminal, run pacman -Syu, then rerun setup.' }
     $gccBin = 'C:\msys64\ucrt64\bin'
     $userPath = [Environment]::GetEnvironmentVariable('Path','User')

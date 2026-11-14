@@ -143,3 +143,8 @@ J. PRIVACY / TROUBLESHOOTING
   removing passwords, tokens, cookies, and personal data.
 - Never treat an IP address, ZIP code, or street address as proof of account
   ownership. Providers must verify account claims using their own records.
+
+
+## Project checklist
+
+The main website and Recovery Panel include an optional on-page checklist for tracking the included Recovery Assistant, local PDF scanner, navigation tabs, and background artwork. Checklist selections are temporary in the current page and are not saved or uploaded.

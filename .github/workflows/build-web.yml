@@ -72,8 +72,10 @@ jobs:
           npm install --no-audit --no-fund
           npm run check
           npm audit --omit=dev --audit-level=high
-      - name: Validate standalone web server
-        run: node --check Epic_Games_Recovery_Assistant/web/server.mjs
+      - name: Validate standalone web server and external network analyzer
+        run: |
+          node --check Epic_Games_Recovery_Assistant/web/server.mjs
+          node --check Epic_Games_Recovery_Assistant/web/network_security.js
       - name: Compile C++17 web server
         run: |
           g++ -std=c++17 -O2 -Wall -Wextra -pedantic Epic_Games_Recovery_Assistant/web/server.cpp -o recovery-web

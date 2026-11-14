@@ -61,3 +61,8 @@ The panel links to Epic's official pages; it does not imitate them, collect Epic
 - iPhone export: use Safari and check Files > Downloads. The dashboard creates a file on demand; it does not email or upload records.
 
 Never share panel passwords, webhook URLs, Epic passwords, 2FA codes, backup codes, cookies, or tokens when asking for help.
+
+
+## Project checklist
+
+The main website and Recovery Panel include an optional on-page checklist for tracking the included Recovery Assistant, local PDF scanner, navigation tabs, and background artwork. Checklist selections are temporary in the current page and are not saved or uploaded.
