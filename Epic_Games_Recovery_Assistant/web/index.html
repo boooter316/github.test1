@@ -109,7 +109,18 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div class="hidden" id="fazeJarvisTab">
 <h2>Faze Jarvis — Safe Coding Assistant</h2>
 <p class="hint">Hello! This is Faze Jarvis, your AI coding assistant powered by DeepSeek. Chat requests are sent to the server-side DeepSeek proxy. Your DeepSeek API key stays on the server and must never be pasted here.</p>
-<label for="fazeJarvisAccessPassword">App access password (not your DeepSeek API key)</label><input id="fazeJarvisAccessPassword" type="password" autocomplete="off" placeholder="Enter the app access password configured by the server"><p id="fazeJarvisApiStatus" class="hint" role="status">Checking DeepSeek connection…</p>
+<section class="panel" aria-labelledby="fazeSetupHeading">
+<h3 id="fazeSetupHeading">First-time setup — connect DeepSeek</h3>
+<ol>
+<li>Open the <a href="https://platform.deepseek.com/" target="_blank" rel="noopener noreferrer">official DeepSeek developer platform</a> and sign in or create an account. The consumer DeepSeek chat website is not an API key.</li>
+<li>Open <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">API Keys</a>, create a new key, and copy it once. Check your account balance and usage in the platform; API calls may cost money.</li>
+<li>On the computer or server running this Docker app, save the key as the private server variable <code>DEEPSEEK_API_KEY</code>. Also create a separate strong <code>CHAT_ACCESS_PASSWORD</code> for this app.</li>
+<li>Recreate/restart the Docker container with both variables supplied to it. The full commands and Windows examples are in <a href="/FAZE_JARVIS_SETUP.md" target="_blank" rel="noopener noreferrer">Faze Jarvis setup and troubleshooting</a>.</li>
+<li>Wait for the status below to report that the server is configured. Then enter only your <strong>app access password</strong> below and send a message.</li>
+</ol>
+<p class="hint"><strong>Never paste the DeepSeek API key into this page.</strong> Keep it in the server's private environment or secret manager. Do not commit a secrets file to GitHub or send keys/passwords in chat.</p>
+</section>
+<label for="fazeJarvisAccessPassword">App access password (not your DeepSeek API key)</label><input id="fazeJarvisAccessPassword" type="password" autocomplete="off" placeholder="Enter the separate app access password"><p id="fazeJarvisApiStatus" class="hint" role="status">Checking server configuration…</p>
 <div id="fazeJarvisChat" class="scanner-result" role="log" aria-live="polite">Faze Jarvis: Hello! This is Faze Jarvis. What are we building today?</div>
 <label for="fazeJarvisPrompt">Message Faze Jarvis</label><textarea id="fazeJarvisPrompt" placeholder="Describe a project or paste a non-secret error message."></textarea>
 <div class="actions no-print"><button type="button" id="fazeJarvisSend">Send message</button><button type="button" class="secondary" id="fazeJarvisClear">Clear chat</button></div>
@@ -480,7 +491,7 @@ async function checkJarvisStatus(){
  try{
   const response=await fetch("/api/health",{cache:"no-store"});
   const state=await response.json();
-  jarvisStatus.textContent=state.configured?"DeepSeek is configured on the server. Enter the app access password to chat.":"DeepSeek chat is not configured. The server administrator must set DEEPSEEK_API_KEY and CHAT_ACCESS_PASSWORD.";
+  jarvisStatus.textContent=state.configured?"Ready: DeepSeek API key and app access password are configured on the server. Enter the app access password to chat.":(!state.apiKeyConfigured&&!state.accessPasswordConfigured?"Not configured: the server administrator must set both DEEPSEEK_API_KEY and CHAT_ACCESS_PASSWORD, then restart the container.":(!state.apiKeyConfigured?"Missing server setting: DEEPSEEK_API_KEY. Add it privately on the Docker host, then restart the container.":"Missing server setting: CHAT_ACCESS_PASSWORD. Add a separate app password privately on the Docker host, then restart the container."));
  }catch(_){jarvisStatus.textContent="DeepSeek server is unavailable. Run the Docker web service with the server-side configuration.";}
 }
 function appendJarvis(role,text){
