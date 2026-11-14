@@ -29,6 +29,8 @@ PLAYSTATION_SUSPENSIONS_URL = "https://www.playstation.com/en-us/support/account
 STEAM_ACCOUNT_HELP_URL = "https://help.steampowered.com/en/wizard/HelpWithAccount"
 STEAM_COMMUNITY_BAN_URL = "https://help.steampowered.com/en/faqs/view/4F62-35F9-F395-5C23"
 NINTENDO_SUPPORT_URL = "https://en-americas-support.nintendo.com/"
+NINTENDO_SUSPENSION_URL = "https://en-americas-support.nintendo.com/app/answers/detail/a_id/50788/p/989/c/913"
+NINTENDO_RECOVERY_URL = "https://en-americas-support.nintendo.com/app/answers/detail/p/850/a_id/47194"
 TWO_FA_METHODS = ("Epic Authenticator", "Authenticator app", "Email", "SMS / phone")
 
 class EpicRecoveryAssistant:
@@ -231,6 +233,8 @@ class EpicRecoveryAssistant:
         ttk.Label(self.additional_platform_tab, text="Nintendo factual support notes:").pack(anchor="w", pady=(6, 2))
         self.nintendo_notes = tk.Text(self.additional_platform_tab, height=4, wrap="word")
         self.nintendo_notes.pack(fill="x", expand=False)
+        ttk.Button(self.additional_platform_tab, text="Open Nintendo account-suspension guidance", command=lambda: webbrowser.open(NINTENDO_SUSPENSION_URL)).pack(anchor="w", pady=4)
+        ttk.Button(self.additional_platform_tab, text="Open Nintendo account-recovery guide", command=lambda: webbrowser.open(NINTENDO_RECOVERY_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.additional_platform_tab, text="Open Nintendo Support", command=lambda: webbrowser.open(NINTENDO_SUPPORT_URL)).pack(anchor="w", pady=4)
 
     def build_help_tab(self):
