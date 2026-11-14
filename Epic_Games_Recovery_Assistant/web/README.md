@@ -22,12 +22,12 @@ The browser form includes current and previous Epic contact/display-name details
 
 ## Local security scanner tabs
 
-The browser page also includes separate Discord and Fortnite/Epic text-scanning tabs. They inspect only text or log files the user explicitly selects, plus optional pasted text, inside the browser. The Fortnite scanner reports numbered findings with source filenames, line numbers, match categories, and redacted previews; email addresses and account identifiers are masked. The scanners do not open browser credential stores, sign in, test whether a credential is active, or retrieve passwords, tokens, cookies, or sessions. A pattern match is not proof that an account is compromised or that a credential works.
+The browser page also includes separate Discord and Fortnite/Epic text-scanning tabs. They inspect only text or log files the user explicitly selects, plus optional pasted text, inside the browser. The Fortnite scanner reports numbered findings with source filenames, line numbers, match categories, and redacted previews; email addresses, account IDs, and display names are shown in full in local results and downloadable reports. Passwords, tokens, cookies, and session secrets are detected by label/pattern and their values remain redacted. The scanners do not open browser credential stores, sign in, test whether a credential is active, or retrieve passwords, tokens, cookies, or sessions. A pattern match is not proof that an account is compromised or that a credential works.
 
 ## Privacy and scope
 
 - Form data is processed in the browser tab only. The server serves the static page and has no form-submission endpoint or account database.
-- Users can export a JSON recovery packet or use the browser Print / Save as PDF feature.
+- Users can export a JSON recovery packet or use the browser Print / Save as PDF feature. Fortnite/Epic scan findings can be downloaded as a plain-text `.txt` report or printed/saved as PDF.
 - The page does not request passwords, account PINs, full card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, or API keys.
 - Historical IP/VPN details are optional context only, never proof of ownership. No IP spoofing, proxy rotation, account dumps, platform bypass, or restriction removal.
 - It does not sign in to accounts, verify ownership, unlink services, change account details, lock accounts, submit tickets, or provide live agent chat.
