@@ -164,3 +164,8 @@ The browser interface groups the existing features into selectable tabs so users
 - **Pro Multi-Tool** has separate Multi-Platform Scanner, VPN & Proxy, IP Evidence Checker, Ownership Packet, and Fortnite Diagnostics tabs.
 - The tab organizer moves the existing feature elements without replacing their controls or event handlers. The original local-only processing and credential-redaction boundaries remain in force.
 - Tabs are created in the browser at page load. This change does not install or run user-supplied scripts, activate Windows networking, connect to accounts, or make account changes.
+
+ 
+## Official account links page
+
+The browser interface includes a separate **Account Links** page with shortcuts to official websites for Epic Games/Fortnite, Roblox, GTA/Rockstar Games, Minecraft, Xbox, Steam, PlayStation, Nintendo, TeamSpeak, GitHub, Facebook, Instagram, Twitch, YouTube, TikTok, X, Snapchat, Microsoft, Google, Gmail, and Yahoo. These are external website shortcuts only; they do not connect accounts, read private profile data, sign in, validate credentials, or change linked-account settings. Users must sign in and manage connections directly through each service's official website. The links open in a new tab with `noopener noreferrer`.
