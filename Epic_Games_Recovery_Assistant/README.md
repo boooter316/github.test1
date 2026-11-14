@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant
 
-Version 1.5. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
+Version 1.6. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
 
 ## Requirements
 - Windows 10 or Windows 11
@@ -15,7 +15,7 @@ Version 1.5. A Windows Python desktop utility for organizing truthful Epic Games
 
 ## Features
 - Account details: current and previous emails/display names, desired new Epic display name/email (planning fields only), creation country/date, Epic Account ID, invoice ID, phone used for SMS 2FA, linked accounts and approximate linking dates, purchase payment types, and optional remembered original IP.
-- Incident categories and a description/evidence section.
+- Incident categories and a description/evidence section, plus an Epic recovery-response tracker for status, case reference, submission date, exact error message, and follow-up notes (including canceled, disabled/locked, denied, or pending states).
 - Epic ban and sanction organizer: sanction ID, type, date, duration, stated rule, appeal status, and factual appeal notes; includes the official Sanctions and Appeals portal. This does not unlock accounts or remove bans.
 - Xbox / PlayStation restriction organizer: records Gamertag / Online ID, notice reference, restriction type, date, duration, appeal status, and factual notes; links to the platform owners' official enforcement / suspension guidance.
 - Steam / Nintendo restriction organizer: records account identifiers, support / notice references, restriction type, date, duration, appeal status, and factual notes; links to official support resources. It cannot remove restrictions, clear VAC/game bans, or bypass enforcement.
@@ -28,18 +28,23 @@ Version 1.5. A Windows Python desktop utility for organizing truthful Epic Games
   - `account_details.json` (structured form export)
   - `app.py` (copy of the running Python script, when available)
   - `README.txt` (handling and security notes)
+- The app also creates a ZIP archive of the complete packet folder for easier storage or transfer.
 
 ## Privacy and security
 - Packet files are saved to the folder you choose; this app does not upload or send them anywhere.
 - The packet contains personal account information. Keep it private and share only through Epic's official recovery process.
 - Never enter or store passwords, one-time verification codes, backup codes, authenticator setup keys, session cookies, or full payment-card numbers.
 - VPN/proxy fields document past use only. Epic's current guidance says VPN/proxy use or submitting from a previously unused location can contribute to recovery-request denial; disconnect VPN/hosting/proxy services for the relevant sign-in error and do not submit a recovery request through a VPN/proxy. The app does not connect to a VPN/proxy, spoof or rotate IP addresses, recreate an old IP, or bypass Epic verification.
+- Correct information does not guarantee approval; Epic independently reviews and verifies every recovery request. Check the recovery status page with the Recovery ID, and follow Epic's wait guidance rather than repeatedly retrying rate-limited requests.
 - This is an independent organizer. It does not verify ownership, reset passwords, connect to Epic, unlock accounts, remove bans, evade sanctions, or submit recovery/appeal requests automatically.
 
 ## Official Epic guidance
 Epic's available 2FA methods and recovery steps can change. Check the live official pages before acting:
 - [Epic account recovery guide](https://www.epicgames.com/help/c-1/a10856556?lang=en-US)
 - [How to submit an account recovery request](https://www.epicgames.com/help/c-45487929/a21414514)
+- [Check the status of an account recovery request](https://www.epicgames.com/help/recovery-status-check/)
+- [Why an account recovery request may be denied](https://www.epicgames.com/help/c-45487929/c-38978022/a14929060?lang=en-US)
+- [Too many requests error during recovery or email change](https://www.epicgames.com/help/c-45487929/c-40721840/i-m-getting-a-too-many-requests-please-try-again-later-error-when-trying-to-recover-my-account-or-change-my-email-address-a15637378)
 - [Available 2FA methods](https://www.epicgames.com/help/c-45487929/c-38978022/a11272697)
 - [Locked out of authenticator or SMS 2FA](https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US)
 - [VPN/proxy sign-in troubleshooting](https://www.epicgames.com/help/c-45487929/c-38854402/a20296521?lang=en-US)
