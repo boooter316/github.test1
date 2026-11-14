@@ -193,3 +193,13 @@ The separate **Account Status & Details** top-level page provides an individual 
 - Drafts remain in JavaScript memory in the current browser tab only; they are not uploaded or persisted after refresh/close.
 - Real account data access would require a separate provider-approved OAuth/API integration for each service, secure server-side callback/session handling, app registration and credentials, documented scopes, user consent, and provider policy review. This UI does not implement those integrations.
 - Do not enter passwords, 2FA/one-time codes, recovery codes, cookies, session/API tokens, full payment details, wallet seed phrases, or private keys. Bitcoin is a network/asset, not a single account provider; the Bitcoin entry links to wallet-selection information only.
+
+## Account Connections & Payment Services
+
+A separate Account Connections page provides official-site shortcuts for Discord, Disney+, NVIDIA/GeForce NOW, LEGO, Roblox, Microsoft/Xbox, Google, Epic Games, Cash App/Bitcoin, PayPal, Apple Pay, and Google Wallet/Pay. It explains where users can review authorized apps, linked accounts, and automatic payments, and how to revoke a connection with the provider.
+
+These are provider shortcuts and user instructions only. The project does not authenticate, exchange OAuth tokens, verify account ownership, connect payment wallets, read balances, move funds, or remove third-party connections. The page always states that connection status is not checked by this app. Real linking requires provider-specific approval, OAuth/API registration, secure server-side implementation, explicit consent, and appropriate payment-provider approval. Never enter passwords, one-time codes, wallet seed phrases, private keys, full card numbers, or CVV.
+
+## Wireshark packet and port diagnostics
+
+A separate Wireshark & Ports page links to the official Wireshark download and user guide, provides common display-filter examples, and builds a TCP, UDP, or combined display filter for a user-entered port (1–65535). The page does not capture packets itself, sniff other people's traffic, scan public IP ranges, open ports, or transmit packets. Capture only traffic you own or have explicit authorization to inspect. Packet captures can contain personal or authentication data; keep captures minimal and private.
