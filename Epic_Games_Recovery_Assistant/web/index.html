@@ -30,13 +30,16 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div class="notice"><strong>Privacy:</strong> Your entries stay in this browser tab. This site does not send them to or save them on the hosting server. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, or API keys.</div></header>
 <nav class="tabs no-print" aria-label="Application pages">
 <button type="button" class="tab active" id="recoveryTabButton" aria-selected="true">Recovery Assistant</button>
+<button type="button" class="tab secondary" id="fazeJarvisTabButton" aria-selected="false">Faze Jarvis AI</button>
 <button type="button" class="tab secondary" id="securityTabButton" aria-selected="false">Discord Security Scanner</button>
 <button type="button" class="tab secondary" id="fortniteTabButton" aria-selected="false">Pro Multi-Platform Scanner</button>
 <button type="button" class="tab secondary" id="accountLinksTabButton" aria-selected="false">Account Links</button>
 <button type="button" class="tab secondary" id="accountConnectionsTabButton" aria-selected="false">Account Connections</button>
 <button type="button" class="tab secondary" id="packetDiagnosticsTabButton" aria-selected="false">Wireshark &amp; Ports</button>
 <button type="button" class="tab secondary" id="accountStatusTabButton" aria-selected="false">Account Status &amp; Details</button>
-</nav>
+</nav><div id="globalTaskControls" class="panel no-print" style="position:sticky;top:8px;z-index:20;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px">
+<strong>Task controls</strong><button type="button" id="globalStopButton" class="secondary">Stop current task</button><span id="globalStopStatus" class="hint" role="status">No stop request active.</span>
+</div>
 <div id="recoveryTab">
 <form id="packet">
 <section class="panel"><h2>Account and contact details</h2><div class="grid">
@@ -71,6 +74,22 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <section class="panel"><h2>Review and export</h2><p class="hint">Check details for accuracy before sharing through the platform's official secure support form.</p>
 <div class="actions no-print"><button type="button" id="json">Download JSON packet</button><button type="button" class="secondary" id="pdf">Print / Save as PDF</button><button type="button" class="secondary" id="draft">Create support-request draft</button></div>
 <textarea id="draftText" class="no-print" placeholder="Your support request draft will appear here." style="margin-top:12px"></textarea></section></form>
+<section class="panel hidden" id="fazeJarvisTab">
+<h2>Faze Jarvis — Safe Coding Assistant</h2>
+<p class="hint">Hello! This is Faze Jarvis, your coding assistant. I can help plan projects, explain code, create benign scripts, troubleshoot build errors, and draft defensive security tools. This offline demo does not connect to an AI service; its replies are starter guidance, not generated or executed code.</p>
+<div id="fazeJarvisChat" class="scanner-result" role="log" aria-live="polite">Faze Jarvis: Hello! This is Faze Jarvis. What are we building today?</div>
+<label for="fazeJarvisPrompt">Message Faze Jarvis</label><textarea id="fazeJarvisPrompt" placeholder="Describe a project or paste a non-secret error message."></textarea>
+<div class="actions no-print"><button type="button" id="fazeJarvisSend">Send message</button><button type="button" class="secondary" id="fazeJarvisClear">Clear chat</button></div>
+<p class="hint">Safety boundary: I can assist with authorized defensive testing and ordinary software development, but not malware, credential theft, unauthorized access, exploit deployment, stealth, or evasion.</p>
+</section>
+<section class="panel" id="projectBuilderPanel">
+<h2>Build a Starter Project</h2>
+<p class="hint">Create a downloadable starter source file locally. This does not compile or execute code in your browser.</p>
+<div class="grid"><div><label for="builderProjectName">Project name</label><input id="builderProjectName" value="my-project"></div><div><label for="builderLanguage">Starter type</label><select id="builderLanguage"><option value="html">HTML / JavaScript</option><option value="python">Python</option><option value="powershell">PowerShell</option><option value="cpp">C++17</option></select></div></div>
+<label for="builderDescription">What should the project do?</label><textarea id="builderDescription" placeholder="Describe the safe functionality you want to build."></textarea>
+<div class="actions no-print"><button type="button" id="builderGenerate">Build and download starter source</button></div>
+<p id="builderStatus" class="hint" role="status">Choose a starter type and describe your project.</p>
+</section>
 <section class="panel" id="ticketManager">
 <h2>Support Ticket Manager &amp; Recovery Retry Guard</h2>
 <p class="hint">Prepare one clear support request and keep track of an existing case. This assistant never submits tickets or reports automatically. Use the platform's official support channel and do not open duplicate cases for the same issue.</p>
@@ -398,6 +417,7 @@ updateTicketLimitStatus();
 // Page navigation
 const pageTabs={
  recovery:{button:document.getElementById("recoveryTabButton"),panel:document.getElementById("recoveryTab")},
+ fazeJarvis:{button:document.getElementById("fazeJarvisTabButton"),panel:document.getElementById("fazeJarvisTab")},
  security:{button:document.getElementById("securityTabButton"),panel:document.getElementById("securityTab")},
  fortnite:{button:document.getElementById("fortniteTabButton"),panel:document.getElementById("fortniteTab")},
  accountLinks:{button:document.getElementById("accountLinksTabButton"),panel:document.getElementById("accountLinksTab")},
@@ -422,6 +442,65 @@ document.getElementById("buildWiresharkFilter").addEventListener("click",()=>{
  if(!/^[0-9]{1,5}$/.test(raw)||!Number.isInteger(port)||port<1||port>65535){out.value="Enter a valid port from 1 to 65535.";return;}
  out.value=protocol==="both"?"tcp.port == "+port+" || udp.port == "+port:protocol+".port == "+port;
 });
+
+// Global cooperative stop control. Tasks must check window.recoveryStopRequested
+// between steps; active fetches are aborted where the browser supports it.
+window.recoveryStopRequested=false;
+window.recoveryTaskController=null;
+window.beginRecoveryTask=function(){window.recoveryStopRequested=false;window.recoveryTaskController=new AbortController();document.getElementById("globalStopStatus").textContent="Task running. Stop is available.";return window.recoveryTaskController.signal;};
+window.checkRecoveryStop=function(){if(window.recoveryStopRequested)throw new DOMException("Task stopped by user","AbortError");};
+document.getElementById("globalStopButton").addEventListener("click",()=>{
+ window.recoveryStopRequested=true;
+ if(window.recoveryTaskController)window.recoveryTaskController.abort();
+ document.querySelectorAll("input[type=file]").forEach(el=>{try{el.value="";}catch(_){}});
+ document.getElementById("globalStopStatus").textContent="Stop requested. Cooperative tasks will stop at their next checkpoint; reload to reset.";
+});
+document.querySelectorAll("form").forEach(form=>form.addEventListener("submit",e=>{if(window.recoveryStopRequested){e.preventDefault();e.stopImmediatePropagation();}}));
+// PDF export buttons use the browser's print dialog; choose "Save as PDF".
+const pdfButton=document.createElement("button");pdfButton.type="button";pdfButton.id="downloadRecoveryPdf";pdfButton.className="secondary";pdfButton.textContent="Download recovery details as PDF";
+const recoveryActions=document.querySelector("#recoveryTab .actions");
+if(recoveryActions)recoveryActions.insertBefore(pdfButton,recoveryActions.children[1]||null);
+pdfButton.addEventListener("click",()=>{document.getElementById("draftText").value=document.getElementById("draftText").value||"Review the recovery form and use Print / Save as PDF.";window.print();});
+const accountPdf=document.createElement("button");accountPdf.type="button";accountPdf.className="secondary";accountPdf.id="accountDetailsPdf";accountPdf.textContent="Print / Save selected account details as PDF";
+document.getElementById("exportAccountDetails").parentElement.appendChild(accountPdf);
+accountPdf.addEventListener("click",()=>{
+ const report=accountDetailDrafts[activeAccountProvider]?makeAccountDetailReport(activeAccountProvider,accountDetailDrafts[activeAccountProvider]):"No details recorded for "+accountProviders[activeAccountProvider][0]+".";
+ const w=window.open("","_blank");if(!w){alert("Allow pop-ups to create the PDF print view.");return;}
+ const pre=w.document.createElement("pre");pre.textContent=report;pre.style.cssText="white-space:pre-wrap;font:12pt Arial;max-width:800px;margin:32px auto";
+ w.document.body.appendChild(pre);w.document.title="Account details";w.focus();w.print();
+});
+// Faze Jarvis offline demonstration chat: no network calls and no execution of user prompts.
+const jarvisLog=document.getElementById("fazeJarvisChat");
+function jarvisReply(message){
+ const m=message.toLowerCase();
+ if(/hack|exploit|steal|token|password|credential|bypass|malware|ransomware/.test(m))return "I can help with defensive security, secure coding, threat modeling, and authorized lab exercises, but I can't create credential theft, malware, bypasses, or unauthorized access tools.";
+ if(/error|exception|failed|build/.test(m))return "Share the exact non-secret error text, the command you ran, your Windows version, and the relevant source snippet. Start with the first error in the log; later messages may be cascading failures.";
+ if(/python/.test(m))return "For a Python project, define its input, output, dependencies, and tests first. I can draft a safe script and a requirements file for review.";
+ if(/powershell/.test(m))return "For PowerShell, specify the Windows task and required permissions. I recommend -WhatIf support, explicit confirmation for changes, and clear exit codes.";
+ return "Let's plan it safely: describe the user-visible goal, operating system, inputs, expected output, and how you want to test it. I can help draft and explain the source.";
+}
+document.getElementById("fazeJarvisSend").addEventListener("click",()=>{
+ const box=document.getElementById("fazeJarvisPrompt"),msg=box.value.trim();if(!msg)return;
+ jarvisLog.textContent+="\nYou: "+msg+"\nFaze Jarvis: "+jarvisReply(msg);box.value="";jarvisLog.scrollTop=jarvisLog.scrollHeight;
+});
+document.getElementById("fazeJarvisPrompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();document.getElementById("fazeJarvisSend").click();}});
+document.getElementById("fazeJarvisClear").addEventListener("click",()=>{jarvisLog.textContent="Faze Jarvis: Hello! This is Faze Jarvis. What are we building today?";});
+// Local starter-source generator. Generated code is downloaded, never run in this page.
+document.getElementById("builderGenerate").addEventListener("click",()=>{
+ const name=(document.getElementById("builderProjectName").value.trim()||"my-project").replace(/[^a-zA-Z0-9_-]/g,"-");
+ const kind=document.getElementById("builderLanguage").value,desc=document.getElementById("builderDescription").value.trim();
+ const safeDesc=desc.replace(/[<>]/g,"").slice(0,1000);
+ const templates={
+ html:"<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><title>"+name+"</title><body><h1>"+name+"</h1><p>"+safeDesc.replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</p><script>console.log('Project ready');</script></body></html>\n",
+ python:'"""'+name+' — starter project. '+safeDesc.replace(/"""/g,"")+"\n"+'"""\n\ndef main():\n    print("'+name+' is ready")\n\nif __name__ == "__main__":\n    main()\n',
+ powershell:'# '+name+' — starter script\n# '+safeDesc.replace(/\r?\n/g," ")+'\n[CmdletBinding(SupportsShouldProcess=$true)]\nparam()\nWrite-Output "'+name+' is ready"\n',
+ cpp:'#include <iostream>\n\nint main() {\n    std::cout << "'+name+' is ready\\n";\n    return 0;\n}\n// Goal: '+safeDesc.replace(/\r?\n/g," ")+'\n'
+ };
+ const ext={html:"html",python:"py",powershell:"ps1",cpp:"cpp"}[kind],blob=new Blob([templates[kind]],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=name+"."+ext;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ document.getElementById("builderStatus").textContent="Starter source downloaded. Review it before running; compile or execute it manually in your development environment.";
+});
+
 // Local-only, redacted pattern scan. Never render or retain matched secret values.
 function inspectText(s){const patterns=[
 {name:"JWT-shaped string",re:/\beyJ[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\b/g},
