@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 3.9.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 4.0.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Download the Windows executable
 
@@ -48,14 +48,22 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 
 ## Features
 
-- Organizes Epic Account ID, current/previous display names and emails, account dates, creator code, invoice/order ID, purchase name, optional billing address, payment provider, and card last four digits only.
+- Organizes Epic Account ID and optional Epic-provided account-number/reference (both exported to PDF, JSON, and text), current/previous display names and emails, account dates, creator code, invoice/order ID, purchase name, optional billing address, payment provider, and card last four digits only.
 - Records each 2FA method (Epic Authenticator, third-party authenticator app, email, SMS/phone), preferred method, and separate access-status notes for each method. It can record which official recovery contact method the user wants to discuss with support. It does not store phone numbers or verification codes.
 - Optional historical IP and VPN/proxy provider/region/use/date notes for truthful context only; the app does not connect to, configure, rotate, or use a VPN/proxy.
 - Platform-specific recovery/restriction appeal notes and official support links for Epic, Xbox, PlayStation, Steam, and Nintendo.
 - Linked-service review fields for Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
 - Planning fields for Epic display-name/email changes; actual changes require official sign-in and verification.
 - Exports a local recovery evidence packet: PDF report, JSON data, readable text details, support-request draft, and a copy of `recovery_assistant.cpp` when `recovery_assistant.cpp` is beside the executable. The checklist can note names of genuine evidence files kept privately on the computer; it does not ingest or extract those files. If it is unavailable, the packet includes `SOURCE_NOT_COPIED.txt`. This exports only information the user enters; it cannot extract platform databases, credentials, cookies, tokens, or account data.
+- Includes an offline guided recovery chat for common questions; it is not a live AI model or Epic agent.
+- Prepares a support-request draft and opens Epic's official contact page; the user reviews and submits it. No automatic ticket submission or direct Epic API connection.
 - Opens official recovery, support, account settings, linked-account and 2FA help pages.
+
+## Version 4.0 additions
+
+- Adds an explicit optional Epic account-number/alternate-reference field alongside Epic Account ID; both are included in the PDF, JSON, and readable text export.
+- Adds an offline guided recovery chat covering account IDs, historical IP notes, 2FA, evidence exports, and support-ticket preparation. It is clearly labeled as an offline helper, not live AI or Epic Support.
+- Keeps support-ticket creation as a reviewed draft for the account owner to submit through Epic's official contact form; the app does not claim to send tickets or contact Epic directly.
 
 ## Version 3.9 additions
 
@@ -79,7 +87,8 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 
 - This app does not sign in to Epic, contact Epic APIs, verify ownership, or submit tickets. The readiness field is only your own checklist, not an ownership check.
 - It cannot remove restrictions/bans, unlink services, change usernames/emails/payment methods, lock accounts, or guarantee recovery. The relevant platform must approve those actions.
-- It does not provide live agent chat or pretend to be an agent.
+- The guided chat is an offline rule-based helper, not a live AI service or Epic agent. It does not provide live agent chat or pretend to be an agent.
+- The support-request draft is not sent automatically. The user must review it and submit it through Epic's official contact process.
 - It does not spoof IP addresses, rotate proxies, bypass 2FA, impersonate a previous network/location, or access databases through PuTTY, C2, or VPS infrastructure.
 - A remembered IP is optional context, not proof of ownership and not required by this app.
 - Never enter passwords, account PINs, CVV, full card numbers, 2FA codes, backup codes, authenticator secrets, session cookies, or access tokens.
