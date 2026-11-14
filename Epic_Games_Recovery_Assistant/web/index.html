@@ -665,6 +665,29 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
   const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement("a");
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
  };
+ const zipDownload=(zipName,files)=>{
+  const encoder=new TextEncoder(),parts=[],central=[];let offset=0;
+  const crcTable=Array.from({length:256},(_,n)=>{let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xedb88320^(c>>>1)):(c>>>1);return c>>>0;});
+  const crc32=bytes=>{let c=0xffffffff;for(const byte of bytes)c=(c>>>8)^crcTable[(c^byte)&255];return (c^0xffffffff)>>>0;};
+  const put16=(view,at,value)=>view.setUint16(at,value,true),put32=(view,at,value)=>view.setUint32(at,value>>>0,true);
+  for(const [path,content] of Object.entries(files)){
+   const name=encoder.encode(path),data=encoder.encode(content),crc=crc32(data);
+   const local=new Uint8Array(30+name.length),lv=new DataView(local.buffer);
+   put32(lv,0,0x04034b50);put16(lv,4,20);put16(lv,6,0x0800);put16(lv,8,0);put16(lv,10,0);put16(lv,12,0);
+   put32(lv,14,crc);put32(lv,18,data.length);put32(lv,22,data.length);put16(lv,26,name.length);put16(lv,28,0);local.set(name,30);
+   parts.push(local,data);
+   const head=new Uint8Array(46+name.length),cv=new DataView(head.buffer);
+   put32(cv,0,0x02014b50);put16(cv,4,20);put16(cv,6,20);put16(cv,8,0x0800);put16(cv,10,0);put16(cv,12,0);put16(cv,14,0);
+   put32(cv,16,crc);put32(cv,20,data.length);put32(cv,24,data.length);put16(cv,28,name.length);put16(cv,30,0);put16(cv,32,0);
+   put16(cv,34,0);put16(cv,36,0);put32(cv,38,0);put32(cv,42,offset);head.set(name,46);
+   central.push(head);offset+=local.length+data.length;
+  }
+  const centralSize=central.reduce((sum,item)=>sum+item.length,0),end=new Uint8Array(22),ev=new DataView(end.buffer);
+  put32(ev,0,0x06054b50);put16(ev,4,0);put16(ev,6,0);put16(ev,8,central.length);put16(ev,10,central.length);
+  put32(ev,12,centralSize);put32(ev,16,offset);put16(ev,20,0);
+  const blob=new Blob([...parts,...central,end],{type:"application/zip"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=zipName;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+ };
  const source=()=>editor.value;
  const starter=kind=>({
   python:'"""A small starter script. Review before running."""\n\ndef main():\n    print("Hello from Python")\n\nif __name__ == "__main__":\n    main()\n',
@@ -715,58 +738,55 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
  });
  $("sbTest").addEventListener("click",()=>{
   if(!source().trim()){setStatus("Paste or import source code first.");return;}
-  const name=projectName(),file=name+"."+extension(),kind=language.value;
-  let lines=["@echo off","setlocal","cd /d \"%~dp0\"","echo Testing "+file+" (syntax/build check only)"];
+  const name=projectName(),file=name+"."+extension(),kind=language.value,files={};
   if(kind==="python"){
-   lines.push("where py >nul 2>nul","if %errorlevel%==0 (py -m py_compile \""+file+"\") else (python -m py_compile \""+file+"\")");
+   files[file]=source();
+   files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","where py >nul 2>nul","if %errorlevel%==0 (py -m py_compile \""+file+"\") else (python -m py_compile \""+file+"\")","if errorlevel 1 (echo TEST FAILED.& pause& exit /b 1)","echo TEST PASSED. Runtime behavior still needs manual testing.","pause"].join("\r\n")+"\r\n";
   }else if(kind==="cpp"){
-   lines.push("where cl >nul 2>nul","if %errorlevel%==0 (cl /nologo /std:c++17 /EHsc /Zs \""+file+"\") else (where g++ >nul 2>nul && g++ -std=c++17 -fsyntax-only \""+file+"\")");
+   files[file]=source();
+   files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","where cl >nul 2>nul","if %errorlevel%==0 (cl /nologo /std:c++17 /EHsc /Zs \""+file+"\") else (where g++ >nul 2>nul && g++ -std=c++17 -fsyntax-only \""+file+"\")","if errorlevel 1 (echo TEST FAILED.& pause& exit /b 1)","echo TEST PASSED. Runtime behavior still needs manual testing.","pause"].join("\r\n")+"\r\n";
   }else{
-   lines.push("where dotnet >nul 2>nul || (echo Install the .NET 8 SDK first.& exit /b 1)","dotnet build \""+name+".csproj\" -c Release");
+   files[file]=source();
+   files[name+".csproj"]='<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net10.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>\n';
+   files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","dotnet build \""+name+".csproj\" -c Release","if errorlevel 1 (echo TEST FAILED.& pause& exit /b 1)","echo TEST PASSED. Runtime behavior still needs manual testing.","pause"].join("\r\n")+"\r\n";
   }
-  lines.push("if errorlevel 1 (echo TEST FAILED. Read the compiler output above.& pause& exit /b 1)","echo TEST PASSED. This checks syntax/build only; it does not prove runtime behavior.","pause");
-  download("TEST_"+name+".bat",lines.join("\r\n")+"\r\n");
-  if(kind==="csharp"){
-   const proj='<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net8.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>\n';
-   download(name+".csproj",proj);
-  }
-  download(file,source());
-  setStatus("Downloaded source and test files. Run TEST_"+name+".bat from the extracted folder on Windows; this page cannot run the compiler for you.");
+  zipDownload("TEST_"+name+"_files.zip",files);
+  setStatus("A single ZIP containing the source and test files was downloaded. Extract it on Windows and run TEST_"+name+".bat; this browser cannot run the compiler.");
  });
  $("sbBuild").addEventListener("click",()=>{
   if(!source().trim()){setStatus("Paste or import source code first.");return;}
   const issues=validate();if(issues.length){setStatus("Fix the review items first or deliberately review them before packaging:\n• "+issues.join("\n• "));return;}
-  const name=projectName(),file=name+"."+extension(),kind=language.value,ide=$("sbIde").value;
+  const name=projectName(),file=name+"."+extension(),kind=language.value,ide=$("sbIde").value,files={};
   let bat=["@echo off","setlocal","cd /d \"%~dp0\"","title Build "+name,"echo Building "+name+" for Windows x64"];
   let readme=["# "+name,"","Generated local project package. Review every source file and dependency before running.","","## Editor"];
   if(ide==="vscode"||ide==="both")readme.push("- Visual Studio Code: open this folder, then install the official language extension.");
-  if(ide==="vs2022"||ide==="both")readme.push("- Visual Studio 2022: install the workload/SDK listed below, then open the project or use the Developer Command Prompt.");
+  if(ide==="vs2022"||ide==="both")readme.push("- Visual Studio: install the workload/SDK listed below, then open the project or use the Developer Command Prompt.");
+  files[file]=source();
   if(kind==="python"){
    const req=$("sbRequirements").value.trim()||"pyinstaller>=6.0";
-   bat.push("where py >nul 2>nul && (set \"PY=py\") || (set \"PY=python\")","%PY% --version || (echo Python 3.10+ is required. Install from https://www.python.org/downloads/windows/ and enable Add Python to PATH.& pause& exit /b 1)","%PY% -m pip install --upgrade pip","if exist requirements.txt %PY% -m pip install -r requirements.txt","%PY% -m pip install pyinstaller","%PY% -m PyInstaller --noconfirm --clean --onefile --name \""+name+"\" \""+file+"\"","if errorlevel 1 (echo BUILD FAILED. Review the messages above.& pause& exit /b 1)","echo EXE created in the dist folder.","pause");
-   download("requirements.txt",req+"\n");
-   readme.push("## Python setup","1. Install Python 3.10 or newer from https://www.python.org/downloads/windows/. Enable Add Python to PATH.","2. Open this folder in a terminal.","3. Run BUILD_EXE.bat. It installs the listed packages and PyInstaller, then creates dist\\"+name+".exe.","4. For a syntax check, run TEST_"+name+".bat.","","Dependencies are listed in requirements.txt. Review package names and source before installing.");
+   files["requirements.txt"]=req+"\n";
+   bat.push("where py >nul 2>nul","if %errorlevel%==0 (set \"PY=py\") else (set \"PY=python\")","%PY% --version || goto failed","%PY% -m pip install --upgrade pip || goto failed","%PY% -m pip install -r requirements.txt || goto failed","%PY% -m pip install pyinstaller || goto failed","%PY% -m PyInstaller --noconfirm --clean --onefile --name \""+name+"\" \""+file+"\" || goto failed","echo EXE created in the dist folder.","pause","exit /b 0",":failed","echo BUILD FAILED. Read the error messages above and install the missing requirement.","pause","exit /b 1");
+   readme.push("## Python setup","1. Install Python 3.10 or newer from https://www.python.org/downloads/windows/. Enable Add Python to PATH.","2. Extract this ZIP and open a terminal in the extracted folder.","3. Run BUILD_EXE.bat. It installs requirements and PyInstaller, then creates dist/"+name+".exe.","4. For a syntax check, run TEST_"+name+".bat.","","Dependencies are listed in requirements.txt. Review package names and source before installing.");
   }else if(kind==="cpp"){
-   bat.push("where cl >nul 2>nul","if %errorlevel%==0 (cl /nologo /std:c++17 /EHsc /O2 /Fe:\""+name+".exe\" \""+file+"\") else (where g++ >nul 2>nul && g++ -std=c++17 -O2 -Wall -Wextra \""+file+"\" -o \""+name+".exe\")","if errorlevel 1 (echo Install Visual Studio 2022 Desktop development with C++ or MSYS2 GCC, then retry.& pause& exit /b 1)","echo EXE created: "+name+".exe","pause");
-   readme.push("## C++17 setup","1. Recommended: install Visual Studio 2022 with the Desktop development with C++ workload (MSVC).","2. Alternatively install MSYS2 and its GCC toolchain.","3. Run BUILD_EXE.bat from the VS 2022 Developer Command Prompt for MSVC, or a terminal with g++ on PATH.","4. Run TEST_"+name+".bat for a syntax-only check.");
+   bat.push("where cl >nul 2>nul","if %errorlevel%==0 (cl /nologo /std:c++17 /EHsc /O2 /Fe:\""+name+".exe\" \""+file+"\") else (where g++ >nul 2>nul && g++ -std=c++17 -O2 -Wall -Wextra \""+file+"\" -o \""+name+".exe\")","if errorlevel 1 goto failed","echo EXE created: "+name+".exe","pause","exit /b 0",":failed","echo Install Visual Studio with the C++ workload or MSYS2 GCC, then retry.","pause","exit /b 1");
+   readme.push("## C++17 setup","1. Recommended: install Visual Studio with the Desktop development with C++ workload (MSVC).","2. Alternatively install MSYS2 and its GCC toolchain.","3. Run BUILD_EXE.bat from the Visual Studio Developer Command Prompt for MSVC, or a terminal with g++ on PATH.","4. Run TEST_"+name+".bat for a syntax-only check.");
   }else{
-   const proj='<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net8.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>\n';
-   download(name+".csproj",proj);
-   bat.push("where dotnet >nul 2>nul || (echo Install the .NET 8 SDK or Visual Studio 2022 with .NET desktop development.& pause& exit /b 1)","dotnet publish \""+name+".csproj\" -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true","if errorlevel 1 (echo BUILD FAILED. Review the messages above.& pause& exit /b 1)","echo EXE is in bin\Release\net8.0\win-x64\publish","pause");
-   readme.push("## C# setup","1. Install Visual Studio 2022 with the .NET desktop development workload, or install the .NET 8 SDK from https://dotnet.microsoft.com/download/dotnet/8.0.","2. Run BUILD_EXE.bat. It publishes a self-contained single-file Windows x64 executable.","3. Run TEST_"+name+".bat to compile-check the project.");
+   files[name+".csproj"]='<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net10.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>\n';
+   bat.push("where dotnet >nul 2>nul || goto missing","dotnet publish \""+name+".csproj\" -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true || goto failed","echo EXE is in bin\\Release\\net10.0\\win-x64\\publish","pause","exit /b 0",":missing","echo Install the .NET 10 SDK or Visual Studio with .NET desktop development.","pause","exit /b 1",":failed","echo BUILD FAILED. Review the compiler messages above.","pause","exit /b 1");
+   readme.push("## C# setup","1. Install Visual Studio with .NET desktop development, or install the .NET 10 SDK from https://dotnet.microsoft.com/download/dotnet/10.0.","2. Run BUILD_EXE.bat. It publishes a self-contained single-file Windows x64 executable.","3. Run TEST_"+name+".bat to compile-check the project.");
   }
-  readme.push("","## Safety and limits","- This package does not run automatically when downloaded.","- Review source and dependencies; run builds only for code you trust.","- The browser does not execute code or verify the resulting EXE. Read compiler output and test the program locally.","- Do not use this project to steal credentials, exfiltrate tokens, evade security tools, or access systems without permission.","");
-  download(file,source());
-  download("BUILD_EXE.bat",bat.join("\r\n")+"\r\n");
-  download("README_BUILD.md",readme.join("\n"));
-  download("TEST_"+name+".bat",[
-   "@echo off","setlocal","cd /d \"%~dp0\"",
-   ...(kind==="python"?["where py >nul 2>nul && (py -m py_compile \""+file+"\") || (python -m py_compile \""+file+"\")"]:
-      kind==="cpp"?["where cl >nul 2>nul && (cl /nologo /std:c++17 /EHsc /Zs \""+file+"\") || (g++ -std=c++17 -fsyntax-only \""+file+"\")"]:
-      ["dotnet build \""+name+".csproj\" -c Release"]),
-   "if errorlevel 1 (echo TEST FAILED.& pause& exit /b 1)","echo TEST PASSED. Runtime behavior still needs manual testing.","pause"
-  ].join("\r\n")+"\r\n");
-  setStatus("Project package files downloaded. Open the extracted folder on Windows, review README_BUILD.md and source, then run BUILD_EXE.bat. A successful download is not a verified build.");
+  files["BUILD_EXE.bat"]=bat.join("\r\n")+"\r\n";
+  if(kind==="python"){
+   files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","where py >nul 2>nul","if %errorlevel%==0 (py -m py_compile \""+file+"\") else (python -m py_compile \""+file+"\")","if errorlevel 1 goto failed","echo TEST PASSED. Runtime behavior still needs manual testing.","pause","exit /b 0",":failed","echo TEST FAILED. Check the Python syntax and installation.","pause","exit /b 1"].join("\r\n")+"\r\n";
+  }else if(kind==="cpp"){
+   files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","where cl >nul 2>nul","if %errorlevel%==0 (cl /nologo /std:c++17 /EHsc /Zs \""+file+"\") else (where g++ >nul 2>nul && g++ -std=c++17 -fsyntax-only \""+file+"\")","if errorlevel 1 goto failed","echo TEST PASSED. Runtime behavior still needs manual testing.","pause","exit /b 0",":failed","echo TEST FAILED. Check the compiler installation and source.","pause","exit /b 1"].join("\r\n")+"\r\n";
+  }else{
+   files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","dotnet build \""+name+".csproj\" -c Release","if errorlevel 1 goto failed","echo TEST PASSED. Runtime behavior still needs manual testing.","pause","exit /b 0",":failed","echo TEST FAILED. Install the .NET 10 SDK and review the source.","pause","exit /b 1"].join("\r\n")+"\r\n";
+  }
+  readme.push("","## Safety and limits","- This ZIP does not run automatically when downloaded.","- Review source and dependencies; run builds only for code you trust.","- The browser does not execute code or verify the resulting EXE. Read compiler output and test the program locally.","- Do not use this project to steal credentials, exfiltrate tokens, evade security tools, or access systems without permission.","");
+  files["README_BUILD.md"]=readme.join("\n");
+  zipDownload(name+"_windows_project.zip",files);
+  setStatus("One project ZIP was downloaded with source, README, test script, dependencies, and EXE builder. Extract it on Windows, review the files, run TEST_"+name+".bat, then BUILD_EXE.bat. This page does not claim the EXE is built until Windows reports success.");
  });
  if(!editor.value)editor.value=starter(language.value);
  reqWrap.classList.toggle("hidden",language.value!=="python");
