@@ -1,32 +1,30 @@
-# Epic Games Recovery Assistant — C++17 Edition
+# Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 3.5.** A Windows C++17 local recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 3.5.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
-## Build and run (Windows)
+## Download the Windows executable
+
+The Windows build is produced by GitHub Actions. Open the latest successful **Build Windows Recovery Assistant** run, expand **Artifacts**, and download **Epic-Games-Recovery-Assistant-Windows**. Extract the downloaded ZIP and run `Epic_Games_Recovery_Assistant.exe`.
+
+- [Latest Windows build workflow runs](https://github.com/boooter316/github.test1/actions/workflows/build-windows.yml)
+- [Windows build workflow](https://github.com/boooter316/github.test1/blob/main/.github/workflows/build-windows.yml)
+
+The repository is private, so downloading the artifact requires access to this repository. GitHub Actions builds the executable; it does not install or run it on your computer. Windows may show a security warning for an unsigned executable. Only run a build you downloaded from this repository and trust.
+
+## No hosting required
+
+This is a **desktop executable**, not a website deployment. It runs locally on a Windows computer and does not require DigitalOcean, SellHub, a VPS, Docker, a public server, or a continuously running hosting provider. SellHub is not required to launch or use the program. No SellHub API key or webhook is needed.
+
+The separate browser-based prototype in the `web/` folder is not the Windows desktop executable and is not needed to run this program.
+
+## Build from source (optional)
 
 1. Install MinGW-w64/GCC with C++17 support and add `g++` to PATH: https://www.mingw-w64.org/
 2. Open this folder in File Explorer.
 3. Run `setup.bat` to compile `recovery_assistant.cpp`.
 4. Run `run.bat` to launch the program.
 
-A GitHub Actions workflow also builds a Windows `.exe` when the C++ source changes (or when manually run from the Actions tab). Download the `Epic-Games-Recovery-Assistant-Windows` artifact from the completed workflow run. The repository is private, so only users with repository access can download it.
-
-The PDF generator is built into the C++ source; no Python, external PDF package, or separate PDF installer is needed. `setup.bat` builds the C++ program; it does not install a PDF reader.
-
-## Version 3.5 additions
-
-- Expanded original-account-country and purchase-history context fields.
-- Added clearer payment-method review notes without collecting full card numbers, CVV, or payment credentials.
-- Added a per-service linked-account inventory prompt covering public IDs/profile names, approximate link dates, and current link status.
-- Added separate appeal-note fields for Epic, Xbox, PlayStation, Steam, and Nintendo.
-- Fixed the duplicate final menu selection and added a clearly labeled Epic support-contact/ticket-options shortcut. The app still cannot provide live agent chat or submit a ticket itself.
-- Corrected the PDF/text/JSON packet version labels so all exports identify version 3.5.
-
-## Version 3.5 additions
-
-- Added separate planning notes for 2FA setup, changing methods, and lost email/phone/authenticator access without collecting codes.
-- Added recovery-error context fields so users can record the exact message and recent-attempt history; the app does not infer that an account was canceled or disabled.
-- Added dedicated menu shortcuts for Epic's 2FA methods guide, lost-2FA help, and account-recovery help.
+The GitHub Actions workflow also builds a Windows executable whenever the desktop source or build workflow changes, and can be manually run from the GitHub Actions tab.
 
 ## Features
 
@@ -36,20 +34,18 @@ The PDF generator is built into the C++ source; no Python, external PDF package,
 - Platform-specific recovery/restriction appeal notes and official support links for Epic, Xbox, PlayStation, Steam, and Nintendo.
 - Linked-service review fields for Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
 - Planning fields for Epic display-name/email changes; actual changes require official sign-in and verification.
-- Exports a local recovery packet: PDF, JSON data dump, readable text details, and support-request draft. The C++ source itself is the buildable program; no separate Python script is used.
-- Opens the current Epic account-recovery request form, support, sign-in, account settings, display-name/email help, linked-account and 2FA recovery pages, plus official Xbox, PlayStation, Steam, and Nintendo support pages.
-- Includes a direct link to Epic’s official Sanctions and Appeals portal; Epic reviews eligible Epic sanctions, while Xbox, PlayStation, Steam, and Nintendo restrictions must be appealed with the respective platform.
+- Exports a local recovery packet: PDF, JSON data, readable text details, and support-request draft.
+- Opens official recovery, support, account settings, linked-account and 2FA help pages.
 
 ## Security and limitations
 
 - This app does not sign in to Epic, contact Epic APIs, verify ownership, or submit tickets. The readiness field is only your own checklist, not an ownership check.
 - It cannot remove restrictions/bans, unlink services, change usernames/emails/payment methods, lock accounts, or guarantee recovery. The relevant platform must approve those actions.
-- It prepares a support draft; it does not provide live agent chat or pretend to be an agent.
+- It does not provide live agent chat or pretend to be an agent.
 - It does not spoof IP addresses, rotate proxies, bypass 2FA, impersonate a previous network/location, or access databases through PuTTY, C2, or VPS infrastructure.
 - A remembered IP is optional context, not proof of ownership and not required by this app.
 - Never enter passwords, account PINs, CVV, full card numbers, 2FA codes, backup codes, authenticator secrets, session cookies, or access tokens.
 - Billing details and card last four digits are optional. Provide them only through an official secure form if the platform specifically requests them.
-- If ownership evidence is missing, the app advises pausing and contacting official support. It never automatically locks, disables, or temporarily suspends an account.
 - Keep exported files private because they may contain personal information.
 
 ## Official Epic resources
@@ -60,14 +56,9 @@ The PDF generator is built into the C++ source; no Python, external PDF package,
 - 2FA/security settings: https://www.epicgames.com/account/password
 - Available 2FA methods: https://www.epicgames.com/help/c-45487929/c-38978022/a11272697
 - Lost authenticator/SMS access: https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US
-- Unlink a console account: https://www.epicgames.com/help/c-Category_EpicAccounts/c-38854402/a17347934?lang=en-US
 - Sign-in: https://www.epicgames.com/id/login
 - Sanctions and appeals: https://safety.epicgames.com/en-US/sanctions-and-appeals
 
-## API configuration
+## Build status
 
-No API provider is configured. An API key is not required to launch this local Windows program. Add an integration only after selecting a legitimate provider and documenting its purpose; never hard-code a key in source code, GitHub, exports, or PDFs. Configure any future secret locally using a protected environment variable or Windows credential storage.
-
-## Test status
-
-The source and build scripts are published, but still need compilation and execution on a Windows computer. GitHub publication is not proof of a successful Windows runtime test. The official recovery and 2FA links were checked against Epic's current help pages on November 13, 2026.
+The Windows workflow compiles the C++ source and uploads the resulting executable as a downloadable artifact. A successful build confirms compilation, not a complete runtime test on every Windows computer.
