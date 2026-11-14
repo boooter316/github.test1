@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 3.0 - C++17
+// Epic Games Recovery Assistant 3.1 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <cstdlib>
@@ -61,7 +61,7 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.0 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.1 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -83,6 +83,19 @@ int main(){
  add("Can you access that 2FA method now? (yes/no/unsure)");
  add("Phone number associated with SMS 2FA (optional; never enter SMS codes)");
  add("Linked services to review (Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other)");
+ add("Linked-service actions requested (review only; actual unlinking must be done by the platform owner)");
+ add("Xbox linked gamertag and whether currently linked (public details only)");
+ add("PlayStation Online ID and whether currently linked (public details only)");
+ add("Nintendo account nickname/ID and whether currently linked (public details only)");
+ add("Steam profile name/ID and whether currently linked (public details only)");
+ add("Other linked services and public profile names/IDs (Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook)");
+ add("Approximate dates each relevant service was linked (if known)");
+ add("Requested Epic display-name change (planning only; official account settings required)");
+ add("Requested Epic email change (planning only; official verification required)");
+ add("Restriction appeal target: Epic / Xbox / PlayStation / Steam / Nintendo / other");
+ add("Restriction notice details, appeal eligibility, end date, and case/reference number");
+ add("Requested support ticket category and desired outcome (review/appeal/recovery/linking guidance)");
+ add("Support agent conversation notes or ticket number (do not enter passwords or codes)");
  add("Public linked profile names/IDs only (no login credentials)");
  add("Requested action: recovery / 2FA help / name change / email change / unlink / restriction appeal / other");
  add("Restriction platform: Epic / Xbox / PlayStation / Steam / Nintendo / other");
@@ -96,13 +109,13 @@ int main(){
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
  std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.0 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.1 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional context, not proof of ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 3.0\n\n";
- j<<"{\n \"version\":\"3.0\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 3.1\n\n";
+ j<<"{\n \"version\":\"3.1\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
  j<<" ]\n}\n";
@@ -117,5 +130,13 @@ int main(){
  else if(choice=="2")openLink("https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US");
  else if(choice=="3")openLink("https://www.epicgames.com/account/connections");
  else if(choice=="4")openLink("https://www.epicgames.com/account/password");
+ else if(choice=="5")openLink("https://www.epicgames.com/id/login");
+ else if(choice=="6")openLink("https://www.epicgames.com/help/c-34254770/c-5719365892123/a18323090?lang=en-US");
+ else if(choice=="7")openLink("https://www.epicgames.com/help/c-45487929/c-40721840/a18546270?lang=en-US");
+ else if(choice=="8")openLink("https://enforcement.xbox.com/");
+ else if(choice=="9")openLink("https://www.playstation.com/en-us/support/account/suspensions/");
+ else if(choice=="10")openLink("https://help.steampowered.com/en/wizard/HelpWithAccount");
+ else if(choice=="11")openLink("https://en-americas-support.nintendo.com/");
+ else if(choice=="12")openLink("https://www.epicgames.com/account/personal");
  return 0;
 }
