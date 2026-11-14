@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 4.8 - C++17
+// Epic Games Recovery Assistant 4.9 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <ctime>
@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <cmath>
+#include <cstdio>
 #include <limits>
 #ifdef _WIN32
 #include <conio.h>
@@ -73,8 +75,8 @@ void notifyDiscord(const std::string& event) {
  if(!WinHttpCrackUrl(url.c_str(),0,0,&parts)) return;
  std::wstring hostname(host,parts.dwHostNameLength), requestPath(path,parts.dwUrlPathLength);
  if(parts.nScheme!=INTERNET_SCHEME_HTTPS || hostname!=L"discord.com" || requestPath.rfind(L"/api/webhooks/",0)!=0) return;
- std::string body="{\"content\":\"Epic Games Recovery Assistant 4.8: "+escJson(event)+"\"}";
- HINTERNET session=WinHttpOpen(L"EpicRecoveryAssistant/4.8",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,WINHTTP_NO_PROXY_NAME,WINHTTP_NO_PROXY_BYPASS,0);
+ std::string body="{\"content\":\"Epic Games Recovery Assistant 4.9: "+escJson(event)+"\"}";
+ HINTERNET session=WinHttpOpen(L"EpicRecoveryAssistant/4.9",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,WINHTTP_NO_PROXY_NAME,WINHTTP_NO_PROXY_BYPASS,0);
  if(!session) return;
  HINTERNET connection=WinHttpConnect(session,hostname.c_str(),parts.nPort,0);
  if(connection){
@@ -290,9 +292,51 @@ bool authGate() {
 }
 #endif
 
+
+void recoveryProgressPage() {
+ std::cout<<"\n=== RECOVERY PROGRESS - PAGE 2 ===\nManual notes only; no live Epic account verification is performed.\n";
+ for(;;) {
+  std::cout<<"\n1 Account status\n2 Linked-account check\n3 Account email check\n4 Username/display-name check\n5 Email-change progress\n6 Restriction countdown\n0 Return\n";
+  std::string c=ask("Choose a progress check");
+  if(c=="0") return;
+  if(c=="1") {
+   fields.push_back({"Progress - account status (user-reported)",ask("Status: active / restricted / locked / recovery pending / unknown")});
+   fields.push_back({"Progress - last status check date",ask("Date checked (YYYY-MM-DD)")});
+  } else if(c=="2") {
+   fields.push_back({"Progress - linked-account status (user-reported)",ask("Service and status: linked / not linked / access lost / unsure")});
+   openLink("https://www.epicgames.com/account/connections");
+  } else if(c=="3") {
+   fields.push_back({"Progress - account email status (user-reported)",ask("Email status: accessible / inaccessible / change requested / changed / unsure; never enter passwords or codes")});
+   openLink("https://www.epicgames.com/account/personal");
+  } else if(c=="4") {
+   fields.push_back({"Progress - username/display-name status (user-reported)",ask("Status: correct / needs change / pending / unsure")});
+   openLink("https://www.epicgames.com/account/personal");
+  } else if(c=="5") {
+   fields.push_back({"Progress - email change status (user-reported)",ask("Not started / requested / verification pending / completed / blocked / unsure")});
+   fields.push_back({"Progress - email change last update",ask("Date of last update (YYYY-MM-DD)")});
+   openLink("https://www.epicgames.com/help/c-45487929/c-40721840/a18546270?lang=en-US");
+  } else if(c=="6") {
+   std::string date=ask("Restriction end date shown by platform (YYYY-MM-DD; blank if unknown)");
+   fields.push_back({"Progress - restriction end date (user-entered)",date});
+   int y=0,m=0,d=0;
+   if(date.size()==10 && std::sscanf(date.c_str(),"%4d-%2d-%2d",&y,&m,&d)==3 && y>=1970 && m>=1 && m<=12 && d>=1 && d<=31) {
+    std::tm end{}; end.tm_year=y-1900; end.tm_mon=m-1; end.tm_mday=d; end.tm_hour=23; end.tm_min=59; end.tm_sec=59;
+    std::time_t t=std::mktime(&end);
+    if(t!=(std::time_t)-1) {
+     long long days=(long long)std::ceil(std::difftime(t,std::time(nullptr))/86400.0); if(days<0) days=0;
+     std::string msg=std::to_string(days)+" day(s) remaining (estimate from entered date; confirm with platform).";
+     std::cout<<msg<<"\n"; fields.push_back({"Progress - estimated restriction days remaining",msg});
+    }
+   } else std::cout<<"Invalid or missing date; countdown not calculated.\n";
+   fields.push_back({"Progress - restriction case/status",ask("Restriction status and case/reference number (no codes)")});
+   openLink("https://safety.epicgames.com/en-US/sanctions-and-appeals");
+  } else std::cout<<"Choose a listed option.\n";
+ }
+}
+
 int main(){
  if(!authGate()) return 0;
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.8 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.9 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -405,6 +449,7 @@ int main(){
  add("Account safety preference if ownership cannot be established: stop and refer to official support (no automatic lock or disable action).");
  std::cout<<"\nEvidence readiness (self-assessment only; this program cannot verify ownership):\n1. Have requested evidence\n2. Unsure\n3. Do not have requested evidence\n";
  fields.push_back({"Evidence readiness",ask("Choose 1, 2, or 3")});
+ recoveryProgressPage();
  std::string request=ask("Describe the support request (do not include secrets)");
  fields.push_back({"Support request summary",request});
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
@@ -414,12 +459,12 @@ int main(){
  logHistoricalIPs(dir,epicId);
  logLoginActivity(dir,epicId);
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.8 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.9 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional user-reported context; this app cannot compare it with Epic records or verify account ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, full phone numbers, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.8\n\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.9\n\n";
  j<<"{\n \"version\":\"4.5\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
