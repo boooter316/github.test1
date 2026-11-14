@@ -79,3 +79,10 @@ PORT=8080 ./recovery-web
 ## Legal and authorized-use notice
 
 Use the local scanners only on files and accounts you own or are expressly authorized to assess. Follow applicable laws, platform terms, and workplace policies. Pattern matches are not credential validation, proof of ownership, or proof of compromise. Do not use scan results to access another person's account, impersonate anyone, bypass security controls, or disclose private information. Review reports before sharing and promptly revoke or rotate any exposed credentials. This independent tool is provided “as is,” without warranty; it is not legal advice and does not guarantee account recovery or security.
+
+
+## Expanded Fortnite/Epic scan reporting
+
+The Fortnite/Epic scanner reports one numbered entry for each detected pattern match, including its source filename (or pasted-text source), line number, detection category, confidence label, and safe preview. The report includes scan timestamp, scanned-source list, totals by finding type, totals by source, and skipped-file notices. TXT export and browser print-to-PDF use the same report text.
+
+In addition to authentication and account-detail patterns, the scanner includes heuristic indicators for SQL injection, cross-site scripting (XSS), HTML/script injection, command injection, path traversal, server-side template injection, and LDAP injection. These are static text-pattern indicators only: they can produce false positives and do not establish that an application is vulnerable or that an attack succeeded. The scanner does not execute input, probe a live service, test credentials, or perform exploit attempts. Passwords, tokens, cookies, and session secrets remain redacted in on-screen and exported reports.
