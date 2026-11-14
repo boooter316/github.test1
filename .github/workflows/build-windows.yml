@@ -19,17 +19,24 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
-      - name: Validate PowerShell updater scripts
+      - name: Validate PowerShell scripts
         shell: pwsh
         run: |
-          $files = @('Epic_Games_Recovery_Assistant/update_project.ps1', 'Epic_Games_Recovery_Assistant/install_auto_update.ps1', 'Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1')
+          $files = @('Epic_Games_Recovery_Assistant/update_project.ps1', 'Epic_Games_Recovery_Assistant/install_auto_update.ps1', 'Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1', 'Epic_Games_Recovery_Assistant/web/network_tools.ps1')
           foreach ($file in $files) {
             $tokens = $null
             $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD $file), [ref]$tokens, [ref]$errors) | Out-Null
             if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; throw "PowerShell syntax validation failed: $file" }
           }
-          Write-Host 'PowerShell updater scripts parsed successfully.'
+          Write-Host 'All PowerShell scripts parsed successfully.'
+      - name: Validate new network helper safety guards
+        shell: pwsh
+        run: |
+          $script = Get-Content 'Epic_Games_Recovery_Assistant/web/network_tools.ps1' -Raw
+          foreach ($required in @('Test-PrivateIPv4', 'RFC1918', 'Ports.Count -gt 32', 'InstallDailyStatusTask', 'RemoveDailyStatusTask')) {
+            if ($script -notmatch [regex]::Escape($required)) { throw "Missing network-helper guard or command: $required" }
+          }
       - name: Validate embedded web JavaScript syntax
         shell: pwsh
         run: |
@@ -37,13 +44,14 @@ jobs:
           const fs = require('fs');
           const html = fs.readFileSync('Epic_Games_Recovery_Assistant/web/index.html', 'utf8');
           const network = fs.readFileSync('Epic_Games_Recovery_Assistant/web/network_security.js', 'utf8');
+          const tools = fs.readFileSync('Epic_Games_Recovery_Assistant/web/network-tools.html', 'utf8');
           new Function(network);
-          const scripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)];
-          if (!scripts.length) throw new Error('No inline JavaScript blocks found');
-          for (const [i, match] of scripts.entries()) {
-            if (match[1].trim()) new Function(match[1]);
-          }
-          console.log(`Validated ${scripts.length} inline script block(s) and network_security.js.`);
+          const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)];
+          for (const [i, match] of inline.entries()) if (match[1].trim()) new Function(match[1]);
+          const toolScripts = [...tools.matchAll(/<script>([\s\S]*?)<\/script>/gi)];
+          if (!toolScripts.length) throw new Error('Network tools page has no script');
+          for (const match of toolScripts) new Function(match[1]);
+          console.log('Validated main app, network analyzer, and network tools JavaScript.');
           '@ | node
       - name: Validate Windows batch launchers
         shell: pwsh
@@ -128,8 +136,11 @@ jobs:
           done
           test "$(curl --fail --silent http://127.0.0.1:18080/healthz)" = "ok"
           curl --fail --silent http://127.0.0.1:18080/ | grep -q 'network_security.js'
-          curl --fail --silent http://127.0.0.1:18080/network_security.js | grep -q 'analyzeNetworkCapture'
+          curl --fail --silent http://127.0.0.1:18080/ | grep -q 'IP &amp; Network Tools'
+          curl --fail --silent http://127.0.0.1:18080/network-tools.html | grep -q 'Local IP & Network Tools'
+          curl --fail --silent http://127.0.0.1:18080/network_tools.ps1 | grep -q 'Test-PrivateIPv4'
+          curl --fail --silent http://127.0.0.1:18080/SETUP_AND_USAGE.txt | grep -q 'SETUP AND USAGE'
           curl --fail --silent -D headers.txt -o index.html http://127.0.0.1:18080/
           grep -qi 'Content-Security-Policy:.*https://cdnjs.cloudflare.com' headers.txt
           grep -qi 'worker-src.*blob:' headers.txt
-          echo "Container health, HTML, network analyzer asset, and CSP checks passed."
+          echo "Container health, existing assets, network tools page/helper, setup guide, and CSP checks passed."
