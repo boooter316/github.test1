@@ -64,6 +64,7 @@ int main(){
  add("VPN/proxy active during recovery attempts? (yes/no/unsure)");
  add("2FA method: Epic Authenticator / authenticator app / email / SMS-phone");
  add("Can you access that 2FA method now? (yes/no/unsure)");
+ add("Phone number associated with SMS 2FA (optional; never enter SMS codes)");
  add("Linked services to review (Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other)");
  add("Public linked profile names/IDs only (no login credentials)");
  add("Requested action: recovery / 2FA help / name change / email change / unlink / restriction appeal / other");
@@ -95,7 +96,7 @@ int main(){
  <<"No account action was taken. If evidence is missing, pause and ask official support about alternatives.\n\n"
  <<"1 Open Epic recovery page\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n0 Exit\n";
  std::string choice=ask("Choose an official page");
- if(choice=="1")openLink("https://www.epicgames.com/help/en-US/c-Category_EpicAccount/c-AccountSecurity/how-to-recover-access-to-your-epic-games-account-a000084667");
+ if(choice=="1")openLink("https://www.epicgames.com/help/c-1/a10856556?lang=en-US");
  else if(choice=="2")openLink("https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US");
  else if(choice=="3")openLink("https://www.epicgames.com/account/connections");
  else if(choice=="4")openLink("https://www.epicgames.com/account/password");
