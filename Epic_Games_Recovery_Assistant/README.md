@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 3.8.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 3.9.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Download the Windows executable
 
@@ -29,21 +29,24 @@ The GitHub Actions workflow also builds a Windows executable whenever the deskto
 ## Features
 
 - Organizes Epic Account ID, current/previous display names and emails, account dates, creator code, invoice/order ID, purchase name, optional billing address, payment provider, and card last four digits only.
-- Records each 2FA method (Epic Authenticator, third-party authenticator app, email, SMS/phone), preferred method, and separate access-status notes for each method. Never stores verification codes.
+- Records each 2FA method (Epic Authenticator, third-party authenticator app, email, SMS/phone), preferred method, and separate access-status notes for each method. It can record which official recovery contact method the user wants to discuss with support. It does not store phone numbers or verification codes.
 - Optional historical IP and VPN/proxy provider/region/use/date notes for truthful context only; the app does not connect to, configure, rotate, or use a VPN/proxy.
 - Platform-specific recovery/restriction appeal notes and official support links for Epic, Xbox, PlayStation, Steam, and Nintendo.
 - Linked-service review fields for Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
 - Planning fields for Epic display-name/email changes; actual changes require official sign-in and verification.
-- Exports a local recovery evidence packet: PDF report, JSON data, readable text details, support-request draft, and a copy of `recovery_assistant.cpp` when `recovery_assistant.cpp` is beside the executable. If it is unavailable, the packet includes `SOURCE_NOT_COPIED.txt`. This exports only information the user enters; it cannot extract platform databases, credentials, cookies, tokens, or account data.
+- Exports a local recovery evidence packet: PDF report, JSON data, readable text details, support-request draft, and a copy of `recovery_assistant.cpp` when `recovery_assistant.cpp` is beside the executable. The checklist can note names of genuine evidence files kept privately on the computer; it does not ingest or extract those files. If it is unavailable, the packet includes `SOURCE_NOT_COPIED.txt`. This exports only information the user enters; it cannot extract platform databases, credentials, cookies, tokens, or account data.
 - Opens official recovery, support, account settings, linked-account and 2FA help pages.
 
-## Version 3.8 additions
+## Version 3.9 additions
 
 - Adds Epic recovery request status, request ID, last-submission date/waiting-period, and missing non-secret evidence tracking.
 - Copies the C++ source file from beside the running executable into the export packet, including when launched from a desktop shortcut.
 - Aligns the setup and launcher scripts with the executable filename produced by GitHub Actions.
 - Retains structured case/reference ID, restriction type, date/duration, appeal status, and factual-notes fields for Xbox, PlayStation, Steam, and Nintendo.
-- Keeps export limited to user-entered evidence; no platform account dump, credential dump, or account-extraction script is included.
+- Adds an evidence-file checklist and evidence-source/date notes so users can organize genuine receipts, notices, screenshots, and support emails they already possess.
+- Clarifies that the preferred email/SMS-phone/authenticator route is a planning note for official support; the program does not collect the full phone number or verification codes.
+- Adds an expanded restriction-review checklist for all supported platforms.
+- Keeps export limited to user-entered notes; no platform account dump, credential dump, or account-extraction script is included.
 
 ## Earlier features
 
