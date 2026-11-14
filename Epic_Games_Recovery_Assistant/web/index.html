@@ -135,7 +135,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <section class="panel" id="ownershipEvidencePacket">
 <h3>Pro Account Ownership Evidence Packet</h3>
 <div class="notice"><strong>Verification status: Awaiting official platform review.</strong> This tool cannot certify an owner, authenticate documents, or transfer/lock an account. Only the platform can verify its internal records and decide who is entitled to the account. Never use this packet to claim another person's account.</div>
-<p>Build a structured checklist of original evidence you lawfully possess. Select only items you can genuinely provide to official support. Do not upload documents here or enter passwords, verification codes, full card numbers, or private authentication data.</p>
+<p>Build a structured checklist of original evidence you lawfully possess. A historical IP address and its original source/date are required to generate this packet. Use an address copied from an original platform-issued or device record; do not guess, spoof, or substitute a current VPN/proxy address. This requirement does not certify ownership. Do not upload documents here or enter passwords, verification codes, full card numbers, or private authentication data.</p>
 <div class="checks">
 <label class="check"><input type="checkbox" class="ownership-proof" value="Original platform-issued account creation or welcome email"> Original platform-issued account creation / welcome email</label>
 <label class="check"><input type="checkbox" class="ownership-proof" value="Original platform-issued purchase receipt or invoice"> Original platform-issued purchase receipt / invoice</label>
@@ -151,11 +151,13 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div><label for="ownershipCase">Official support case/reference (if one exists)</label><input id="ownershipCase" autocomplete="off"></div>
 <div><label for="ownershipEvidenceDate">Date of oldest original evidence (if known)</label><input id="ownershipEvidenceDate" type="date"></div>
 <div><label for="ownershipReference">Non-secret receipt/order reference (optional)</label><input id="ownershipReference" autocomplete="off" placeholder="Reference only; no payment details"></div>
+<div><label for="ownershipIp">Historical account IP address (required)</label><input id="ownershipIp" autocomplete="off" inputmode="text" required placeholder="Enter an IP shown in original account records"></div>
+<div><label for="ownershipIpSource">Original source and date for this IP (required)</label><input id="ownershipIpSource" required autocomplete="off" placeholder="For example, platform security email, dated YYYY-MM-DD"></div>
 </div>
 <p><label for="ownershipNotes">Evidence notes (source, date, and what it shows; no secrets)</label><textarea id="ownershipNotes" placeholder="Example: original purchase receipt issued by the platform on YYYY-MM-DD; reference ending 1234."></textarea></p>
 <div class="actions no-print"><button type="button" id="buildOwnershipPacket">Build ownership evidence report</button><button type="button" class="secondary" id="printOwnershipPacket" disabled>Print / Save as PDF</button><button type="button" class="secondary" id="downloadOwnershipPacket" disabled>Download .txt</button></div>
 <pre id="ownershipPacketResult" class="scanner-result" role="status" aria-live="polite">No ownership packet generated. Status remains unverified until the platform reviews original evidence.</pre>
-<p class="hint">A checklist selection is a user statement, not proof that a document is genuine. Do not submit altered, fabricated, or someone else's records. Provide original, unedited platform-issued evidence only through the platform's official secure support channel. This report does not establish legal ownership or prove that an account was never accessed by another person.</p>
+<p class="hint">The required IP and its source/date are user-entered claims. An IP can be shared, reassigned, dynamic, or associated with a VPN, proxy, school, workplace, carrier NAT, or household. It cannot identify a person by itself. A checklist selection is a user statement, not proof that a document is genuine. Do not submit altered, fabricated, or someone else's records. Provide original, unedited platform-issued evidence only through the platform's official secure support channel. This report does not establish legal ownership or prove that an account was never accessed by another person.</p>
 </section>
 
 <p><label for="fortniteFiles">Choose account logs, text/config files, or PDFs (PDF text only)</label><input id="fortniteFiles" type="file" accept=".txt,.log,.ini,.cfg,.json,.xml,.csv,.md,.conf,.yaml,.yml,.pdf" multiple></p>
@@ -547,7 +549,13 @@ function buildOwnershipPacket(){
  const caseRef=document.getElementById("ownershipCase").value.trim();
  const evidenceDate=document.getElementById("ownershipEvidenceDate").value;
  const reference=document.getElementById("ownershipReference").value.trim();
+ const ip=document.getElementById("ownershipIp").value.trim();
+ const ipSource=document.getElementById("ownershipIpSource").value.trim();
  const notes=document.getElementById("ownershipNotes").value.trim();
+ const isIPv4=value=>{const parts=value.split(".");return parts.length===4&&parts.every(part=>/^\\d{1,3}$/.test(part)&&Number(part)<=255)};
+ const isIPv6=value=>value.includes(":")&&/^[0-9a-f:]+$/i.test(value)&&value.length<=39&&value.split("::").length<=2;
+ if(!ip||!ipSource){alert("Enter a historical IP address and its original source/date before building this report.");return}
+ if(!isIPv4(ip)&&!isIPv6(ip)){alert("Enter a valid IPv4 or IPv6 address copied from an original record. Do not guess or use a current VPN/proxy address as historical evidence.");return}
  const selected=[...document.querySelectorAll(".ownership-proof:checked")].map(x=>x.value);
  const lines=[
   "PRO ACCOUNT OWNERSHIP EVIDENCE PACKET",
@@ -556,6 +564,11 @@ function buildOwnershipPacket(){
   "Official support case/reference: "+(caseRef||"Not supplied"),
   "Oldest evidence date supplied: "+(evidenceDate||"Not supplied"),
   "Non-secret order/receipt reference: "+(reference||"Not supplied"),
+  "Historical account IP address supplied: "+ip,
+  "Original IP evidence source/date supplied: "+ipSource,
+  "",
+  "IP EVIDENCE REVIEW: USER-SUPPLIED — NOT INDEPENDENTLY MATCHED OR VERIFIED.",
+  "The IP field is required to generate this packet, but this requirement does not approve ownership. The platform must independently compare the address and its timestamp/source with its own account and security records.",
   "",
   "EVIDENCE TYPES THE USER SAYS THEY CAN PROVIDE:",
   ...(selected.length?selected.map((x,i)=>(i+1)+". "+x):["No evidence types selected"]),
