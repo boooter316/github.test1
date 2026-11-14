@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant
 
-A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
+Version 1.2. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
 
 ## Requirements
 - Windows 10 or Windows 11
@@ -17,7 +17,7 @@ A Windows Python desktop utility for organizing truthful Epic Games account-reco
 - Account details: current and previous emails/display names, creation country/date, Epic Account ID, invoice ID, phone used for SMS 2FA, linked accounts and approximate linking dates, purchase payment types, and optional remembered original IP.
 - Incident categories and a description/evidence section.
 - Multi-select 2FA history: Epic Authenticator, third-party authenticator app, email, and SMS/phone; plus access status.
-- VPN/proxy history fields for provider and region, strictly for truthful documentation.
+- VPN/proxy history fields for provider and region, strictly for truthful documentation; includes Epic's current troubleshooting advice to disconnect VPN/hosting/proxy services for the relevant sign-in error.
 - PDF recovery-request summary.
 - **Export Full Recovery Packet** creates a local folder containing:
   - `recovery_request.pdf`
@@ -34,9 +34,11 @@ A Windows Python desktop utility for organizing truthful Epic Games account-reco
 
 ## Official Epic guidance
 Epic's available 2FA methods and recovery steps can change. Check the live official pages before acting:
-- [Epic account recovery](https://www.epicgames.com/help/c-1/a10856556?lang=en-US)
+- [Epic account recovery guide](https://www.epicgames.com/help/c-1/a10856556?lang=en-US)
 - [How to submit an account recovery request](https://www.epicgames.com/help/c-45487929/a21414514)
 - [Available 2FA methods](https://www.epicgames.com/help/c-45487929/c-38978022/a11272697)
+- [Locked out of authenticator or SMS 2FA](https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US)
+- [VPN/proxy sign-in troubleshooting](https://www.epicgames.com/help/c-45487929/c-38854402/a20296521?lang=en-US)
 - [Epic Support](https://www.epicgames.com/help/en-US/)
 
 The app does not guarantee that Epic will accept a recovery request. Epic makes all account ownership and recovery decisions.
