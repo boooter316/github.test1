@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant
 
-Version 1.6. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
+Version 1.7. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
 
 ## Requirements
 - Windows 10 or Windows 11
@@ -29,6 +29,8 @@ Version 1.6. A Windows Python desktop utility for organizing truthful Epic Games
   - `app.py` (copy of the running Python script, when available)
   - `README.txt` (handling and security notes)
 - The app also creates a ZIP archive of the complete packet folder for easier storage or transfer.
+- **Support Ticket Builder** prepares a local draft for Epic Games, Xbox, PlayStation, Steam, Nintendo, Apple, or LEGO, with request categories for account recovery, compromised accounts, restriction appeals, platform unlink requests, payment-method changes, and profile changes. The draft is included in the PDF and packet as `support_request_draft.txt`; it is never submitted automatically.
+- The ticket builder links to the official Epic Support Assistant/contact page and Epic linked-account settings. Other platform buttons open their official support destinations. Live agent availability depends on the platform and account; the app does not simulate a live chat.
 
 ## Privacy and security
 - Packet files are saved to the folder you choose; this app does not upload or send them anywhere.
@@ -36,6 +38,8 @@ Version 1.6. A Windows Python desktop utility for organizing truthful Epic Games
 - Never enter or store passwords, one-time verification codes, backup codes, authenticator setup keys, session cookies, or full payment-card numbers.
 - VPN/proxy fields document past use only. Epic's current guidance says VPN/proxy use or submitting from a previously unused location can contribute to recovery-request denial; disconnect VPN/hosting/proxy services for the relevant sign-in error and do not submit a recovery request through a VPN/proxy. The app does not connect to a VPN/proxy, spoof or rotate IP addresses, recreate an old IP, or bypass Epic verification.
 - Correct information does not guarantee approval; Epic independently reviews and verifies every recovery request. Check the recovery status page with the Recovery ID, and follow Epic's wait guidance rather than repeatedly retrying rate-limited requests.
+- If ownership evidence is unavailable or uncertain, pause and use the official platform recovery flow. The app does not automatically lock, disable, or close an account based on missing evidence.
+- Unlinking a platform or changing/removing a payment method must be done by the account owner through verified account settings or the platform's official support process. The app only records the requested action and prepares a draft.
 - This is an independent organizer. It does not verify ownership, reset passwords, connect to Epic, unlock accounts, remove bans, evade sanctions, or submit recovery/appeal requests automatically.
 
 ## Official Epic guidance
