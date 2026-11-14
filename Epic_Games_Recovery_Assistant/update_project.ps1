@@ -49,8 +49,8 @@ try {
     Expand-Archive -LiteralPath $archive -DestinationPath $stage -Force
 
     $requiredFiles = @(
-        'build.bat', 'setup.bat', 'run.bat', 'install_auto_update.ps1', 'update_project.ps1',
-        'recovery_assistant.c++', 'README.md', 'SETUP_AND_USAGE.txt',
+        'build.bat', 'setup.bat', 'run.bat', 'PDF_EVIDENCE_SCANNER.bat', 'install_auto_update.ps1', 'update_project.ps1',
+        'recovery_assistant.c++', 'paf_evidence_scanner.c++', 'README.md', 'SETUP_AND_USAGE.txt',
         'OPEN_PROJECT.bat', 'FIRST_RUN_SETUP.bat', 'first_run_setup.ps1', 'setup_dependencies.ps1',
         'web\index.html', 'web\server.mjs', 'web\server.cpp', 'web\Dockerfile',
         'web\README.md', 'web\SETUP_AND_USAGE.txt', 'web\FAZE_JARVIS_SETUP.md',
