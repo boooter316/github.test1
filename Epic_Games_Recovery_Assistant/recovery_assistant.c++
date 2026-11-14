@@ -725,7 +725,6 @@ int main() {
   } else {
    std::cout<<"Choose 1, 2, 3, 4, 5, 6, or 0.\n";
   }
-  }
  }
  notifyDiscord("application closed");
  return 0;
