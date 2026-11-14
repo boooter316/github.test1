@@ -25,6 +25,10 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 .account-link:hover,.account-link:focus{border-color:#175cd3;background:#eef4ff;outline-offset:2px}
 .account-link span{font-size:.88rem;color:#526174}
 #accountServiceTabs{max-height:190px;overflow:auto}#accountServiceTabs button{flex:0 1 auto;font-size:.88rem;padding:9px 12px}#accountProviderPanels .panel{margin-top:12px}#accountProviderPanel0 .account-link{max-width:360px;margin-bottom:12px}
+
+#scriptBuilderTab textarea{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;min-height:220px;white-space:pre;tab-size:4}
+#scriptBuilderTab .actions button{flex:1 1 145px}
+#scriptBuilderTab .scanner-result{min-height:48px}
 </style></head><body><main class="wrap">
 <header><h1>Account Recovery Request Assistant</h1><p>Prepare a factual support request for Epic Games or another platform. This is an independent organizer, not an official support tool.</p>
 <div class="notice"><strong>Privacy:</strong> Recovery-form entries and local scanner results stay in this browser tab. If you use Faze Jarvis, your chat messages are sent to DeepSeek through this server’s API proxy. The DeepSeek API key remains server-side. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, tokens, or private keys.</div></header>
@@ -40,9 +44,44 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <button type="button" class="tab secondary" id="telegramConnectTabButton" aria-selected="false">Telegram Connect</button>
 <button type="button" class="tab secondary" id="fortniteSkinCheckTabButton" aria-selected="false">Fortnite Skin Check</button>
 <button type="button" class="tab secondary" id="setupInstallTabButton" aria-selected="false">Setup &amp; Install</button>
+<button type="button" class="tab secondary" id="scriptBuilderTabButton" aria-selected="false">Script Builder</button>
 </nav><div id="globalTaskControls" class="panel no-print" style="position:sticky;top:8px;z-index:20;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px">
 <strong>Task controls</strong><button type="button" id="globalStopButton" class="secondary">Stop current task</button><span id="globalStopStatus" class="hint" role="status">No stop request active.</span>
 </div>
+<section class="hidden" id="scriptBuilderTab">
+<section class="panel">
+<h2>Script Builder &amp; Local EXE Workbench</h2>
+<p class="hint">Create and package scripts you own or are authorized to develop. Import a source file, edit it, choose Python, C++17, or C#, then download the source and Windows build/test files.</p>
+<div class="notice"><strong>Local-build safety:</strong> This browser page never executes uploaded code and never sends your source to a server. Build files run only after you download and review them on your Windows PC. Do not use this tool to create credential stealers, token grabbers, malware, unauthorized access tools, or code that hides activity or exfiltrates secrets.</div>
+<div class="grid">
+<div><label for="sbProjectName">Project name</label><input id="sbProjectName" value="my-script"></div>
+<div><label for="sbLanguage">Source language</label><select id="sbLanguage"><option value="python">Python</option><option value="cpp">C++17</option><option value="csharp">C# (.NET 8)</option></select></div>
+<div><label for="sbIde">Preferred editor / IDE</label><select id="sbIde"><option value="vscode">Visual Studio Code</option><option value="vs2022">Visual Studio 2022</option><option value="both">Both VS Code and Visual Studio</option></select></div>
+</div>
+<p><label for="sbFile">Import an existing source file</label><input id="sbFile" type="file" accept=".py,.pyw,.cpp,.cc,.cxx,.cs,.txt"></p>
+<p class="hint">Text source files up to 2 MB are read locally in this tab. Importing a file does not execute it. Select the matching language; changing the language does not automatically translate code.</p>
+<label for="sbCode">Script source</label>
+<textarea id="sbCode" rows="16" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="Paste or write your own Python, C++, or C# source code here."></textarea>
+<div id="sbRequirementsWrap"><label for="sbRequirements">Python packages (one requirement per line)</label><textarea id="sbRequirements" rows="3" spellcheck="false">pyinstaller>=6.0</textarea><p class="hint">Add only packages you trust. The generated installer downloads packages from the configured Python package index when you run it.</p></div>
+<div class="actions no-print">
+<button type="button" id="sbStop" class="secondary">Stop</button>
+<button type="button" id="sbDebug" class="secondary">Debug / Review</button>
+<button type="button" id="sbTest" class="secondary">Create Test Script</button>
+<button type="button" id="sbSave" class="secondary">Download Source</button>
+<button type="button" id="sbBuild">Build EXE Package</button>
+</div>
+<p id="sbStatus" class="scanner-result" role="status" aria-live="polite">Ready. Import or paste source code, then review it before building.</p>
+<h3>What the generated package contains</h3>
+<ul>
+<li><strong>Python:</strong> .py source, requirements.txt, a syntax-test batch file, and a PyInstaller one-file EXE build batch file.</li>
+<li><strong>C++17:</strong> .cpp source, a compiler-test batch file, and an EXE build batch file for MSVC or g++.</li>
+<li><strong>C#:</strong> .cs source, a .NET 8 project file, a build/test batch file, and a self-contained single-file Windows EXE publish command.</li>
+<li><strong>Setup guide:</strong> install requirements and open the folder in VS Code or Visual Studio 2022.</li>
+</ul>
+<h3>Important limitations</h3>
+<p class="hint">Renaming or exporting code as .py does not translate another language into Python. Python EXE packaging uses PyInstaller on your Windows computer. C++ and C# need their respective compiler/SDK. This page prepares files and checks obvious source issues; it does not claim that a build succeeded until you run the generated test/build file on Windows.</p>
+</section>
+</section>
 <div class="hidden" id="setupInstallTab">
 <section class="panel">
 <h2>First-run Setup &amp; Install</h2>
@@ -485,7 +524,8 @@ const pageTabs={
  accountStatus:{button:document.getElementById("accountStatusTabButton"),panel:document.getElementById("accountStatusTab")},
  telegramConnect:{button:document.getElementById("telegramConnectTabButton"),panel:document.getElementById("telegramConnectTab")},
  fortniteSkinCheck:{button:document.getElementById("fortniteSkinCheckTabButton"),panel:document.getElementById("fortniteSkinCheckTab")},
- setupInstall:{button:document.getElementById("setupInstallTabButton"),panel:document.getElementById("setupInstallTab")}
+ setupInstall:{button:document.getElementById("setupInstallTabButton"),panel:document.getElementById("setupInstallTab")},
+ scriptBuilder:{button:document.getElementById("scriptBuilderTabButton"),panel:document.getElementById("scriptBuilderTab")}
 };
 function showTab(which){
  for(const [key,item] of Object.entries(pageTabs)){
@@ -593,6 +633,126 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
  a.href=url;a.download=name+"."+ext;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
  document.getElementById("builderStatus").textContent="Starter source downloaded. Review it before running; compile or execute it manually in your development environment.";
 });
+
+
+// Local script-builder workbench. All source processing stays in this browser tab;
+// generated build scripts are downloaded for review and execution by the user on Windows.
+(()=>{
+ const $=id=>document.getElementById(id);
+ const language=$("sbLanguage"), editor=$("sbCode"), status=$("sbStatus"), reqWrap=$("sbRequirementsWrap");
+ const projectName=()=>($("sbProjectName").value.trim()||"my-script").replace(/[^A-Za-z0-9_-]/g,"-").slice(0,48);
+ const extension=()=>({python:"py",cpp:"cpp",csharp:"cs"}[language.value]);
+ const setStatus=message=>{status.textContent=message;};
+ const download=(name,content,type="text/plain;charset=utf-8")=>{
+  const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+ };
+ const source=()=>editor.value;
+ const starter=kind=>({
+  python:'"""A small starter script. Review before running."""\n\ndef main():\n    print("Hello from Python")\n\nif __name__ == "__main__":\n    main()\n',
+  cpp:'#include <iostream>\n\nint main() {\n    std::cout << "Hello from C++17\\n";\n    return 0;\n}\n',
+  csharp:'using System;\n\ninternal static class Program\n{\n    private static void Main()\n    {\n        Console.WriteLine("Hello from C#");\n    }\n}\n'
+ })[kind];
+ language.addEventListener("change",()=>{reqWrap.classList.toggle("hidden",language.value!=="python");setStatus("Language changed. Existing source was preserved; confirm it matches the selected language.");});
+ $("sbFile").addEventListener("change",async event=>{
+  const file=event.target.files&&event.target.files[0];if(!file)return;
+  if(file.size>2*1024*1024){setStatus("File is larger than the 2 MB limit. Choose a smaller text source file.");event.target.value="";return;}
+  try{const text=await file.text();if(window.recoveryStopRequested){setStatus("Import stopped.");return;}editor.value=text;$("sbProjectName").value=file.name.replace(/\.[^.]+$/,"").replace(/[^A-Za-z0-9_-]/g,"-");setStatus("Loaded "+file.name+" locally. No code was executed.");}
+  catch(error){setStatus("Could not read source file: "+error.message);}
+ });
+ const validate=()=>{
+  const code=source(),kind=language.value,issues=[];
+  if(!code.trim())issues.push("Source is empty.");
+  if(code.length>1024*1024)issues.push("Source exceeds the 1 MB editor limit.");
+  if(code.includes("<<<<<<<")||code.includes("=======")||code.includes(">>>>>>>"))issues.push("Git merge-conflict markers were found.");
+  if(kind==="python"){
+   if(/^\s*def\s+\w+\s*\([^)]*$/m.test(code))issues.push("A function definition may have an incomplete parameter list.");
+   if(/^\s*(if|for|while|def|class|try|with)\b[^:\n]*$/m.test(code))issues.push("A Python block header may be missing its colon.");
+   if(/\t/.test(code))issues.push("Tabs are present; Python indentation is usually safest with spaces.");
+  }else if(kind==="cpp"){
+   const opens=(code.match(/{/g)||[]).length,closes=(code.match(/}/g)||[]).length;
+   if(opens!==closes)issues.push("C++ brace counts do not match.");
+   if(!/\bmain\s*\(/.test(code))issues.push("No main() entry point was detected.");
+  }else{
+   const opens=(code.match(/{/g)||[]).length,closes=(code.match(/}/g)||[]).length;
+   if(opens!==closes)issues.push("C# brace counts do not match.");
+   if(!/\b(static\s+)?void\s+Main\s*\(/.test(code))issues.push("No conventional Main() entry point was detected.");
+  }
+  return issues;
+ };
+ $("sbDebug").addEventListener("click",()=>{
+  const issues=validate();
+  if(issues.length)setStatus("Review found "+issues.length+" item(s):\n• "+issues.join("\n• ")+"\nThis is a lightweight static check, not a compiler or security audit.");
+  else setStatus("No obvious formatting/entry-point issues detected. This is not proof the source compiles or is safe; use the generated test script on Windows.");
+ });
+ $("sbStop").addEventListener("click",()=>{
+  window.recoveryStopRequested=true;
+  if(window.recoveryTaskController)window.recoveryTaskController.abort();
+  setStatus("Stop requested. No uploaded code is running in the browser. If a downloaded Windows build is running, stop it with Ctrl+C in its terminal.");
+ });
+ $("sbSave").addEventListener("click",()=>{
+  if(!source().trim()){setStatus("Paste or import source code first.");return;}
+  download(projectName()+"."+extension(),source());
+  setStatus("Source file downloaded. It was not executed.");
+ });
+ $("sbTest").addEventListener("click",()=>{
+  if(!source().trim()){setStatus("Paste or import source code first.");return;}
+  const name=projectName(),file=name+"."+extension(),kind=language.value;
+  let lines=["@echo off","setlocal","cd /d \"%~dp0\"","echo Testing "+file+" (syntax/build check only)"];
+  if(kind==="python"){
+   lines.push("where py >nul 2>nul","if %errorlevel%==0 (py -m py_compile \""+file+"\") else (python -m py_compile \""+file+"\")");
+  }else if(kind==="cpp"){
+   lines.push("where cl >nul 2>nul","if %errorlevel%==0 (cl /nologo /std:c++17 /EHsc /Zs \""+file+"\") else (where g++ >nul 2>nul && g++ -std=c++17 -fsyntax-only \""+file+"\")");
+  }else{
+   lines.push("where dotnet >nul 2>nul || (echo Install the .NET 8 SDK first.& exit /b 1)","dotnet build \""+name+".csproj\" -c Release");
+  }
+  lines.push("if errorlevel 1 (echo TEST FAILED. Read the compiler output above.& pause& exit /b 1)","echo TEST PASSED. This checks syntax/build only; it does not prove runtime behavior.","pause");
+  download("TEST_"+name+".bat",lines.join("\r\n")+"\r\n");
+  if(kind==="csharp"){
+   const proj='<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net8.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>\n';
+   download(name+".csproj",proj);
+  }
+  download(file,source());
+  setStatus("Downloaded source and test files. Run TEST_"+name+".bat from the extracted folder on Windows; this page cannot run the compiler for you.");
+ });
+ $("sbBuild").addEventListener("click",()=>{
+  if(!source().trim()){setStatus("Paste or import source code first.");return;}
+  const issues=validate();if(issues.length){setStatus("Fix the review items first or deliberately review them before packaging:\n• "+issues.join("\n• "));return;}
+  const name=projectName(),file=name+"."+extension(),kind=language.value,ide=$("sbIde").value;
+  let bat=["@echo off","setlocal","cd /d \"%~dp0\"","title Build "+name,"echo Building "+name+" for Windows x64"];
+  let readme=["# "+name,"","Generated local project package. Review every source file and dependency before running.","","## Editor"];
+  if(ide==="vscode"||ide==="both")readme.push("- Visual Studio Code: open this folder, then install the official language extension.");
+  if(ide==="vs2022"||ide==="both")readme.push("- Visual Studio 2022: install the workload/SDK listed below, then open the project or use the Developer Command Prompt.");
+  if(kind==="python"){
+   const req=$("sbRequirements").value.trim()||"pyinstaller>=6.0";
+   bat.push("where py >nul 2>nul && (set \"PY=py\") || (set \"PY=python\")","%PY% --version || (echo Python 3.10+ is required. Install from https://www.python.org/downloads/windows/ and enable Add Python to PATH.& pause& exit /b 1)","%PY% -m pip install --upgrade pip","if exist requirements.txt %PY% -m pip install -r requirements.txt","%PY% -m pip install pyinstaller","%PY% -m PyInstaller --noconfirm --clean --onefile --name \""+name+"\" \""+file+"\"","if errorlevel 1 (echo BUILD FAILED. Review the messages above.& pause& exit /b 1)","echo EXE created in the dist folder.","pause");
+   download("requirements.txt",req+"\n");
+   readme.push("## Python setup","1. Install Python 3.10 or newer from https://www.python.org/downloads/windows/. Enable Add Python to PATH.","2. Open this folder in a terminal.","3. Run BUILD_EXE.bat. It installs the listed packages and PyInstaller, then creates dist\\"+name+".exe.","4. For a syntax check, run TEST_"+name+".bat.","","Dependencies are listed in requirements.txt. Review package names and source before installing.");
+  }else if(kind==="cpp"){
+   bat.push("where cl >nul 2>nul","if %errorlevel%==0 (cl /nologo /std:c++17 /EHsc /O2 /Fe:\""+name+".exe\" \""+file+"\") else (where g++ >nul 2>nul && g++ -std=c++17 -O2 -Wall -Wextra \""+file+"\" -o \""+name+".exe\")","if errorlevel 1 (echo Install Visual Studio 2022 Desktop development with C++ or MSYS2 GCC, then retry.& pause& exit /b 1)","echo EXE created: "+name+".exe","pause");
+   readme.push("## C++17 setup","1. Recommended: install Visual Studio 2022 with the Desktop development with C++ workload (MSVC).","2. Alternatively install MSYS2 and its GCC toolchain.","3. Run BUILD_EXE.bat from the VS 2022 Developer Command Prompt for MSVC, or a terminal with g++ on PATH.","4. Run TEST_"+name+".bat for a syntax-only check.");
+  }else{
+   const proj='<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net8.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>\n';
+   download(name+".csproj",proj);
+   bat.push("where dotnet >nul 2>nul || (echo Install the .NET 8 SDK or Visual Studio 2022 with .NET desktop development.& pause& exit /b 1)","dotnet publish \""+name+".csproj\" -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true","if errorlevel 1 (echo BUILD FAILED. Review the messages above.& pause& exit /b 1)","echo EXE is in bin\Release\net8.0\win-x64\publish","pause");
+   readme.push("## C# setup","1. Install Visual Studio 2022 with the .NET desktop development workload, or install the .NET 8 SDK from https://dotnet.microsoft.com/download/dotnet/8.0.","2. Run BUILD_EXE.bat. It publishes a self-contained single-file Windows x64 executable.","3. Run TEST_"+name+".bat to compile-check the project.");
+  }
+  readme.push("","## Safety and limits","- This package does not run automatically when downloaded.","- Review source and dependencies; run builds only for code you trust.","- The browser does not execute code or verify the resulting EXE. Read compiler output and test the program locally.","- Do not use this project to steal credentials, exfiltrate tokens, evade security tools, or access systems without permission.","");
+  download(file,source());
+  download("BUILD_EXE.bat",bat.join("\r\n")+"\r\n");
+  download("README_BUILD.md",readme.join("\n"));
+  download("TEST_"+name+".bat",[
+   "@echo off","setlocal","cd /d \"%~dp0\"",
+   ...(kind==="python"?["where py >nul 2>nul && (py -m py_compile \""+file+"\") || (python -m py_compile \""+file+"\")"]:
+      kind==="cpp"?["where cl >nul 2>nul && (cl /nologo /std:c++17 /EHsc /Zs \""+file+"\") || (g++ -std=c++17 -fsyntax-only \""+file+"\")"]:
+      ["dotnet build \""+name+".csproj\" -c Release"]),
+   "if errorlevel 1 (echo TEST FAILED.& pause& exit /b 1)","echo TEST PASSED. Runtime behavior still needs manual testing.","pause"
+  ].join("\r\n")+"\r\n");
+  setStatus("Project package files downloaded. Open the extracted folder on Windows, review README_BUILD.md and source, then run BUILD_EXE.bat. A successful download is not a verified build.");
+ });
+ if(!editor.value)editor.value=starter(language.value);
+ reqWrap.classList.toggle("hidden",language.value!=="python");
+})();
 
 // Local-only, redacted pattern scan. Never render or retain matched secret values.
 // Discord scanner: local inspection of explicitly selected files only.
