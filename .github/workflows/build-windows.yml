@@ -19,6 +19,12 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+      - name: Install native C++ and Poppler dependencies
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-poppler
       - name: Validate PowerShell scripts
         shell: pwsh
         run: |
@@ -40,14 +46,14 @@ jobs:
       - name: Validate Windows batch launchers
         shell: pwsh
         run: |
-          $required = @('OPEN_PROJECT.bat', 'FIRST_RUN_SETUP.bat', 'START_HERE.bat', 'build.bat', 'setup.bat', 'run.bat')
+          $required = @('OPEN_PROJECT.bat', 'FIRST_RUN_SETUP.bat', 'START_HERE.bat', 'build.bat', 'setup.bat', 'run.bat', 'PDF_EVIDENCE_SCANNER.bat')
           foreach ($name in $required) {
             $path = Join-Path $PWD "Epic_Games_Recovery_Assistant/$name"
             if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing launcher: $name" }
             $content = Get-Content -LiteralPath $path -Raw
             if ($content -notmatch '(?i)@echo off') { throw "Invalid batch launcher: $name" }
           }
-          Write-Host 'All three Windows batch launchers are present.'
+          Write-Host 'All Windows batch launchers are present.'
       - name: Verify desktop-only launcher and native dashboard
         shell: pwsh
         run: |
@@ -59,21 +65,25 @@ jobs:
           foreach ($required in @('NATIVE COMMAND DASHBOARD', 'Recovery progress tracker', 'Official Epic account and support links', 'Start / continue an Epic recovery case', 'runLocalSecretHygieneScanner', 'Potential hard-coded secret-like assignment', 'VALUE REDACTED', 'Recovery tracker - Epic Account ID')) {
             if (-not $source.Contains($required)) { throw "Missing native dashboard feature: $required" }
           }
-          Write-Host 'Native command dashboard, local secret-hygiene scanner, recovery tracker, and desktop-only launcher checks passed.'
-      - name: Validate local PDF evidence scanner
+          Write-Host 'Native command dashboard and recovery tracker checks passed.'
+      - name: Validate native C++ PDF evidence scanner
         shell: pwsh
         run: |
-          python -m pip install --disable-pip-version-check 'pypdf>=5.0,<7'
-          python -m py_compile Epic_Games_Recovery_Assistant/pdf_evidence_scanner.py
-          python Epic_Games_Recovery_Assistant/pdf_evidence_scanner.py --help | Out-Host
-          $source = Get-Content 'Epic_Games_Recovery_Assistant/pdf_evidence_scanner.py' -Raw
-          foreach ($required in @('NO READABLE TEXT', 'OCR is not performed', 'document text not retained', 'Ownership verification: NOT PERFORMED')) {
-            if (-not $source.Contains($required)) { throw "Missing PDF scanner safety/report behavior: $required" }
+          $scanner = 'Epic_Games_Recovery_Assistant/paf_evidence_scanner.c++'
+          $source = Get-Content $scanner -Raw
+          foreach ($required in @('extractPdfText', 'NO READABLE TEXT', 'OCR is not performed', 'document text not retained', 'Ownership verification: NOT PERFORMED', 'MAX_PDF_BYTES', 'MAX_PAGES')) {
+            if (-not $source.Contains($required)) { throw "Missing native scanner behavior: $required" }
           }
+          if ($source -match 'std::cout\s*<<\s*(extracted|page|text)') { throw 'Scanner appears to print extracted PDF text.' }
+          if (-not (Get-Command pdftotext.exe -ErrorAction SilentlyContinue)) { throw 'Poppler pdftotext.exe is not available on PATH.' }
+          g++ -std=c++17 -O2 -Wall -Wextra $scanner -o paf_evidence_scanner_test.exe -static -static-libgcc -static-libstdc++
+          if ($LASTEXITCODE -ne 0) { throw 'Native PDF scanner compilation failed.' }
+          .\paf_evidence_scanner_test.exe --help | Out-Host
+          if ($LASTEXITCODE -ne 0) { throw 'Native PDF scanner help smoke test failed.' }
           $native = Get-Content 'Epic_Games_Recovery_Assistant/recovery_assistant.c++' -Raw
           if ($native -match 'notifyDiscord|WinHttpSendRequest|EPIC_RECOVERY_DISCORD_WEBHOOK') { throw 'Native desktop source still contains an outbound Discord webhook path.' }
-          Write-Host 'PDF scanner syntax and local-only safety checks passed.'
-      - name: Build Windows executable through one-click builder
+          Write-Host 'Native C++ PDF scanner compilation and local-only source checks passed.'
+      - name: Build Windows executables through one-click builder
         shell: cmd
         working-directory: Epic_Games_Recovery_Assistant
         run: |
@@ -81,11 +91,14 @@ jobs:
           call build.bat
           if errorlevel 1 exit /b 1
           if not exist Epic_Games_Recovery_Assistant.exe exit /b 1
+          if not exist paf_evidence_scanner.exe exit /b 1
       - name: Upload Windows executable
         uses: actions/upload-artifact@v4
         with:
           name: Epic-Games-Recovery-Assistant-Windows
-          path: Epic_Games_Recovery_Assistant/Epic_Games_Recovery_Assistant.exe
+          path: |
+            Epic_Games_Recovery_Assistant/Epic_Games_Recovery_Assistant.exe
+            Epic_Games_Recovery_Assistant/paf_evidence_scanner.exe
           if-no-files-found: error
           retention-days: 30
       - name: Package Windows desktop bundle
@@ -94,12 +107,15 @@ jobs:
           $bundle = "Windows-Desktop-Bundle"
           New-Item -ItemType Directory -Force $bundle | Out-Null
           Copy-Item 'Epic_Games_Recovery_Assistant/Epic_Games_Recovery_Assistant.exe' $bundle
-          Copy-Item 'Epic_Games_Recovery_Assistant/pdf_evidence_scanner.py' $bundle
-          Copy-Item 'Epic_Games_Recovery_Assistant/requirements-pdf.txt' $bundle
+          Copy-Item 'Epic_Games_Recovery_Assistant/paf_evidence_scanner.exe' $bundle
+          Copy-Item 'Epic_Games_Recovery_Assistant/paf_evidence_scanner.c++' $bundle
           Copy-Item 'Epic_Games_Recovery_Assistant/PDF_EVIDENCE_SCANNER.bat' $bundle
+          Copy-Item 'Epic_Games_Recovery_Assistant/setup_dependencies.ps1' $bundle
           Copy-Item 'Epic_Games_Recovery_Assistant/README.md' $bundle
           $hash = (Get-FileHash -Algorithm SHA256 "$bundle/Epic_Games_Recovery_Assistant.exe").Hash.ToLowerInvariant()
           "$hash  Epic_Games_Recovery_Assistant.exe" | Set-Content -Encoding ascii "$bundle/SHA256SUMS.txt"
+          $scannerHash = (Get-FileHash -Algorithm SHA256 "$bundle/paf_evidence_scanner.exe").Hash.ToLowerInvariant()
+          "$scannerHash  paf_evidence_scanner.exe" | Add-Content -Encoding ascii "$bundle/SHA256SUMS.txt"
           Compress-Archive -Path "$bundle/*" -DestinationPath "Epic-Games-Recovery-Assistant-Windows-Bundle.zip" -CompressionLevel Optimal
       - name: Package complete project and checksum
         shell: pwsh
