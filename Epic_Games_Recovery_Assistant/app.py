@@ -9,7 +9,7 @@ import shutil
 import webbrowser
 
 APP_NAME = "Epic Games Recovery Assistant"
-APP_VERSION = "1.9"
+APP_VERSION = "2.0"
 SUPPORT_URL = "https://www.epicgames.com/help/en-US/"
 RECOVERY_URL = "https://www.epicgames.com/id/login"
 EPIC_CONTACT_URL = "https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US"
@@ -18,11 +18,11 @@ TWO_FA_URL = "https://www.epicgames.com/account/password"
 RECOVERY_GUIDE_URL = "https://www.epicgames.com/help/c-1/a10856556?lang=en-US"
 RECOVERY_REQUEST_URL = "https://www.epicgames.com/help/c-45487929/a21414514"
 RECOVERY_STATUS_URL = "https://www.epicgames.com/help/recovery-status-check/"
-RECOVERY_DENIED_URL = "https://www.epicgames.com/help/c-45487929/c-38978022/a14929060?lang=en-US"
+RECOVERY_DENIED_URL = "https://www.epicgames.com/help/en-US/account-c-202300000001645/account-security-c-202300000001755/why-was-my-account-recovery-request-denied-a202300000012540"
 TOO_MANY_REQUESTS_URL = "https://www.epicgames.com/help/c-45487929/c-40721840/i-m-getting-a-too-many-requests-please-try-again-later-error-when-trying-to-recover-my-account-or-change-my-email-address-a15637378"
 TWO_FA_METHODS_URL = "https://www.epicgames.com/help/c-45487929/c-38978022/a11272697"
 LOST_2FA_URL = "https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US"
-VPN_TROUBLESHOOTING_URL = "https://www.epicgames.com/help/c-45487929/c-38854402/a20296521?lang=en-US"
+VPN_TROUBLESHOOTING_URL = "https://www.epicgames.com/help/c-45487929/c-38854402/a20296521"
 SANCTIONS_URL = "https://safety.epicgames.com/sanctions-and-appeals?mode=game"
 BAN_HELP_URL = "https://www.epicgames.com/help/c-34254770/c-5719350646299/a12390848?lang=en-US"
 DISPLAY_NAME_URL = "https://www.epicgames.com/help/c-45487929/c-35761596/a18323090?lang=en-US"
@@ -125,7 +125,16 @@ class EpicRecoveryAssistant:
             ("creation_date", "Approximate account creation date"),
             ("account_id", "Epic Account ID (if known)"),
             ("invoice_id", "Epic purchase Invoice ID (if known)"),
+            ("creator_code", "Support-A-Creator code (if applicable)"),
+            ("billing_name", "Name on a past purchase (if requested by Epic)"),
+            ("billing_address", "Billing street address used for a past purchase (optional)"),
+            ("billing_city", "Billing city used for a past purchase (optional)"),
+            ("billing_state", "Billing state / region (optional)"),
+            ("billing_postal_code", "Billing ZIP / postal code (optional)"),
+            ("payment_provider", "Payment provider used (optional)"),
+            ("payment_last4", "Last four digits of a card used (optional; never full number)"),
             ("original_ip", "Remembered original public IP (optional; do not guess)"),
+            ("original_ip_date", "Approximate date / period that IP was used (if known)"),
             ("phone_2fa", "Phone number used for SMS 2FA (optional)"),
             ("linked_accounts", "Linked console/social accounts and IDs"),
             ("linked_dates", "Approximate dates linked (if known)"),
@@ -133,7 +142,7 @@ class EpicRecoveryAssistant:
         ]
         for key, label in fields:
             self.add_field(self.account_tab, key, label)
-        ttk.Label(self.account_tab, text="* Required to create a PDF. Enter only accurate information. Never enter passwords, one-time codes, backup codes, full payment-card numbers, or authenticator setup keys.", foreground="red", wraplength=850).pack(anchor="w", pady=8)
+        ttk.Label(self.account_tab, text="* Required to create a PDF. Enter only accurate information. Never enter passwords, one-time codes, backup codes, account PINs, full payment-card numbers, CVVs, or authenticator setup keys. IP address, billing, and payment fields are optional context—not standalone proof of ownership.", foreground="red", wraplength=850).pack(anchor="w", pady=8)
 
     def build_security_tab(self):
         ttk.Label(self.security_tab, text="Two-step authentication methods", font=("Segoe UI", 12, "bold")).pack(anchor="w")
@@ -148,7 +157,7 @@ class EpicRecoveryAssistant:
         self.add_choice(self.security_tab, "Were you using a VPN or proxy?", self.vpn_used, ["Not sure", "No", "Yes"])
         self.add_field(self.security_tab, "vpn_provider", "VPN / proxy provider (if applicable)")
         self.add_field(self.security_tab, "vpn_region", "VPN / proxy region at the time (if known)")
-        ttk.Label(self.security_tab, text="This records context only. The app does not connect to VPN/proxy services, rotate IPs, spoof a location, recreate an old IP, or bypass Epic's checks. Epic's troubleshooting guidance may ask users to disconnect VPN/proxy services.", foreground="red", wraplength=850).pack(anchor="w", pady=10)
+        ttk.Label(self.security_tab, text="This records context only. The app does not connect to VPN/proxy services, rotate IPs, spoof a location, recreate an old IP, or bypass Epic's checks. An IP address can be shared or change over time and is not proof of account ownership. Epic's troubleshooting guidance says to disconnect VPN/hosting/proxy services for relevant sign-in errors.", foreground="red", wraplength=850).pack(anchor="w", pady=10)
 
     def build_incident_tab(self):
         self.add_choice(self.incident_tab, "Incident type", self.issue, ["Hacked / compromised", "Stolen account", "Lost access", "Locked account", "Email changed without permission", "Lost access to 2FA", "Other"])
@@ -428,8 +437,12 @@ class EpicRecoveryAssistant:
                 ("Original display name", "original_username"), ("Previous display names", "previous_names"),
                 ("First name", "first_name"), ("Last name", "last_name"), ("Country created", "country"),
                 ("State / region", "state"), ("Approximate creation date", "creation_date"),
-                ("Epic Account ID", "account_id"), ("Invoice ID", "invoice_id"),
-                ("Remembered original public IP", "original_ip"), ("Phone used for SMS 2FA", "phone_2fa"),
+                ("Epic Account ID", "account_id"), ("Invoice ID", "invoice_id"), ("Support-A-Creator code", "creator_code"),
+                ("Past purchase name", "billing_name"), ("Past billing street address", "billing_address"),
+                ("Past billing city", "billing_city"), ("Past billing state / region", "billing_state"),
+                ("Past billing ZIP / postal code", "billing_postal_code"),
+                ("Payment provider", "payment_provider"), ("Card last four digits only", "payment_last4"),
+                ("Remembered original public IP", "original_ip"), ("Approximate IP-use date", "original_ip_date"), ("Phone used for SMS 2FA", "phone_2fa"),
                 ("Linked accounts and IDs", "linked_accounts"), ("Approximate linked dates", "linked_dates"),
                 ("Purchase payment types (no full numbers)", "payment_types")]),
             ("TWO-STEP AUTHENTICATION", [
@@ -485,7 +498,8 @@ class EpicRecoveryAssistant:
             story.append(Spacer(1, 6))
         story.append(Paragraph("SECURITY NOTES", styles["Heading2"]))
         for note in [
-            "Never share passwords, one-time 2FA codes, backup codes, authenticator setup keys, or full payment-card numbers in this document.",
+            "Never share passwords, one-time 2FA codes, backup codes, authenticator setup keys, account PINs, CVVs, or full payment-card numbers in this document. Card last-four digits and billing details are optional and should be provided only if Epic requests them through its official form.",
+            "A remembered IP address, city, ZIP code, billing address, or payment detail is not standalone proof of ownership. Do not spoof or imitate an IP address. Epic makes the ownership decision.",
             "VPN/proxy information is recorded only as truthful context. Epic warns VPN/proxy use may contribute to recovery denial; do not use one to submit a recovery request. This app does not connect to proxies, spoof IP addresses, or bypass verification.",
             "This app does not contact Epic, verify account ownership, or submit recovery requests. Connected-service availability varies; confirm the service appears in Epic Account > Apps and Accounts / Connections before requesting an unlink.",
             "Use only Epic's official account recovery and support pages: " + SUPPORT_URL
