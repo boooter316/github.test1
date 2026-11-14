@@ -9,7 +9,7 @@ import shutil
 import webbrowser
 
 APP_NAME = "Epic Games Recovery Assistant"
-APP_VERSION = "1.4"
+APP_VERSION = "1.5"
 SUPPORT_URL = "https://www.epicgames.com/help/en-US/"
 RECOVERY_URL = "https://www.epicgames.com/id/login"
 TWO_FA_URL = "https://www.epicgames.com/account/password"
@@ -26,6 +26,9 @@ ACCOUNT_SETTINGS_URL = "https://www.epicgames.com/account/personal"
 XBOX_ENFORCEMENT_URL = "https://enforcement.xbox.com/"
 XBOX_STANDARDS_URL = "https://www.xbox.com/en-US/legal/community-standards"
 PLAYSTATION_SUSPENSIONS_URL = "https://www.playstation.com/en-us/support/account/suspensions/"
+STEAM_ACCOUNT_HELP_URL = "https://help.steampowered.com/en/wizard/HelpWithAccount"
+STEAM_COMMUNITY_BAN_URL = "https://help.steampowered.com/en/faqs/view/4F62-35F9-F395-5C23"
+NINTENDO_SUPPORT_URL = "https://en-americas-support.nintendo.com/"
 TWO_FA_METHODS = ("Epic Authenticator", "Authenticator app", "Email", "SMS / phone")
 
 class EpicRecoveryAssistant:
@@ -54,17 +57,20 @@ class EpicRecoveryAssistant:
         self.help_tab = ttk.Frame(tabs, padding=10)
         self.ban_tab = ttk.Frame(tabs, padding=10)
         self.platform_tab = ttk.Frame(tabs, padding=10)
+        self.additional_platform_tab = ttk.Frame(tabs, padding=10)
         tabs.add(self.account_tab, text="Account Recovery")
         tabs.add(self.security_tab, text="2-Step & VPN/Proxy")
         tabs.add(self.incident_tab, text="Incident Details")
         tabs.add(self.ban_tab, text="Epic Ban & Appeal")
         tabs.add(self.platform_tab, text="Xbox / PlayStation")
+        tabs.add(self.additional_platform_tab, text="Steam / Nintendo")
         tabs.add(self.help_tab, text="Official Help")
         self.build_account_tab()
         self.build_security_tab()
         self.build_incident_tab()
         self.build_ban_tab()
         self.build_platform_tab()
+        self.build_additional_platform_tab()
         self.build_help_tab()
         actions = ttk.Frame(main)
         actions.pack(fill="x", pady=(4, 0))
@@ -191,6 +197,42 @@ class EpicRecoveryAssistant:
         ttk.Button(self.platform_tab, text="Open PlayStation suspension guidance", command=lambda: webbrowser.open(PLAYSTATION_SUSPENSIONS_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.platform_tab, text="Open Xbox Community Standards", command=lambda: webbrowser.open(XBOX_STANDARDS_URL)).pack(anchor="w", pady=4)
 
+
+    def build_additional_platform_tab(self):
+        ttk.Label(self.additional_platform_tab, text="Steam and Nintendo restriction records", font=("Segoe UI", 12, "bold")).pack(anchor="w", pady=(0, 6))
+        ttk.Label(self.additional_platform_tab, text="Record account notices and organize a factual support request. These fields do not unlock accounts, remove bans, clear VAC/game bans, reverse restrictions, or bypass enforcement.", foreground="red", wraplength=850).pack(anchor="w", pady=4)
+        ttk.Label(self.additional_platform_tab, text="Steam account / restriction details", font=("Segoe UI", 10, "bold")).pack(anchor="w", pady=(8, 2))
+        for key, label in [
+            ("steam_account_name", "Steam account name"),
+            ("steam_profile_id", "Steam profile URL / SteamID (if known)"),
+            ("steam_case_reference", "Steam support / notice reference"),
+            ("steam_restriction_type", "Steam restriction type (community/game/VAC/other)"),
+            ("steam_restriction_date", "Steam notice / restriction date"),
+            ("steam_restriction_duration", "Steam duration / end date"),
+            ("steam_appeal_status", "Steam support / appeal status"),
+        ]:
+            self.add_field(self.additional_platform_tab, key, label)
+        ttk.Label(self.additional_platform_tab, text="Steam factual support notes:").pack(anchor="w", pady=(6, 2))
+        self.steam_notes = tk.Text(self.additional_platform_tab, height=4, wrap="word")
+        self.steam_notes.pack(fill="x", expand=False)
+        ttk.Button(self.additional_platform_tab, text="Open Steam Support", command=lambda: webbrowser.open(STEAM_ACCOUNT_HELP_URL)).pack(anchor="w", pady=4)
+        ttk.Button(self.additional_platform_tab, text="Steam Community Ban FAQ", command=lambda: webbrowser.open(STEAM_COMMUNITY_BAN_URL)).pack(anchor="w", pady=4)
+        ttk.Label(self.additional_platform_tab, text="Nintendo account / restriction details", font=("Segoe UI", 10, "bold")).pack(anchor="w", pady=(8, 2))
+        for key, label in [
+            ("nintendo_nickname", "Nintendo Account nickname"),
+            ("nintendo_account_id", "Nintendo Account ID / linked profile (if known)"),
+            ("nintendo_case_reference", "Nintendo support / notice reference"),
+            ("nintendo_restriction_type", "Nintendo restriction type"),
+            ("nintendo_restriction_date", "Nintendo notice / restriction date"),
+            ("nintendo_restriction_duration", "Nintendo duration / end date"),
+            ("nintendo_appeal_status", "Nintendo support / appeal status"),
+        ]:
+            self.add_field(self.additional_platform_tab, key, label)
+        ttk.Label(self.additional_platform_tab, text="Nintendo factual support notes:").pack(anchor="w", pady=(6, 2))
+        self.nintendo_notes = tk.Text(self.additional_platform_tab, height=4, wrap="word")
+        self.nintendo_notes.pack(fill="x", expand=False)
+        ttk.Button(self.additional_platform_tab, text="Open Nintendo Support", command=lambda: webbrowser.open(NINTENDO_SUPPORT_URL)).pack(anchor="w", pady=4)
+
     def build_help_tab(self):
         info = (
             "OFFICIAL EPIC RECOVERY PROCESS\n\n"
@@ -233,6 +275,8 @@ class EpicRecoveryAssistant:
             "appeal_notes": self.appeal_notes.get("1.0", "end").strip(),
             "xbox_notes": self.xbox_notes.get("1.0", "end").strip(),
             "playstation_notes": self.playstation_notes.get("1.0", "end").strip(),
+            "steam_notes": self.steam_notes.get("1.0", "end").strip(),
+            "nintendo_notes": self.nintendo_notes.get("1.0", "end").strip(),
             "prepared_at_local": datetime.now().astimezone().isoformat(timespec="minutes"),
             "app_name": APP_NAME,
             "app_version": APP_VERSION,
@@ -289,7 +333,17 @@ class EpicRecoveryAssistant:
             ("PLAYSTATION RESTRICTION / APPEAL NOTES", [
                 ("Online ID", "psn_online_id"), ("Restriction type", "ps_restriction_type"),
                 ("Notice / restriction date", "ps_restriction_date"), ("Duration / end date", "ps_restriction_duration"),
-                ("Appeal status", "ps_appeal_status"), ("Factual notes", "playstation_notes")])
+                ("Appeal status", "ps_appeal_status"), ("Factual notes", "playstation_notes")]),
+            ("STEAM RESTRICTION / SUPPORT NOTES", [
+                ("Account name", "steam_account_name"), ("Profile URL / SteamID", "steam_profile_id"),
+                ("Support / notice reference", "steam_case_reference"), ("Restriction type", "steam_restriction_type"),
+                ("Notice / restriction date", "steam_restriction_date"), ("Duration / end date", "steam_restriction_duration"),
+                ("Support / appeal status", "steam_appeal_status"), ("Factual notes", "steam_notes")]),
+            ("NINTENDO RESTRICTION / SUPPORT NOTES", [
+                ("Account nickname", "nintendo_nickname"), ("Account ID / linked profile", "nintendo_account_id"),
+                ("Support / notice reference", "nintendo_case_reference"), ("Restriction type", "nintendo_restriction_type"),
+                ("Notice / restriction date", "nintendo_restriction_date"), ("Duration / end date", "nintendo_restriction_duration"),
+                ("Support / appeal status", "nintendo_appeal_status"), ("Factual notes", "nintendo_notes")])
         ]
         for heading, fields in sections:
             story.append(Paragraph(escape(heading), styles["Heading2"]))
@@ -372,6 +426,8 @@ class EpicRecoveryAssistant:
         self.appeal_notes.delete("1.0", tk.END)
         self.xbox_notes.delete("1.0", tk.END)
         self.playstation_notes.delete("1.0", tk.END)
+        self.steam_notes.delete("1.0", tk.END)
+        self.nintendo_notes.delete("1.0", tk.END)
 
     def open_support(self):
         webbrowser.open(SUPPORT_URL)
