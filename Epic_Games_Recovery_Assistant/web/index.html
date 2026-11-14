@@ -39,9 +39,22 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <button type="button" class="tab secondary" id="accountStatusTabButton" aria-selected="false">Account Status &amp; Details</button>
 <button type="button" class="tab secondary" id="telegramConnectTabButton" aria-selected="false">Telegram Connect</button>
 <button type="button" class="tab secondary" id="fortniteSkinCheckTabButton" aria-selected="false">Fortnite Skin Check</button>
+<button type="button" class="tab secondary" id="setupInstallTabButton" aria-selected="false">Setup &amp; Install</button>
 </nav><div id="globalTaskControls" class="panel no-print" style="position:sticky;top:8px;z-index:20;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px">
 <strong>Task controls</strong><button type="button" id="globalStopButton" class="secondary">Stop current task</button><span id="globalStopStatus" class="hint" role="status">No stop request active.</span>
 </div>
+<div class="hidden" id="setupInstallTab">
+<section class="panel">
+<h2>First-run Setup &amp; Install</h2>
+<p class="hint">For Windows 10/11, extract the complete project folder, then double-click <strong>START_HERE.bat</strong> in the Epic_Games_Recovery_Assistant folder. The launcher checks prerequisites, asks before installing missing tools, builds the existing C++ application, and starts it.</p>
+<div class="notice"><strong>Windows safety:</strong> Windows does not allow a website or HTML tab to silently install software on your computer. Use the included local START_HERE.bat launcher. Package installs may require your approval, administrator permission, or a restart.</div>
+<h3>What the first-run wizard handles</h3>
+<ol><li>Checks whether the C++ compiler (g++) is available.</li><li>If needed, offers to install MSYS2 through Windows Package Manager, then installs the GCC toolchain through the official MSYS2 package manager.</li><li>Adds the compiler folder to your user PATH when it is installed in the standard location.</li><li>Runs the existing build.bat and then starts the existing application.</li><li>Optionally offers Docker Desktop for the separate browser server. Docker is not required for the Windows desktop application.</li></ol>
+<p class="hint">The launcher and PowerShell setup script are included at the root of the downloaded project ZIP. Never run setup scripts from an unknown source.</p>
+<h3>Manual start</h3><p>Open the extracted Epic_Games_Recovery_Assistant folder and double-click <code>START_HERE.bat</code>. To run only the existing desktop app later, use <code>run.bat</code>. To rebuild it, use <code>build.bat</code>.</p>
+<h3>Optional browser server</h3><p>Install and start Docker Desktop separately if you want the Node.js web server. Then open a terminal in <code>Epic_Games_Recovery_Assistant/web</code>, build with <code>docker build -t recovery-assistant-web .</code>, and run with <code>docker run --rm -p 8080:8080 recovery-assistant-web</code>. Visit <code>http://localhost:8080</code>. Do not expose the plain-HTTP server directly to the public internet.</p>
+<p class="hint">The launcher does not modify or replace your source files, install browser extensions, change VPN/proxy settings, or upload local files. It does not install DeepSeek or Telegram credentials. Configure API/bot secrets separately as private server environment variables only if you use those integrations.</p>
+</section></div>
 <div id="recoveryTab">
 <form id="packet">
 <section class="panel"><h2>Account and contact details</h2><div class="grid">
@@ -471,7 +484,8 @@ const pageTabs={
  packetDiagnostics:{button:document.getElementById("packetDiagnosticsTabButton"),panel:document.getElementById("packetDiagnosticsTab")},
  accountStatus:{button:document.getElementById("accountStatusTabButton"),panel:document.getElementById("accountStatusTab")},
  telegramConnect:{button:document.getElementById("telegramConnectTabButton"),panel:document.getElementById("telegramConnectTab")},
- fortniteSkinCheck:{button:document.getElementById("fortniteSkinCheckTabButton"),panel:document.getElementById("fortniteSkinCheckTab")}
+ fortniteSkinCheck:{button:document.getElementById("fortniteSkinCheckTabButton"),panel:document.getElementById("fortniteSkinCheckTab")},
+ setupInstall:{button:document.getElementById("setupInstallTabButton"),panel:document.getElementById("setupInstallTab")}
 };
 function showTab(which){
  for(const [key,item] of Object.entries(pageTabs)){
