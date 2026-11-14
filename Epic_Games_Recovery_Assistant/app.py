@@ -9,7 +9,7 @@ import shutil
 import webbrowser
 
 APP_NAME = "Epic Games Recovery Assistant"
-APP_VERSION = "1.5"
+APP_VERSION = "1.6"
 SUPPORT_URL = "https://www.epicgames.com/help/en-US/"
 RECOVERY_URL = "https://www.epicgames.com/id/login"
 TWO_FA_URL = "https://www.epicgames.com/account/password"
@@ -43,6 +43,7 @@ class EpicRecoveryAssistant:
         self.twofa_vars = {name: tk.BooleanVar(value=False) for name in TWO_FA_METHODS}
         self.twofa_access = tk.StringVar(value="Not sure")
         self.issue = tk.StringVar(value="Hacked / compromised")
+        self.recovery_status = tk.StringVar(value="Not submitted")
         self.vpn_used = tk.StringVar(value="Not sure")
         self.build_ui()
 
@@ -146,6 +147,16 @@ class EpicRecoveryAssistant:
         ttk.Label(self.incident_tab, text="Additional non-secret ownership evidence (never include passwords or codes):").pack(anchor="w", pady=(10, 3))
         self.evidence = tk.Text(self.incident_tab, height=7, wrap="word")
         self.evidence.pack(fill="both", expand=True)
+        ttk.Separator(self.incident_tab).pack(fill="x", pady=10)
+        ttk.Label(self.incident_tab, text="Epic recovery request response tracker", font=("Segoe UI", 11, "bold")).pack(anchor="w")
+        self.add_choice(self.incident_tab, "Current request status", self.recovery_status, ["Not submitted", "Submitted", "In review", "More information requested", "Canceled", "Account disabled / locked", "Denied", "Recovered", "Other"])
+        self.add_field(self.incident_tab, "recovery_case_id", "Epic recovery case / reference ID")
+        self.add_field(self.incident_tab, "recovery_submitted_date", "Date recovery request submitted")
+        self.add_field(self.incident_tab, "recovery_error_message", "Exact Epic error / response message")
+        ttk.Label(self.incident_tab, text="Follow-up notes (what Epic asked you to do; do not enter passwords or verification codes):").pack(anchor="w", pady=(8, 3))
+        self.recovery_followup_notes = tk.Text(self.incident_tab, height=5, wrap="word")
+        self.recovery_followup_notes.pack(fill="both", expand=True)
+        ttk.Label(self.incident_tab, text="A canceled, disabled, or denied message does not by itself prove whether the ownership details are correct. Save the exact wording and case reference, then follow Epic Support's official instructions. Do not repeatedly submit guessed details.", foreground="red", wraplength=850).pack(anchor="w", pady=8)
 
     def build_ban_tab(self):
         ttk.Label(self.ban_tab, text="Account ban / sanction information", font=("Segoe UI", 12, "bold")).pack(anchor="w", pady=(0, 6))
@@ -271,6 +282,8 @@ class EpicRecoveryAssistant:
         data = {key: widget.get().strip() for key, widget in self.fields.items()}
         data.update({
             "issue": self.issue.get(),
+            "recovery_status": self.recovery_status.get(),
+            "recovery_followup_notes": self.recovery_followup_notes.get("1.0", "end").strip(),
             "twofa_methods": [name for name, var in self.twofa_vars.items() if var.get()],
             "twofa_access": self.twofa_access.get(),
             "vpn_used": self.vpn_used.get(),
@@ -324,6 +337,10 @@ class EpicRecoveryAssistant:
                 ("VPN / proxy used", "vpn_used"), ("Provider", "vpn_provider"), ("Region", "vpn_region")]),
             ("INCIDENT", [
                 ("Incident type", "issue"), ("Description", "description"), ("Additional evidence", "evidence")]),
+            ("EPIC RECOVERY REQUEST RESPONSE", [
+                ("Current request status", "recovery_status"), ("Case / reference ID", "recovery_case_id"),
+                ("Date submitted", "recovery_submitted_date"), ("Exact error / response message", "recovery_error_message"),
+                ("Follow-up notes", "recovery_followup_notes")]),
             ("BAN / SANCTION APPEAL NOTES", [
                 ("Sanction ID", "sanction_id"), ("Sanction type", "sanction_type"),
                 ("Date received / applied", "sanction_date"), ("Duration", "sanction_duration"),
@@ -409,7 +426,8 @@ class EpicRecoveryAssistant:
                 "Ban and appeal fields: sanction ID, type, date, duration, stated rule, appeal status, and your notes.\n\n"
                 "Keep this folder private. It contains personal account information. Do not add passwords, 2FA codes, backup codes, authenticator keys, session cookies, or full payment-card numbers. Submit information only through Epic's official recovery flow.\n"
                 + SUPPORT_URL + "\n", encoding="utf-8")
-            messagebox.showinfo("Recovery packet exported", "Created your local packet:\n" + str(folder))
+            zip_path = shutil.make_archive(str(folder), "zip", root_dir=folder)
+            messagebox.showinfo("Recovery packet exported", "Created your local packet:\n" + str(folder) + "\n\nZIP archive:\n" + zip_path)
         except ImportError:
             messagebox.showerror("Missing dependency", "Install ReportLab: py -m pip install -r requirements.txt")
         except Exception as exc:
@@ -424,6 +442,8 @@ class EpicRecoveryAssistant:
             var.set(False)
         self.twofa_access.set("Not sure")
         self.issue.set("Hacked / compromised")
+        self.recovery_status.set("Not submitted")
+        self.recovery_followup_notes.delete("1.0", tk.END)
         self.vpn_used.set("Not sure")
         self.description.delete("1.0", tk.END)
         self.evidence.delete("1.0", tk.END)
