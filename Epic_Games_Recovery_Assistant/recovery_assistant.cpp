@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 3.9 - C++17
+// Epic Games Recovery Assistant 4.2 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <cstdlib>
@@ -61,7 +61,7 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.1 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.2 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -111,7 +111,13 @@ int main(){
  add("PlayStation Online ID and whether currently linked (public details only)");
  add("Nintendo account nickname/ID and whether currently linked (public details only)");
  add("Steam profile name/ID and whether currently linked (public details only)");
- add("Other linked services and public profile names/IDs (Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook)");
+ add("Other linked services and public profile names/IDs (Apple, Google/Gmail, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Instagram, Facebook, Roblox, GTA/Rockstar Games, other)");
+ add("Linked-service inventory (Xbox, PlayStation, Nintendo, Steam, Twitch, YouTube, Instagram, TikTok, Facebook, Google/Gmail, LEGO, Roblox, GTA/Rockstar Games; enter public profile names/IDs only)");
+ add("Password-change planning status (needed / already changed / not needed / unsure; never enter any current or new password)");
+ add("Password-change request notes (planning only; change it yourself through Epic's official account security page after verifying the official site)");
+ add("Phone ownership status for the recovery number (I control it / no longer control it / unsure; do not enter the full phone number)");
+ add("IP consistency notes (historical IP/date/source you personally remember; Epic must verify any match against its own records; this app cannot check or validate it)");
+ add("Do you have a genuine historical record of the account's IP? (yes/no/unsure; do not guess or obtain someone else's IP)");
  add("For each linked service: service type, public ID/profile name, approximate link date, and whether it is currently linked");
  add("Linked-account concern: unknown link / lost access / wrong account / unlink information / other");
  add("Approximate dates each relevant service was linked (if known)");
@@ -170,12 +176,12 @@ int main(){
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
  std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.1 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.2 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
- "IP and VPN/proxy history are optional context, not proof of ownership.",
- "Never provide passwords, account PINs, full card numbers, CVV, 2FA codes, or backup codes.",
+ "IP and VPN/proxy history are optional user-reported context; this app cannot compare it with Epic records or verify account ownership.",
+ "Never provide passwords, account PINs, full card numbers, CVV, full phone numbers, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.1\n\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.2\n\n";
  j<<"{\n \"version\":\"4.1\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
