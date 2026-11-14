@@ -22,7 +22,7 @@ jobs:
       - name: Validate PowerShell scripts
         shell: pwsh
         run: |
-          $files = @('Epic_Games_Recovery_Assistant/update_project.ps1', 'Epic_Games_Recovery_Assistant/install_auto_update.ps1', 'Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1', 'Epic_Games_Recovery_Assistant/web/network_tools.ps1')
+          $files = @('Epic_Games_Recovery_Assistant/update_project.ps1', 'Epic_Games_Recovery_Assistant/install_auto_update.ps1', 'Epic_Games_Recovery_Assistant/setup_dependencies.ps1', 'Epic_Games_Recovery_Assistant/first_run_setup.ps1', 'Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1', 'Epic_Games_Recovery_Assistant/web/network_tools.ps1')
           foreach ($file in $files) {
             $tokens = $null
             $errors = $null
@@ -40,7 +40,7 @@ jobs:
       - name: Validate Windows batch launchers
         shell: pwsh
         run: |
-          $required = @('build.bat', 'setup.bat', 'run.bat')
+          $required = @('OPEN_PROJECT.bat', 'FIRST_RUN_SETUP.bat', 'START_HERE.bat', 'build.bat', 'setup.bat', 'run.bat')
           foreach ($name in $required) {
             $path = Join-Path $PWD "Epic_Games_Recovery_Assistant/$name"
             if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing launcher: $name" }
@@ -52,7 +52,7 @@ jobs:
         shell: pwsh
         run: |
           $setup = Get-Content 'Epic_Games_Recovery_Assistant/first_run_setup.ps1' -Raw
-          foreach ($forbidden in @('server.mjs', '127.0.0.1:8080', 'Start-Process ''http', 'Node.js LTS')) {
+          foreach ($forbidden in @('server.mjs', '127.0.0.1:8080', 'Start-Process ''http', 'Node.js LTS', 'Docker Desktop')) {
             if ($setup.Contains($forbidden)) { throw "Desktop launcher still contains browser/server startup: $forbidden" }
           }
           $source = Get-Content 'Epic_Games_Recovery_Assistant/recovery_assistant.c++' -Raw
