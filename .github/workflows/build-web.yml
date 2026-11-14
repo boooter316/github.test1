@@ -11,6 +11,43 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check inline browser JavaScript syntax
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          class ScriptExtractor(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.in_script = False
+                  self.parts = []
+                  self.current = []
+
+              def handle_starttag(self, tag, attrs):
+                  if tag.lower() == "script":
+                      self.in_script = True
+                      self.current = []
+
+              def handle_data(self, data):
+                  if self.in_script:
+                      self.current.append(data)
+
+              def handle_endtag(self, tag):
+                  if tag.lower() == "script" and self.in_script:
+                      self.parts.append("".join(self.current))
+                      self.in_script = False
+
+          source = Path("Epic_Games_Recovery_Assistant/web/index.html").read_text(encoding="utf-8")
+          parser = ScriptExtractor()
+          parser.feed(source)
+          scripts = [script for script in parser.parts if script.strip()]
+          if not scripts:
+              raise SystemExit("No inline JavaScript found to validate")
+          Path("/tmp/recovery-assistant-inline.js").write_text("\n".join(scripts), encoding="utf-8")
+          print(f"Extracted {len(scripts)} inline script block(s)")
+          PY
+          node --check /tmp/recovery-assistant-inline.js
       - name: Compile C++17 web server
         run: |
           g++ -std=c++17 -O2 -Wall -Wextra -pedantic Epic_Games_Recovery_Assistant/web/server.cpp -o recovery-web
