@@ -282,3 +282,13 @@ These are provider shortcuts and user instructions only. The project does not au
 ## Wireshark packet and port diagnostics
 
 A separate Wireshark & Ports page links to the official Wireshark download and user guide, provides common display-filter examples, and builds a TCP, UDP, or combined display filter for a user-entered port (1–65535). The page does not capture packets itself, sniff other people's traffic, scan public IP ranges, open ports, or transmit packets. Capture only traffic you own or have explicit authorization to inspect. Packet captures can contain personal or authentication data; keep captures minimal and private.
+
+
+## Project update checklist
+
+- ✅✔️ Main website PDF Evidence Scanner tab and dashboard shortcut included.
+- ✅✔️ Recovery Panel includes separate Recovery Records and PDF Evidence Scanner tabs.
+- ✅✔️ Custom red-and-black Ghostface artwork included as a site background.
+- 😈😈 Visual checklist/theme update included.
+
+These checkmarks describe project files and interface features only. They do not indicate Epic account ownership, verification, or a completed recovery decision.
