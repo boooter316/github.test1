@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 4.6.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 4.7.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Download the Windows executable
 
@@ -11,7 +11,7 @@ The Windows build is produced by GitHub Actions. Open the latest successful **Bu
 
 The repository is private, so downloading the artifact requires access to this repository. GitHub Actions builds the executable; it does not install or run it on your computer. Windows may show a security warning for an unsigned executable. Only run a build you downloaded from this repository and trust.
 
-## Local sign-in and registration (Version 4.6)
+## Local sign-in and registration (Version 4.7)
 
 The Windows desktop app now opens a local account screen before the recovery menu. Choose **Register** to create a local username and password, or **Sign in** on later launches. Password entry is hidden. Passwords are never written to disk: the app stores a random per-account salt and a PBKDF2-HMAC-SHA256 password hash (300,000 iterations) in `%LOCALAPPDATA%\\EpicRecoveryAssistant\\local_users.db`. This is local app authentication only; it is not an Epic Games account login, a website login, or Discord authentication. It does not contact Epic or send authentication details to Discord.
 
@@ -19,7 +19,7 @@ Choose a unique password of at least 12 characters. The app does not provide onl
 
 The account database is stored under the current Windows user's Local AppData folder, not in the repository or recovery export packet. Username and password are never sent to Discord.
 
-## Optional Discord notifications (Version 4.6)
+## Optional Discord notifications (Version 4.7)
 
 Two optional, generic status notifications are supported and remain disabled unless configured:
 
