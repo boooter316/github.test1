@@ -154,13 +154,13 @@ int main(){
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
  std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.7 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.8 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional context, not proof of ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
  txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 3.8\n\n";
- j<<"{\n \"version\":\"3.7\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
+ j<<"{\n \"version\":\"3.8\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
  j<<" ]\n}\n";
@@ -175,7 +175,7 @@ int main(){
 #endif
  fs::path sourcePath=appDir/"recovery_assistant.cpp";
  if(fs::exists(sourcePath)){std::error_code copyEc;fs::copy_file(sourcePath,dir/"recovery_assistant.cpp",fs::copy_options::overwrite_existing,copyEc);if(copyEc)save(dir/"SOURCE_NOT_COPIED.txt","The C++ source file could not be copied: "+copyEc.message());}
- else save(dir/"SOURCE_NOT_COPIED.txt","recovery_assistant.cpp was not found in the current folder. Place the source file beside the executable and run again to include it.");
+ else save(dir/"SOURCE_NOT_COPIED.txt","recovery_assistant.cpp was not found beside the running executable. Place the source file beside the executable and run again to include it.");
  if(!pdf(dir/"recovery_request.pdf",lines))std::cerr<<"PDF export failed; other exports attempted.\n";
  std::cout<<"\nSaved packet to: "<<dir.string()<<"\nIncludes PDF evidence report, JSON evidence packet, readable text details, support-request draft, and a copy of recovery_assistant.cpp when the source file is beside the program (otherwise a SOURCE_NOT_COPIED.txt note). This is a user-entered evidence export, not an account/credential dump.\n"
  <<"No account action was taken. If evidence is missing, pause and ask official support about alternatives.\n\n"
