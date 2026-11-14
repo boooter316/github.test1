@@ -114,7 +114,7 @@ const server = http.createServer(async (req, res) => {
   try {
     let body = await readFile(path.join(ROOT, entry[0]));
     if (url.pathname === "/" || url.pathname === "/index.html") {
-      body = Buffer.from(body.toString("utf8").replace("</nav>", "<a class=\\"tab\\" href=\\"/network-tools.html\\" style=\\"display:inline-block;text-decoration:none;text-align:center\\">IP &amp; Network Tools</a></nav>"));
+      body = Buffer.from(body.toString("utf8").replace("</nav>", '<a class="tab" href="/network-tools.html" style="display:inline-block;text-decoration:none;text-align:center">IP &amp; Network Tools</a></nav>'));
     }
     res.writeHead(200, {
       "Content-Type": entry[1],
