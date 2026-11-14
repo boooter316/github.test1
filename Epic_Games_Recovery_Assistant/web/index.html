@@ -183,142 +183,8 @@ async function extractPdfText(file){
   return pages.join("\n");
 }
 
-// Optional Windows 11 network helper download. Uses Windows' built-in VPN dialer
-// and current-user Internet Settings proxy; third-party VPNs remain controlled by their apps.
-const windowsNetworkHelper = String.raw\`# Epic Recovery Assistant - Windows 11 Network Helper
-# Optional helper: Windows built-in VPN profile + current-user HTTP/HTTPS proxy.
-# Third-party VPN apps must be controlled through their official applications.
-$ErrorActionPreference = "Stop"
-$settingsPath = "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
-$backupDir = Join-Path $env:LOCALAPPDATA "EpicRecoveryAssistant"
-$backupPath = Join-Path $backupDir "network-settings-backup.json"
-
-function Open-VpnSettings { Start-Process "ms-settings:network-vpn" }
-function Connect-WindowsVpn {
-  $name = Read-Host "Enter the exact name of your configured Windows VPN profile"
-  if ([string]::IsNullOrWhiteSpace($name)) { return }
-  Write-Host "Windows may prompt for credentials. Enter them only into the Windows prompt."
-  rasdial "$name"
-}
-function Disconnect-WindowsVpn {
-  Write-Host "Disconnecting the active Windows built-in dial-up/VPN session..."
-  rasdial /disconnect
-}
-function Enable-UserProxy {
-  $server = Read-Host "Enter your authorized HTTP/HTTPS proxy host:port (example: proxy.example:8080)"
-  if ($server -notmatch '^[A-Za-z0-9.\\-\\[\\]:]+:\\d{1,5}
-  const startedAt=new Date(),pasted=document.getElementById("fortniteText").value;
-  const files=[...document.getElementById("fortniteFiles").files],findings=[],skipped=[],scannedSources=[];
-  if(pasted.trim()){findings.push(...inspectFortniteText(pasted,"Pasted text"));scannedSources.push("Pasted text")}
-  for(const file of files){
-    if(file.size>10*1024*1024){skipped.push(file.name+" (over 10 MB)");continue}
-    try{
-      const content=/\.pdf$/i.test(file.name)?await extractPdfText(file):await file.text();
-      findings.push(...inspectFortniteText(content,file.name));scannedSources.push(file.name);
-    }catch(e){skipped.push(file.name+" ("+(e&&e.message?e.message:"unreadable")+")")}
-  }
-  const counts=new Map(),perFile=new Map(),distinctAccountDetails=new Set();
-  findings.forEach(item=>{
-    counts.set(item.type,(counts.get(item.type)||0)+1);
-    perFile.set(item.source,(perFile.get(item.source)||0)+1);
-    if(item.type==="Email address"||item.type==="Epic account ID field"||item.type==="Platform account ID field"||item.type==="Username / display-name field")distinctAccountDetails.add(item.preview);
-  });
-  const out=["PRO MULTI-PLATFORM LOCAL SECURITY SCAN","Scan time: "+startedAt.toISOString(),"Sources scanned: "+scannedSources.length+" | Files selected: "+files.length+" | Total findings: "+findings.length,"Platforms covered: Epic Games, Xbox, PlayStation, Nintendo, Steam, Google, Twitch, YouTube, TikTok, Instagram, WeGo, Roblox","Sources: "+(scannedSources.length?scannedSources.join(", "):"None"),"","FINDING COUNTS BY TYPE"];
-  if(counts.size){for(const [type,count] of counts.entries())out.push("• "+type+": "+count)}else out.push("• No matching patterns");
-  out.push("Distinct non-secret account details: "+distinctAccountDetails.size,"","FINDING COUNTS BY SOURCE");
-  if(perFile.size){for(const [source,count] of perFile.entries())out.push("• "+source+": "+count)}else out.push("• No findings");
-  out.push("","ALL FINDINGS (one entry per detected match)");
-  if(findings.length)findings.forEach((item,index)=>{out.push("#"+(index+1)+" — "+item.type,"Source: "+item.source+" | Line: "+item.line+" | Confidence: "+item.confidence,"Preview: "+item.preview,"")});
-  else out.push("No matching patterns were found in the scanned sources.");
-  if(skipped.length){out.push("SKIPPED SOURCES");skipped.forEach(x=>out.push("• "+x))}
-  out.push("","Interpretation: confidence labels describe pattern strength only. Injection indicators are heuristic matches, not proof of exploitability or a vulnerability. Account IDs, usernames, and emails are detected only when they match supported text patterns; coverage is not exhaustive.","Privacy: password, token, cookie, and session-secret values are redacted in this screen and all reports. The scanner does not grab accounts, validate credentials, sign in, or access platform databases.","PDF note: text-based PDF content is extracted locally using PDF.js. Image-only/scanned PDFs are not OCR-scanned. PDF.js must load from its CDN; selected PDF contents are processed in this browser.");
-  document.getElementById("fortniteResult").textContent=out.join("\n");
-  document.getElementById("downloadFortniteReport").disabled=false;
-  document.getElementById("printFortniteReport").disabled=false;
-});
-document.getElementById("clearFortniteScan").addEventListener("click",()=>{document.getElementById("fortniteText").value="";document.getElementById("fortniteFiles").value="";document.getElementById("fortniteResult").textContent="Cleared. No scan has been run.";document.getElementById("downloadFortniteReport").disabled=true;document.getElementById("printFortniteReport").disabled=true});
-
-function getFortniteReportText(){
-  return "Pro Multi-Platform Local Security Scan Report\\nGenerated: "+new Date().toISOString()+"\\n\\n"+document.getElementById("fortniteResult").textContent+"\\n";
-}
-document.getElementById("downloadFortniteReport").addEventListener("click",()=>{
-  const blob=new Blob([getFortniteReportText()],{type:"text/plain;charset=utf-8"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;
-  a.download="multi-platform-security-scan-report.txt";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-});
-document.getElementById("printFortniteReport").addEventListener("click",()=>{
-  const w=window.open("","_blank");
-  if(!w){alert("Allow pop-ups to print or save the report as PDF.");return;}
-  const safe=getFortniteReportText().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Fortnite Epic Scan Report</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Fortnite / Epic Local Security Scan Report</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\/script></body></html>");
-  w.document.close();
-});
-
-</script></body></html>) {
-    throw "Expected host:port. No settings were changed."
-  }
-  New-Item -Path $backupDir -ItemType Directory -Force | Out-Null
-  if (-not (Test-Path $backupPath)) {
-    $key = Get-ItemProperty -Path $settingsPath
-    $backup = [ordered]@{
-      ProxyEnable = if ($null -ne $key.ProxyEnable) { [int]$key.ProxyEnable } else { $null }
-      ProxyServer = $key.ProxyServer
-      ProxyOverride = $key.ProxyOverride
-      AutoConfigURL = $key.AutoConfigURL
-    }
-    $backup | ConvertTo-Json | Set-Content -Path $backupPath -Encoding UTF8
-  }
-  Set-ItemProperty -Path $settingsPath -Name ProxyEnable -Type DWord -Value 1
-  Set-ItemProperty -Path $settingsPath -Name ProxyServer -Type String -Value $server
-  Write-Host "User-level HTTP/HTTPS proxy enabled. Restart the browser if it does not pick up the setting."
-  Write-Host "Previous settings backup: $backupPath"
-}
-function Restore-UserProxy {
-  if (-not (Test-Path $backupPath)) {
-    Set-ItemProperty -Path $settingsPath -Name ProxyEnable -Type DWord -Value 0
-    Write-Host "Proxy disabled. No previous-settings backup was found; other proxy fields were left untouched."
-    return
-  }
-  $backup = Get-Content -Path $backupPath -Raw | ConvertFrom-Json
-  if ($null -eq $backup.ProxyEnable) { Remove-ItemProperty -Path $settingsPath -Name ProxyEnable -ErrorAction SilentlyContinue }
-  else { Set-ItemProperty -Path $settingsPath -Name ProxyEnable -Type DWord -Value ([int]$backup.ProxyEnable) }
-  foreach ($field in @("ProxyServer","ProxyOverride","AutoConfigURL")) {
-    if ($null -eq $backup.$field) { Remove-ItemProperty -Path $settingsPath -Name $field -ErrorAction SilentlyContinue }
-    else { Set-ItemProperty -Path $settingsPath -Name $field -Type String -Value ([string]$backup.$field) }
-  }
-  Remove-Item -Path $backupPath -Force
-  Write-Host "Previous user-level proxy settings restored."
-}
-while ($true) {
-  Write-Host ""
-  Write-Host "=== Windows 11 VPN / Proxy Helper ==="
-  Write-Host "1. Open Windows VPN settings (works with installed VPN provider apps)"
-  Write-Host "2. Connect a configured Windows VPN profile"
-  Write-Host "3. Disconnect Windows built-in VPN session"
-  Write-Host "4. Enable an HTTP/HTTPS proxy"
-  Write-Host "5. Restore previous proxy settings / turn proxy off"
-  Write-Host "6. Exit"
-  $choice = Read-Host "Choose 1-6"
-  try {
-    switch ($choice) {
-      "1" { Open-VpnSettings }
-      "2" { Connect-WindowsVpn }
-      "3" { Disconnect-WindowsVpn }
-      "4" { Enable-UserProxy }
-      "5" { Restore-UserProxy }
-      "6" { break }
-      default { Write-Host "Choose a number from 1 to 6." }
-    }
-  } catch { Write-Warning $_ }
-  if ($choice -eq "6") { break }
-}
-\`;
+// Optional Windows 11 VPN/proxy helper download. Third-party VPN apps remain controlled by their providers.
+const windowsNetworkHelper = "# Epic Recovery Assistant - Windows 11 network helper\r\n# Uses Windows VPN settings and the current-user HTTP/HTTPS proxy setting.\r\n# Third-party VPN apps must be controlled through their official applications.\r\n$ErrorActionPreference = \"Stop\"\r\n$settingsPath = \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\"\r\n$backupDir = Join-Path $env:LOCALAPPDATA \"EpicRecoveryAssistant\"\r\n$backupPath = Join-Path $backupDir \"network-settings-backup.json\"\r\nfunction Open-VpnSettings { Start-Process \"ms-settings:network-vpn\" }\r\nfunction Connect-WindowsVpn {\r\n  $name = Read-Host \"Exact name of your configured Windows VPN profile\"\r\n  if ([string]::IsNullOrWhiteSpace($name)) { return }\r\n  rasdial \"$name\"\r\n}\r\nfunction Disconnect-WindowsVpn { rasdial /disconnect }\r\nfunction Enable-UserProxy {\r\n  $server = Read-Host \"Authorized HTTP/HTTPS proxy host:port\"\r\n  if ($server -notmatch \"^[A-Za-z0-9.\\-\\[\\]:]+:\\d{1,5}$\") { throw \"Expected host:port; no settings changed.\" }\r\n  $port = [int]($server -split \":\")[-1]\r\n  if ($port -lt 1 -or $port -gt 65535) { throw \"Invalid port; no settings changed.\" }\r\n  New-Item -Path $backupDir -ItemType Directory -Force | Out-Null\r\n  if (-not (Test-Path $backupPath)) {\r\n    $key = Get-ItemProperty -Path $settingsPath\r\n    [ordered]@{ ProxyEnable=$key.ProxyEnable; ProxyServer=$key.ProxyServer; ProxyOverride=$key.ProxyOverride; AutoConfigURL=$key.AutoConfigURL } | ConvertTo-Json | Set-Content -Path $backupPath -Encoding UTF8\r\n  }\r\n  Set-ItemProperty -Path $settingsPath -Name ProxyEnable -Type DWord -Value 1\r\n  Set-ItemProperty -Path $settingsPath -Name ProxyServer -Type String -Value $server\r\n  Write-Host \"HTTP/HTTPS proxy enabled for current Windows user.\"\r\n}\r\nfunction Restore-UserProxy {\r\n  if (-not (Test-Path $backupPath)) {\r\n    Set-ItemProperty -Path $settingsPath -Name ProxyEnable -Type DWord -Value 0\r\n    Write-Host \"Proxy disabled; no backup existed, so prior proxy fields could not be restored.\"\r\n    return\r\n  }\r\n  $backup = Get-Content -Path $backupPath -Raw | ConvertFrom-Json\r\n  foreach ($field in @(\"ProxyEnable\",\"ProxyServer\",\"ProxyOverride\",\"AutoConfigURL\")) {\r\n    $value = $backup.$field\r\n    if ($null -eq $value) { Remove-ItemProperty -Path $settingsPath -Name $field -ErrorAction SilentlyContinue }\r\n    else { Set-ItemProperty -Path $settingsPath -Name $field -Value $value }\r\n  }\r\n  Remove-Item -Path $backupPath -Force\r\n  Write-Host \"Previous proxy settings restored.\"\r\n}\r\nwhile ($true) {\r\n  Write-Host \"`n=== Windows 11 VPN / Proxy Helper ===\"\r\n  Write-Host \"1. Open VPN settings (use any installed VPN provider app)\"\r\n  Write-Host \"2. Connect a configured Windows VPN profile\"\r\n  Write-Host \"3. Disconnect Windows built-in VPN\"\r\n  Write-Host \"4. Enable authorized HTTP/HTTPS proxy\"\r\n  Write-Host \"5. Restore previous proxy settings / turn proxy off\"\r\n  Write-Host \"6. Exit\"\r\n  $choice = Read-Host \"Choose 1-6\"\r\n  try { switch ($choice) {\r\n    \"1\" { Open-VpnSettings }\r\n    \"2\" { Connect-WindowsVpn }\r\n    \"3\" { Disconnect-WindowsVpn }\r\n    \"4\" { Enable-UserProxy }\r\n    \"5\" { Restore-UserProxy }\r\n    \"6\" { break }\r\n    default { Write-Host \"Choose 1-6.\" }\r\n  } } catch { Write-Warning $_ }\r\n  if ($choice -eq \"6\") { break }\r\n}";
 document.getElementById("downloadNetworkHelper").addEventListener("click",()=>{
   const blob=new Blob([windowsNetworkHelper],{type:"text/plain;charset=utf-8"});
   const url=URL.createObjectURL(blob);
@@ -326,10 +192,9 @@ document.getElementById("downloadNetworkHelper").addEventListener("click",()=>{
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
 document.getElementById("openWindowsVpn").addEventListener("click",()=>{
-  document.getElementById("fortniteResult").textContent="Open Windows Settings > Network & internet > VPN. Connect your VPN using its official Windows app or configured Windows VPN profile. When connected, Windows routes browser traffic according to that VPN's settings.";
-  window.open("ms-settings:network-vpn","_self");
+  document.getElementById("fortniteResult").textContent="Use Windows Settings > Network & internet > VPN, or open your VPN provider's official Windows app. Windows routes compatible system traffic through an active VPN according to its configuration.";
+  window.location.href="ms-settings:network-vpn";
 });
-
 document.getElementById("runFortniteScan").addEventListener("click",async()=>{
   const startedAt=new Date(),pasted=document.getElementById("fortniteText").value;
   const files=[...document.getElementById("fortniteFiles").files],findings=[],skipped=[],scannedSources=[];
