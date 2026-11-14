@@ -703,29 +703,16 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
   catch(error){setStatus("Could not read source file: "+error.message);}
  });
  const validate=()=>{
-  const code=source(),kind=language.value,issues=[];
+  const code=source(),issues=[];
   if(!code.trim())issues.push("Source is empty.");
-  if(code.length>1024*1024)issues.push("Source exceeds the 1 MB editor limit.");
+  if(code.length>2*1024*1024)issues.push("Source exceeds the 2 MB editor limit.");
   if(code.includes("<<<<<<<")||code.includes("=======")||code.includes(">>>>>>>"))issues.push("Git merge-conflict markers were found.");
-  if(kind==="python"){
-   if(/^\s*def\s+\w+\s*\([^)]*$/m.test(code))issues.push("A function definition may have an incomplete parameter list.");
-   if(/^\s*(if|for|while|def|class|try|with)\b[^:\n]*$/m.test(code))issues.push("A Python block header may be missing its colon.");
-   if(/\t/.test(code))issues.push("Tabs are present; Python indentation is usually safest with spaces.");
-  }else if(kind==="cpp"){
-   const opens=(code.match(/{/g)||[]).length,closes=(code.match(/}/g)||[]).length;
-   if(opens!==closes)issues.push("C++ brace counts do not match.");
-   if(!/\bmain\s*\(/.test(code))issues.push("No main() entry point was detected.");
-  }else{
-   const opens=(code.match(/{/g)||[]).length,closes=(code.match(/}/g)||[]).length;
-   if(opens!==closes)issues.push("C# brace counts do not match.");
-   if(!/\b(static\s+)?void\s+Main\s*\(/.test(code))issues.push("No conventional Main() entry point was detected.");
-  }
   return issues;
  };
  $("sbDebug").addEventListener("click",()=>{
   const issues=validate();
   if(issues.length)setStatus("Review found "+issues.length+" item(s):\n• "+issues.join("\n• ")+"\nThis is a lightweight static check, not a compiler or security audit.");
-  else setStatus("No obvious formatting/entry-point issues detected. This is not proof the source compiles or is safe; use the generated test script on Windows.");
+  else setStatus("No empty, oversized, or merge-conflict issues detected. This is not a syntax check or security audit; run the generated compiler test on Windows.");
  });
  $("sbStop").addEventListener("click",()=>{
   window.recoveryStopRequested=true;
