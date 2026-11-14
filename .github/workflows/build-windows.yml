@@ -110,6 +110,7 @@ jobs:
           Copy-Item 'Epic_Games_Recovery_Assistant/paf_evidence_scanner.exe' $bundle
           Copy-Item 'Epic_Games_Recovery_Assistant/paf_evidence_scanner.c++' $bundle
           Copy-Item 'Epic_Games_Recovery_Assistant/PDF_EVIDENCE_SCANNER.bat' $bundle
+          Copy-Item 'Epic_Games_Recovery_Assistant/setup_dependencies.ps1' $bundle
           Copy-Item 'Epic_Games_Recovery_Assistant/README.md' $bundle
           $hash = (Get-FileHash -Algorithm SHA256 "$bundle/Epic_Games_Recovery_Assistant.exe").Hash.ToLowerInvariant()
           "$hash  Epic_Games_Recovery_Assistant.exe" | Set-Content -Encoding ascii "$bundle/SHA256SUMS.txt"
