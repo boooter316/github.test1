@@ -13,7 +13,8 @@ const files = new Map([
   ["/network_security.js", ["network_security.js", "text/javascript; charset=utf-8"]],
   ["/network-tools.html", ["network-tools.html", "text/html; charset=utf-8"]],
   ["/network_tools.ps1", ["network_tools.ps1", "text/plain; charset=utf-8"]],
-  ["/SETUP_AND_USAGE.txt", ["SETUP_AND_USAGE.txt", "text/plain; charset=utf-8"]]
+  ["/SETUP_AND_USAGE.txt", ["SETUP_AND_USAGE.txt", "text/plain; charset=utf-8"]],
+  ["/FAZE_JARVIS_SETUP.md", ["FAZE_JARVIS_SETUP.md", "text/markdown; charset=utf-8"]]
 ]);
 const limits = new Map();
 const json = (res, status, body) => {
