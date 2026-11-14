@@ -81,6 +81,18 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 </section>
 <section class="panel hidden" id="fortniteTab">
 <h2>Pro Multi-Platform Security Scanner</h2>
+<section class="panel" id="networkPrivacyPanel">
+<h2>Optional VPN &amp; Proxy Controls (Windows 11)</h2>
+<p class="hint">Choose your installed VPN provider and manage Windows proxy settings independently. Third-party VPNs must be connected in their official applications. Windows-compatible built-in VPN profiles can be connected by the downloadable helper.</p>
+<div class="notice"><strong>Routing and privacy:</strong> These controls configure Windows networking for compatible applications. VPN-only, proxy-only, both, and neither are selectable as your intended setup, but Windows/provider routing determines the actual path. Some apps ignore the Windows proxy. This scanner has no remote scan-upload feature: selected files and detected secrets stay local and are never sent through either route.</div>
+<div class="grid">
+<div><label for="vpnProviderChoice">VPN provider</label><select id="vpnProviderChoice"><option value="provider-app">Use my installed provider's official app</option><option value="windows-profile">Windows built-in VPN profile</option><option value="other">Other Windows-compatible VPN</option></select><p class="hint">Provider selection is a reminder/launcher choice, not universal control of third-party VPN software.</p><button type="button" class="secondary" id="openWindowsVpn">Open Windows VPN settings</button></div>
+<div><label for="vpnMode">Preferred network route</label><select id="vpnMode"><option value="neither">Neither VPN nor proxy</option><option value="vpn">VPN only</option><option value="proxy">Proxy only</option><option value="both">VPN and proxy</option></select><p class="hint">This records your preference. It cannot force apps or providers that do not support the selected route.</p><div class="actions"><button type="button" id="vpnOn">VPN On / Connect</button><button type="button" class="secondary" id="vpnOff">VPN Off / Disconnect</button></div><p id="vpnStatus" class="hint" role="status">VPN status: not checked. Use your provider app or Windows VPN settings.</p></div>
+<div><label for="proxyScheme">Proxy type</label><select id="proxyScheme"><option value="http">HTTP</option><option value="https">HTTPS</option></select><label for="proxyHost">Proxy host</label><input id="proxyHost" placeholder="proxy.example.com"><label for="proxyPort">Proxy port</label><input id="proxyPort" type="number" min="1" max="65535" placeholder="8080"><div class="actions"><button type="button" id="proxyOn">Proxy On</button><button type="button" class="secondary" id="proxyOff">Proxy Off / Restore</button></div><p id="proxyStatus" class="hint" role="status">Proxy status: not configured by this page.</p></div>
+</div>
+<div class="actions"><button type="button" class="secondary" id="downloadNetworkHelper">Download Windows network helper (.ps1)</button></div>
+<p class="hint">The helper backs up and restores the current user's prior proxy settings. It supports HTTP/HTTPS Windows proxy configuration, not SOCKS5 management. No paid VPS or DigitalOcean is required. The scanner's local file analysis is unaffected when networking is off.</p>
+</section>
 <div class="notice" role="note" aria-label="Legal and authorized-use notice"><strong>Legal and authorized-use notice:</strong> Use this scanner only on files and accounts you own or are expressly authorized to assess, and comply with applicable laws, platform terms, and workplace policies. The scanner performs local pattern matching on selected files; it does not grab accounts, establish ownership, validate credentials, or determine whether an account is compromised. Do not use findings to access another person's account, impersonate anyone, bypass security controls, or disclose private information. You are responsible for reviewing files before sharing reports and for promptly revoking or rotating exposed credentials. This independent tool is provided “as is,” without warranty; it is not legal advice and does not guarantee account recovery or security.</div>
 <p>Review account logs, text/configuration files, and text-based PDFs that you choose on this device. The scan runs locally in this browser tab. Supported labels include Epic Games, Xbox, PlayStation, Nintendo, Steam, Google, Twitch, YouTube, TikTok, Instagram, WeGo, and Roblox.</p>
 <div class="risk"><strong>Security boundary:</strong> This tool does not access Fortnite or Epic accounts, browser storage, game memory, saved passwords, cookies, or session stores. It cannot validate logins or retrieve tokens. It shows every detected match in a numbered findings list with source filename, line number, category, confidence label, and a safely masked preview. Email addresses, account IDs, and display names are shown in full in this local browser result. Passwords, tokens, cookies, and session secrets are always redacted.</div>
@@ -172,6 +184,37 @@ async function extractPdfText(file){
   if(pdf.numPages>maxPages)pages.push("[PDF truncated after 200 pages]");
   return pages.join("\n");
 }
+
+// Optional Windows 11 VPN/proxy helper download. Third-party VPN apps remain controlled by their providers.
+const windowsNetworkHelper = "# Epic Recovery Assistant - Windows 11 network helper\r\n# Uses Windows VPN settings and the current-user HTTP/HTTPS proxy setting.\r\n# Third-party VPN apps must be controlled through their official applications.\r\n$ErrorActionPreference = \"Stop\"\r\n$settingsPath = \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\"\r\n$backupDir = Join-Path $env:LOCALAPPDATA \"EpicRecoveryAssistant\"\r\n$backupPath = Join-Path $backupDir \"network-settings-backup.json\"\r\nfunction Open-VpnSettings { Start-Process \"ms-settings:network-vpn\" }\r\nfunction Connect-WindowsVpn {\r\n  $name = Read-Host \"Exact name of your configured Windows VPN profile\"\r\n  if ([string]::IsNullOrWhiteSpace($name)) { return }\r\n  rasdial \"$name\"\r\n}\r\nfunction Disconnect-WindowsVpn { rasdial /disconnect }\r\nfunction Enable-UserProxy {\r\n  $server = Read-Host \"Authorized HTTP/HTTPS proxy host:port\"\r\n  if ($server -notmatch \"^[A-Za-z0-9.\\-\\[\\]:]+:\\d{1,5}$\") { throw \"Expected host:port; no settings changed.\" }\r\n  $port = [int]($server -split \":\")[-1]\r\n  if ($port -lt 1 -or $port -gt 65535) { throw \"Invalid port; no settings changed.\" }\r\n  New-Item -Path $backupDir -ItemType Directory -Force | Out-Null\r\n  if (-not (Test-Path $backupPath)) {\r\n    $key = Get-ItemProperty -Path $settingsPath\r\n    [ordered]@{ ProxyEnable=$key.ProxyEnable; ProxyServer=$key.ProxyServer; ProxyOverride=$key.ProxyOverride; AutoConfigURL=$key.AutoConfigURL } | ConvertTo-Json | Set-Content -Path $backupPath -Encoding UTF8\r\n  }\r\n  Set-ItemProperty -Path $settingsPath -Name ProxyEnable -Type DWord -Value 1\r\n  Set-ItemProperty -Path $settingsPath -Name ProxyServer -Type String -Value $server\r\n  Write-Host \"HTTP/HTTPS proxy enabled for current Windows user.\"\r\n}\r\nfunction Restore-UserProxy {\r\n  if (-not (Test-Path $backupPath)) {\r\n    Set-ItemProperty -Path $settingsPath -Name ProxyEnable -Type DWord -Value 0\r\n    Write-Host \"Proxy disabled; no backup existed, so prior proxy fields could not be restored.\"\r\n    return\r\n  }\r\n  $backup = Get-Content -Path $backupPath -Raw | ConvertFrom-Json\r\n  foreach ($field in @(\"ProxyEnable\",\"ProxyServer\",\"ProxyOverride\",\"AutoConfigURL\")) {\r\n    $value = $backup.$field\r\n    if ($null -eq $value) { Remove-ItemProperty -Path $settingsPath -Name $field -ErrorAction SilentlyContinue }\r\n    else { Set-ItemProperty -Path $settingsPath -Name $field -Value $value }\r\n  }\r\n  Remove-Item -Path $backupPath -Force\r\n  Write-Host \"Previous proxy settings restored.\"\r\n}\r\nwhile ($true) {\r\n  Write-Host \"`n=== Windows 11 VPN / Proxy Helper ===\"\r\n  Write-Host \"1. Open VPN settings (use any installed VPN provider app)\"\r\n  Write-Host \"2. Connect a configured Windows VPN profile\"\r\n  Write-Host \"3. Disconnect Windows built-in VPN\"\r\n  Write-Host \"4. Enable authorized HTTP/HTTPS proxy\"\r\n  Write-Host \"5. Restore previous proxy settings / turn proxy off\"\r\n  Write-Host \"6. Exit\"\r\n  $choice = Read-Host \"Choose 1-6\"\r\n  try { switch ($choice) {\r\n    \"1\" { Open-VpnSettings }\r\n    \"2\" { Connect-WindowsVpn }\r\n    \"3\" { Disconnect-WindowsVpn }\r\n    \"4\" { Enable-UserProxy }\r\n    \"5\" { Restore-UserProxy }\r\n    \"6\" { break }\r\n    default { Write-Host \"Choose 1-6.\" }\r\n  } } catch { Write-Warning $_ }\r\n  if ($choice -eq \"6\") { break }\r\n}";
+document.getElementById("downloadNetworkHelper").addEventListener("click",()=>{
+  const blob=new Blob([windowsNetworkHelper],{type:"text/plain;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="windows-network-helper.ps1";
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+function setNetworkStatus(id,message){document.getElementById(id).textContent=message}
+document.getElementById("vpnOn").addEventListener("click",()=>{
+ const choice=document.getElementById("vpnProviderChoice").value;
+ setNetworkStatus("vpnStatus",choice==="windows-profile"?"Open the helper and connect your configured Windows VPN profile.": "Open your selected VPN provider's official app and connect. This page cannot verify third-party provider status.");
+ if(choice!=="provider-app") window.location.href="ms-settings:network-vpn";
+});
+document.getElementById("vpnOff").addEventListener("click",()=>{
+ setNetworkStatus("vpnStatus","Use your VPN provider's official app to disconnect, or the helper to disconnect a Windows built-in VPN profile.");
+});
+document.getElementById("proxyOn").addEventListener("click",()=>{
+ const host=document.getElementById("proxyHost").value.trim();
+ const port=Number(document.getElementById("proxyPort").value);
+ if(!host||!Number.isInteger(port)||port<1||port>65535){setNetworkStatus("proxyStatus","Enter a valid proxy host and port (1–65535). No settings changed.");return}
+ setNetworkStatus("proxyStatus","Proxy details validated for download. Run the Windows helper and choose Enable authorized HTTP/HTTPS proxy; this page does not silently change Windows settings.");
+});
+document.getElementById("proxyOff").addEventListener("click",()=>{
+ setNetworkStatus("proxyStatus","Run the Windows helper and choose Restore previous proxy settings / turn proxy off.");
+});
+document.getElementById("openWindowsVpn").addEventListener("click",()=>{
+  document.getElementById("fortniteResult").textContent="Use Windows Settings > Network & internet > VPN, or open your VPN provider's official Windows app. Windows routes compatible system traffic through an active VPN according to its configuration.";
+  window.location.href="ms-settings:network-vpn";
+});
 document.getElementById("runFortniteScan").addEventListener("click",async()=>{
   const startedAt=new Date(),pasted=document.getElementById("fortniteText").value;
   const files=[...document.getElementById("fortniteFiles").files],findings=[],skipped=[],scannedSources=[];

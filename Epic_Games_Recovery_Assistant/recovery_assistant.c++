@@ -15,8 +15,8 @@
 #include <limits>
 #ifdef _WIN32
 #include <conio.h>
-#include <bcrypt.h>
 #include <windows.h>
+#include <bcrypt.h>
 #include <shellapi.h>
 #include <winhttp.h>
 #endif
@@ -176,7 +176,7 @@ std::string hexEncode(const std::vector<unsigned char>& data) {
 bool hexDecode(const std::string& s,std::vector<unsigned char>& out) {
  if(s.size()%2) return false; out.clear();
  for(size_t i=0;i<s.size();i+=2) {
-  char pair[3]={s[i],s[i+1],'\\0'}; char* end=nullptr;
+  char pair[3]={s[i],s[i+1],'\0'}; char* end=nullptr;
   unsigned long v=std::strtoul(pair,&end,16);
   if(!end||*end||v>255) return false;
   out.push_back((unsigned char)v);
@@ -210,8 +210,8 @@ bool derivePasswordHash(const std::string& password,const std::vector<unsigned c
  hash.assign(32,0);
  NTSTATUS st=BCryptDeriveKeyPBKDF2(algorithm,
   (PUCHAR)password.data(),(ULONG)password.size(),
-  (PUCHAR)salt.data(),(ULONG)salt.size(),iterations,0,
-  hash.data(),(ULONG)hash.size());
+  (PUCHAR)salt.data(),(ULONG)salt.size(),iterations,
+  hash.data(),(ULONG)hash.size(),0);
  BCryptCloseAlgorithmProvider(algorithm,0);
  return st>=0;
 }
