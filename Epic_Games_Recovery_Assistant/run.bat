@@ -1,5 +1,5 @@
 @echo off
-title Epic Games Recovery Assistant 4.3
+title Epic Games Recovery Assistant 4.9
 cd /d "%~dp0"
 if not exist Epic_Games_Recovery_Assistant.exe (
   echo Run build.bat or setup.bat first to build the application.
