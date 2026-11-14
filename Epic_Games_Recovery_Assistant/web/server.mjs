@@ -167,7 +167,7 @@ const server = http.createServer(async (req, res) => {
       "Cache-Control": "no-store",
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "no-referrer",
-      "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://telegram.org; frame-src https://oauth.telegram.org; worker-src 'self' blob: https://cdnjs.cloudflare.com; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+      "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://telegram.org; frame-src https://oauth.telegram.org; worker-src 'self' blob: https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
       "X-Frame-Options": "DENY"
     });
     res.end(body);
