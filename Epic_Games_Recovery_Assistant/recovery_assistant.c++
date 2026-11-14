@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 4.9 - C++17
+// Epic Games Recovery Assistant 4.10 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <ctime>
@@ -75,8 +75,8 @@ void notifyDiscord(const std::string& event) {
  if(!WinHttpCrackUrl(url.c_str(),0,0,&parts)) return;
  std::wstring hostname(host,parts.dwHostNameLength), requestPath(path,parts.dwUrlPathLength);
  if(parts.nScheme!=INTERNET_SCHEME_HTTPS || hostname!=L"discord.com" || requestPath.rfind(L"/api/webhooks/",0)!=0) return;
- std::string body="{\"content\":\"Epic Games Recovery Assistant 4.9: "+escJson(event)+"\"}";
- HINTERNET session=WinHttpOpen(L"EpicRecoveryAssistant/4.9",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,WINHTTP_NO_PROXY_NAME,WINHTTP_NO_PROXY_BYPASS,0);
+ std::string body="{\"content\":\"Epic Games Recovery Assistant 4.10: "+escJson(event)+"\"}";
+ HINTERNET session=WinHttpOpen(L"EpicRecoveryAssistant/4.10",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,WINHTTP_NO_PROXY_NAME,WINHTTP_NO_PROXY_BYPASS,0);
  if(!session) return;
  HINTERNET connection=WinHttpConnect(session,hostname.c_str(),parts.nPort,0);
  if(connection){
@@ -322,10 +322,12 @@ void recoveryProgressPage() {
    if(date.size()==10 && std::sscanf(date.c_str(),"%4d-%2d-%2d",&y,&m,&d)==3 && y>=1970 && m>=1 && m<=12 && d>=1 && d<=31) {
     std::tm end{}; end.tm_year=y-1900; end.tm_mon=m-1; end.tm_mday=d; end.tm_hour=23; end.tm_min=59; end.tm_sec=59;
     std::time_t t=std::mktime(&end);
-    if(t!=(std::time_t)-1) {
+    if(t!=(std::time_t)-1 && end.tm_year==y-1900 && end.tm_mon==m-1 && end.tm_mday==d) {
      long long days=(long long)std::ceil(std::difftime(t,std::time(nullptr))/86400.0); if(days<0) days=0;
      std::string msg=std::to_string(days)+" day(s) remaining (estimate from entered date; confirm with platform).";
      std::cout<<msg<<"\n"; fields.push_back({"Progress - estimated restriction days remaining",msg});
+    } else {
+     std::cout<<"Invalid calendar date; countdown not calculated.\n";
     }
    } else std::cout<<"Invalid or missing date; countdown not calculated.\n";
    fields.push_back({"Progress - restriction case/status",ask("Restriction status and case/reference number (no codes)")});
@@ -336,7 +338,7 @@ void recoveryProgressPage() {
 
 int main(){
  if(!authGate()) return 0;
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.9 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.10 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -459,13 +461,13 @@ int main(){
  logHistoricalIPs(dir,epicId);
  logLoginActivity(dir,epicId);
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.9 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.10 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional user-reported context; this app cannot compare it with Epic records or verify account ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, full phone numbers, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.9\n\n";
- j<<"{\n \"version\":\"4.9\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.10\n\n";
+ j<<"{\n \"version\":\"4.10\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
  j<<" ]\n}\n";
