@@ -1,0 +1,145 @@
+EPIC GAMES RECOVERY ASSISTANT — SETUP AND USAGE
+================================================
+
+IMPORTANT
+---------
+This project is an independent recovery organizer and local defensive
+diagnostics toolkit. It is not affiliated with Epic Games or other providers.
+Use network checks only on devices and networks you own or are authorized to
+administer. Do not enter passwords, one-time codes, recovery codes, cookies,
+tokens, full payment-card details, wallet seed phrases, or private keys.
+
+A. DOWNLOAD AND EXTRACT
+----------------------
+1. Open https://github.com/boooter316/github.test1
+2. Select Code > Download ZIP.
+3. Extract the ZIP to a folder such as C:\Tools\Epic_Games_Recovery_Assistant.
+4. Keep the folder structure intact. Do not move individual scripts away from
+   the project folder unless you also update the paths in your shortcuts.
+
+B. BUILD THE WINDOWS DESKTOP APPLICATION
+----------------------------------------
+1. Install a Windows 64-bit MinGW-w64/GCC distribution that provides g++.
+2. Add the MinGW-w64 bin directory to the Windows PATH.
+3. Open Command Prompt in the Epic_Games_Recovery_Assistant folder.
+4. Run: build.bat
+5. Confirm that Epic_Games_Recovery_Assistant.exe was created.
+6. Run: run.bat
+
+If the build fails:
+- Run g++ --version and confirm g++ is found.
+- Read the first compiler error, not only the final error count.
+- Confirm the source file is named recovery_assistant.c++.
+- Run build.bat again after correcting the missing compiler/dependency.
+- The GitHub Actions Windows build checks compilation, but cannot test every
+  individual Windows PC or local security policy.
+
+C. BROWSER RECOVERY ASSISTANT
+-----------------------------
+1. Open the web folder and run the Docker commands in web/README.md, or use
+   the hosted/static project page if one has been deployed by you.
+2. The main page contains Recovery Assistant, Discord Security Scanner,
+   Pro Multi-Platform Scanner, Account Links, Account Connections,
+   Wireshark & Ports, and Account Status & Details.
+3. Use only accurate, non-secret details. Export a JSON packet or print/save
+   the recovery request as PDF.
+4. The account links are shortcuts only. They do not sign in or connect
+   provider accounts. Only the provider can confirm or change account status.
+
+D. LOCAL IP AND NETWORK TOOLS
+-----------------------------
+Open http://localhost:8080/network-tools.html when running the web container.
+The page provides:
+- IP evidence notes: IP, observed date/time, city, state/region, ZIP/postal
+  code, country, optional street address, evidence source, and notes.
+- A command builder for a limited private-network TCP port check.
+- Instructions for VPN/proxy configuration status snapshots.
+- TXT/PDF export of the IP evidence notes.
+
+The IP/location form performs no geolocation or identity lookup. All location
+fields are user-entered and unverified. A street address and IP address are
+sensitive; include them only when necessary and keep exports private.
+
+E. WINDOWS VPN / PROXY STATUS CHECK
+-----------------------------------
+1. Download web/network_tools.ps1 or use the copy in the extracted project.
+2. Open PowerShell in the project folder.
+3. Run:
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\web\network_tools.ps1 -Status
+4. The report is saved under %LOCALAPPDATA%\EpicRecoveryAssistant\NetworkStatus.json.
+5. The helper reads Windows VPN profile status, network adapter state,
+   current-user Windows proxy values, and the WinHTTP proxy summary.
+6. It does not connect/disconnect a VPN, change proxy settings, capture
+   traffic, inspect credentials, or upload the report.
+
+To install a daily local status snapshot at 9:00 AM:
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\web\network_tools.ps1 -InstallDailyStatusTask
+
+To remove the task:
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\web\network_tools.ps1 -RemoveDailyStatusTask
+
+The PC must be on and the user must be signed in for the interactive task.
+The task writes a local status file only; it does not send notifications.
+
+F. LIMITED PRIVATE-IP TCP PORT CHECK
+------------------------------------
+Only check a loopback or RFC1918 private IPv4 address on a network you own
+or administer. Public targets and address ranges are rejected by the helper.
+
+Example:
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\web\network_tools.ps1 -PortCheck -TargetIP 192.168.1.1 -Ports 22,53,80,443,8080
+
+Limits:
+- One private IPv4 target per run.
+- Up to 32 unique, explicitly selected TCP ports.
+- A short connection timeout is used.
+- No UDP scan, host discovery, subnet/range scan, exploit test, credential
+  attempt, packet capture, or public-IP scan is included.
+
+OPEN means a TCP connection was accepted at the time of the test.
+CLOSED_OR_REFUSED means the target rejected the connection or it failed.
+NO_RESPONSE_OR_FILTERED means no response arrived before the timeout.
+These results are not a vulnerability assessment.
+
+G. EXISTING WIRESHARK & PORT FILTERS
+------------------------------------
+The existing Wireshark & Ports tab builds display filters such as
+tcp.port == 443. A display filter only narrows packets already captured.
+Use Wireshark only to capture traffic you own or are authorized to inspect.
+The browser's PCAP analyzer reports metadata and does not decrypt TLS or
+display packet payloads.
+
+H. VPN / PROXY SAFETY
+--------------------
+Use the official VPN provider application to connect or disconnect a
+third-party VPN. The existing Windows proxy helper may configure a current-
+user HTTP/HTTPS proxy; inspect its backup/restore behavior before use.
+Do not use proxies or VPNs to impersonate another account owner, bypass
+provider security, or conceal unauthorized activity. Scanner inputs and
+reports stay local; they are not uploaded through a VPN/proxy.
+
+I. UPDATER AND BUILD MONITORING
+-------------------------------
+The project updater requires GitHub CLI (gh) and authentication:
+   gh auth login
+Then review and run update_project.ps1. The optional Windows daily updater
+task is installed with install_auto_update.ps1 and removed with its -Remove
+switch. It downloads a checksum-verified CI artifact and backs up local files.
+It does not execute downloaded code.
+
+Repository build monitoring is separate from the Windows updater. GitHub
+Actions validates pull requests and main-branch changes. A successful CI
+build is not a guarantee of error-free operation on every PC.
+
+J. PRIVACY / TROUBLESHOOTING
+----------------------------
+- Do not publish IP/location exports, router snapshots, packet captures, or
+  account evidence.
+- If a port appears open unexpectedly, identify the service on the device
+  itself and review firewall/router rules with the network administrator.
+- If VPN/proxy status appears incorrect, compare the helper's read-only
+  report with the official VPN application and Windows Settings.
+- If the app fails, save the exact error text and relevant log excerpt after
+  removing passwords, tokens, cookies, and personal data.
+- Never treat an IP address, ZIP code, or street address as proof of account
+  ownership. Providers must verify account claims using their own records.

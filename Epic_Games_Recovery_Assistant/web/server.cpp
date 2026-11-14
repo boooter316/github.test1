@@ -54,9 +54,22 @@ int main() {
 
   const auto page = readFile("/app/index.html");
   const auto networkScript = readFile("/app/network_security.js");
-  if (page.empty() || networkScript.empty()) {
-    std::cerr << "Cannot read /app/index.html or /app/network_security.js\n";
+  const auto toolsPage = readFile("/app/network-tools.html");
+  const auto toolsScript = readFile("/app/network_tools.ps1");
+  const auto setupGuide = readFile("/app/SETUP_AND_USAGE.txt");
+  if (page.empty() || networkScript.empty() || toolsPage.empty() ||
+      toolsScript.empty() || setupGuide.empty()) {
+    std::cerr << "Cannot read one or more required web assets\n";
     return 1;
+  }
+  std::string servedPage = page;
+  const std::string navEnd = "</nav>";
+  const auto navPosition = servedPage.find(navEnd);
+  if (navPosition != std::string::npos) {
+    servedPage.insert(navPosition,
+      "<a class=\"tab\" href=\"/network-tools.html\" "
+      "style=\"display:inline-block;text-decoration:none;text-align:center\">"
+      "IP &amp; Network Tools</a>");
   }
 
   int srv = socket(AF_INET, SOCK_STREAM, 0);
@@ -94,9 +107,15 @@ int main() {
     } else if (path == "/healthz") {
       reply(c, 200, "OK", "text/plain; charset=utf-8", "ok\n");
     } else if (path == "/" || path == "/index.html") {
-      reply(c, 200, "OK", "text/html; charset=utf-8", page);
+      reply(c, 200, "OK", "text/html; charset=utf-8", servedPage);
     } else if (path == "/network_security.js") {
       reply(c, 200, "OK", "text/javascript; charset=utf-8", networkScript);
+    } else if (path == "/network-tools.html") {
+      reply(c, 200, "OK", "text/html; charset=utf-8", toolsPage);
+    } else if (path == "/network_tools.ps1") {
+      reply(c, 200, "OK", "text/plain; charset=utf-8", toolsScript);
+    } else if (path == "/SETUP_AND_USAGE.txt") {
+      reply(c, 200, "OK", "text/plain; charset=utf-8", setupGuide);
     } else {
       reply(c, 404, "Not Found", "text/plain; charset=utf-8", "Not found\n");
     }
