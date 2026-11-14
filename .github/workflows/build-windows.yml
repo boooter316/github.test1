@@ -1,17 +1,18 @@
 name: Build Windows Recovery Assistant
-
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "Epic_Games_Recovery_Assistant/**"
+      - ".github/workflows/build-windows.yml"
   push:
     branches: [main]
     paths:
-      - "Epic_Games_Recovery_Assistant/recovery_assistant.c++"
-      - "Epic_Games_Recovery_Assistant/README.md"
-      - "Epic_Games_Recovery_Assistant/setup.bat"
-      - "Epic_Games_Recovery_Assistant/build.bat"
-      - "Epic_Games_Recovery_Assistant/run.bat"
+      - "Epic_Games_Recovery_Assistant/**"
       - ".github/workflows/build-windows.yml"
-
+permissions:
+  contents: read
+  actions: read
 jobs:
   build:
     runs-on: windows-latest
@@ -25,14 +26,31 @@ jobs:
           g++ --version
           g++ -std=c++17 -O2 -Wall -Wextra recovery_assistant.c++ -o Epic_Games_Recovery_Assistant.exe -static -static-libgcc -static-libstdc++ -lshell32 -lwinhttp -lbcrypt
           if ($LASTEXITCODE -ne 0) { throw "C++ build failed" }
-      - name: Upload executable
+      - name: Upload Windows executable
         uses: actions/upload-artifact@v4
         with:
           name: Epic-Games-Recovery-Assistant-Windows
           path: Epic_Games_Recovery_Assistant/Epic_Games_Recovery_Assistant.exe
           if-no-files-found: error
           retention-days: 30
-
+      - name: Package complete project and checksum
+        shell: pwsh
+        run: |
+          $project = "Epic_Games_Recovery_Assistant"
+          $zip = "Epic-Games-Recovery-Assistant-project.zip"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path "$project/*" -DestinationPath $zip -CompressionLevel Optimal
+          $hash = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
+          "$hash  $zip" | Set-Content -Encoding ascii SHA256SUMS.txt
+      - name: Upload complete project update package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Epic-Games-Recovery-Assistant-Project
+          path: |
+            Epic-Games-Recovery-Assistant-project.zip
+            SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
       - name: Send generic Discord build notification
         if: always()
         shell: pwsh
