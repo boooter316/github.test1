@@ -18,7 +18,23 @@ if (!adminEmail || !passwordRecord.includes(":") || sessionSecret.length < 32) {
 }
 if (production) app.set("trust proxy", 1);
 app.disable("x-powered-by");
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      baseUri: ["'self'"],
+      fontSrc: ["'self'", "data:"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"],
+      imgSrc: ["'self'", "data:"],
+      objectSrc: ["'none'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      workerSrc: ["'self'", "blob:", "https://cdnjs.cloudflare.com"],
+      connectSrc: ["'self'"]
+    }
+  }
+}));
 app.use(express.json({ limit: "32kb" }));
 app.use(session({
   name: "recovery_panel_sid", secret: sessionSecret, resave: false, saveUninitialized: false,
@@ -27,7 +43,7 @@ app.use(session({
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 8, standardHeaders: "draft-7", legacyHeaders: false });
 function safeEqual(a,b) { const x=Buffer.from(String(a)), y=Buffer.from(String(b)); return x.length===y.length && crypto.timingSafeEqual(x,y); }
 function validPassword(candidate) {
-  const p=passwordRecord.split(":"); if(p.length!==2 || !/^[a-f0-9]{128}$/i.test(p[1])) return false;
+  const p=passwordRecord.split(":"); if(p.length!==2 || !/^[a-f0-9]{32}$/i.test(p[0]) || !/^[a-f0-9]{128}$/i.test(p[1])) return false;
   return safeEqual(crypto.scryptSync(String(candidate),p[0],64).toString("hex"),p[1].toLowerCase());
 }
 async function notify(event) {
@@ -39,7 +55,7 @@ async function notify(event) {
 function auth(req,res,next){ if(req.session && req.session.authenticated===true) return next(); res.status(401).json({error:"Please sign in to the Recovery Assistant panel."}); }
 app.post("/api/login",loginLimiter,(req,res,next)=>{
   const email=String(req.body?.email||"").trim().toLowerCase(), password=String(req.body?.password||"");
-  if(!safeEqual(email,adminEmail)||!validPassword(password)){notify("unsuccessful panel sign-in attempt");return res.status(401).json({error:"Sign-in failed. Check your panel email and password."});}
+  const emailMatches=safeEqual(email,adminEmail);\n  let passwordMatches=false;\n  try { passwordMatches=validPassword(password); } catch (_) {}\n  if(!emailMatches||!passwordMatches){notify("unsuccessful panel sign-in attempt");return res.status(401).json({error:"Sign-in failed. Check your panel email and password."});}
   req.session.regenerate(err=>{if(err)return next(err);req.session.authenticated=true;req.session.save(err2=>{if(err2)return next(err2);notify("panel sign-in successful");res.json({ok:true});});});
 });
 app.get("/api/session",(req,res)=>res.json({authenticated:!!(req.session&&req.session.authenticated)}));
