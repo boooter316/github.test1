@@ -45,6 +45,18 @@ C. BROWSER RECOVERY ASSISTANT
    the recovery request as PDF.
 4. The account links are shortcuts only. They do not sign in or connect
    provider accounts. Only the provider can confirm or change account status.
+5. Open Discord Security Scanner, choose text/log files you are authorized
+   to inspect, then select Scan selected files. The scanner reads only the
+   files you choose; it does not read Chrome/browser login storage or contact
+   Discord. Results contain numbered finding types, file names, and line
+   numbers, with matched values redacted. Select Download Report for a TXT
+   summary. Stop requests cancellation between scan steps. Build / Self-test
+   checks browser file-reading, pattern matching, and report-export support;
+   it does not compile the Windows application or read any files.
+6. The Discord scanner accepts up to 20 files per scan and 2 MB per file.
+   It checks for Discord token-shaped strings and Discord webhook URLs only.
+   A match is not proof a credential is active. Revoke exposed credentials
+   through the service's official security settings.
 
 D. LOCAL IP AND NETWORK TOOLS
 -----------------------------

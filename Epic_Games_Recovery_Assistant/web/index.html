@@ -139,15 +139,23 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 </div>
 <section class="panel hidden" id="securityTab">
 <h2>Discord Security Scanner</h2>
-<p>This page checks text files you deliberately select on your device for patterns that resemble exposed credentials. It runs locally in this browser tab.</p>
-<div class="risk"><strong>Important limitation:</strong> It does not sign in to Discord or Epic, test whether a token is active, verify a login, access browser password stores, or retrieve credentials. It never displays, saves, or sends token values. A pattern match is only a warning—not proof that a credential works.</div>
-<p><label for="scanFiles">Choose local text/log files to scan</label><input id="scanFiles" type="file" accept=".txt,.log,.json,.js,.html,.csv,.md,.conf,.ini,.yaml,.yml,.env" multiple></p>
-<p><label for="scanText">Or paste text you want checked (optional)</label><textarea id="scanText" placeholder="Paste log/config text here. Do not paste live passwords, tokens, or 2FA codes."></textarea></p>
-<div class="actions no-print"><button type="button" id="runScan">Scan locally</button><button type="button" class="secondary" id="clearScan">Clear</button></div>
-<h3>Scan result</h3><div id="scanResult" class="scanner-result" role="status" aria-live="polite">No scan has been run.</div>
-<p class="hint">Checks include JWT-shaped strings, Discord-token-shaped strings, and credential labels such as password, authorization, and access_token. Only counts and filenames are reported; matched values are discarded immediately.</p>
-<h3>If a possible secret is found</h3><ol><li>Do not share the file or scan output publicly.</li><li>Revoke or rotate the affected credential using the service's official security settings.</li><li>Change a reused password and enable two-step verification.</li><li>Remove the exposed secret from public commits and logs; rotating it is still necessary because old copies may remain.</li></ol>
-<p class="hint">For an exposed Discord webhook, delete/regenerate it in Discord. For Epic Games, use Epic's official account security and recovery pages. This scanner cannot validate or recover an Epic account.</p>
+<p class="hint">Scan only text files you deliberately select. The scanner checks for possible Discord token-shaped strings and Discord webhook URLs, then reports file names and line numbers without showing matched values.</p>
+<div class="risk"><strong>Local-only privacy:</strong> This scanner does not access Chrome or other browser storage, sign in to Discord, test tokens, read passwords/cookies, or send data to a webhook. Selected file contents are processed in this browser tab and are not uploaded. A pattern match is only a warning, not proof a credential is valid.</div>
+<p><label for="scanFiles">Choose local text/log files to scan</label><input id="scanFiles" type="file" accept=".txt,.log,.json,.js,.mjs,.html,.csv,.md,.conf,.ini,.yaml,.yml,.env,.py,.ps1,.cpp,.c,.h,.xml,.toml" multiple></p>
+<p class="hint">Limits: 20 files per scan, 2 MB per file, and 500 findings. Select only files you are authorized to inspect. No scan begins until you press Scan.</p>
+<div class="actions no-print">
+<button type="button" id="runScan">Scan selected files</button>
+<button type="button" class="secondary" id="stopScan">Stop</button>
+<button type="button" class="secondary" id="downloadScanReport" disabled>Download Report</button>
+<button type="button" class="secondary" id="buildScan">Build / Self-test</button>
+<button type="button" class="secondary" id="clearScan">Clear</button>
+</div>
+<p id="scanStatus" class="scanner-result" role="status" aria-live="polite">Select files, then press Scan selected files.</p>
+<h3>Numbered findings</h3>
+<div id="scanResult" class="scanner-result" role="region" aria-live="polite">No scan has been run.</div>
+<h3>If a possible secret is found</h3>
+<ol><li>Do not share the file or report publicly.</li><li>Revoke or rotate the exposed token or webhook using Discord's official settings.</li><li>Change your Discord password, sign out other sessions, and enable two-factor authentication if an account credential may have been exposed.</li><li>Remove exposed secrets from public commits or logs; rotating the secret is still necessary because old copies may remain.</li></ol>
+<p class="hint">For an exposed Discord webhook, delete or regenerate it in Discord Server Settings → Integrations → Webhooks. This scanner cannot recover accounts or validate credentials.</p>
 </section>
 <section class="panel hidden" id="fortniteTab">
 <h2>Pro Multi-Platform Security Scanner</h2>
@@ -573,13 +581,92 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
 });
 
 // Local-only, redacted pattern scan. Never render or retain matched secret values.
-function inspectText(s){const patterns=[
-{name:"JWT-shaped string",re:/\beyJ[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\b/g},
-{name:"Discord-token-shaped string",re:/\b[\w-]{24,26}\.[\w-]{6}\.[\w-]{30,40}\b/g},
-{name:"Credential-labelled field",re:/(?:password|passwd|access[_-]?token|refresh[_-]?token|authorization|client[_-]?secret)\s*[:=]\s*[^\s,;"']{4,}/gi}
-];const counts={};for(const p of patterns){p.re.lastIndex=0;let n=0;while(p.re.exec(s)!==null)n++;counts[p.name]=n}return counts}
-document.getElementById("runScan").addEventListener("click",async()=>{const input=document.getElementById("scanText").value;const files=[...document.getElementById("scanFiles").files];let totals={"JWT-shaped string":0,"Discord-token-shaped string":0,"Credential-labelled field":0};let scanned=0;let tooLarge=[];const add=(name,c)=>{for(const k of Object.keys(totals))totals[k]+=c[k]||0;scanned++};if(input.trim())add("pasted text",inspectText(input));for(const file of files){if(file.size>2*1024*1024){tooLarge.push(file.name);continue}try{const content=await file.text();add(file.name,inspectText(content))}catch(e){tooLarge.push(file.name)}}const total=Object.values(totals).reduce((a,b)=>a+b,0);const lines=["Files/text scanned: "+scanned,"Potential pattern matches: "+total,...Object.entries(totals).map(([k,v])=>k+": "+v),...(tooLarge.length?["Skipped (over 2 MB or unreadable): "+tooLarge.join(", ")]:[]),"","No matched credential values were displayed, saved, or transmitted.","A pattern match does not prove that a token or login is valid."];document.getElementById("scanResult").textContent=lines.join("\n")});
-document.getElementById("clearScan").addEventListener("click",()=>{document.getElementById("scanText").value="";document.getElementById("scanFiles").value="";document.getElementById("scanResult").textContent="Cleared. No scan has been run."});
+// Discord scanner: local inspection of explicitly selected files only.
+(()=>{
+ const fileInput=document.getElementById("scanFiles");
+ const runButton=document.getElementById("runScan");
+ const stopButton=document.getElementById("stopScan");
+ const downloadButton=document.getElementById("downloadScanReport");
+ const buildButton=document.getElementById("buildScan");
+ const clearButton=document.getElementById("clearScan");
+ const status=document.getElementById("scanStatus");
+ const result=document.getElementById("scanResult");
+ let stopRequested=false, running=false, reportText="";
+ const safeFileName=name=>String(name||"selected-file").replace(/[\r\n\t]/g," ").slice(0,180);
+ const patterns=[
+  {name:"Discord token-shaped string",re:/(?:\bmfa\.[A-Za-z0-9_-]{20,}\b|\b[A-Za-z0-9_-]{24,26}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{30,40}\b)/i},
+  {name:"Discord webhook URL",re:/https?:\/\/(?:discord(?:app)?\.com)\/api\/webhooks\/\d+\/[A-Za-z0-9._-]+/i}
+ ];
+ function render(findings){
+  result.replaceChildren();
+  if(!findings.length){result.textContent="No supported Discord token-shaped strings or webhook URLs were found in the selected files.";return;}
+  const list=document.createElement("ol");
+  findings.forEach(item=>{const li=document.createElement("li");li.textContent=item.type+" — "+item.file+":"+item.line+" — matched value [REDACTED]";list.appendChild(li);});
+  result.appendChild(list);
+ }
+ function createReport(findings,scanned){
+  const lines=["Discord Security Scanner report","Generated: "+new Date().toISOString(),"Files scanned: "+scanned,"Possible exposures: "+findings.length,"","Only file names, line numbers, and redacted indicators are included.","Matched secret values are never included.",""];
+  if(!findings.length)lines.push("No supported Discord token-shaped strings or webhook URLs were found.");
+  findings.forEach((item,index)=>lines.push((index+1)+". "+item.type+" | "+item.file+":"+item.line+" | [REDACTED]"));
+  return lines.join("\n");
+ }
+ runButton.addEventListener("click",async()=>{
+  if(running)return;
+  const files=Array.from(fileInput.files||[]);
+  if(!files.length){status.textContent="Choose one or more files first.";return;}
+  if(files.length>20){status.textContent="Select no more than 20 files per scan.";return;}
+  const large=files.find(file=>file.size>2*1024*1024);
+  if(large){status.textContent="File exceeds the 2 MB limit: "+safeFileName(large.name);return;}
+  running=true;stopRequested=false;reportText="";downloadButton.disabled=true;runButton.disabled=true;
+  status.textContent="Scanning selected files locally…";
+  const findings=[];let scanned=0;
+  try{
+   for(const file of files){
+    if(stopRequested||window.recoveryStopRequested)break;
+    const content=await file.text();scanned++;
+    const lines=content.split(/\r?\n/);
+    for(let index=0;index<lines.length;index++){
+     if(stopRequested||window.recoveryStopRequested)break;
+     for(const pattern of patterns){
+      if(pattern.re.test(lines[index])){
+       findings.push({type:pattern.name,file:safeFileName(file.name),line:index+1});
+       if(findings.length>=500)break;
+      }
+     }
+     if(findings.length>=500)break;
+     if(index>0&&index%200===0)await new Promise(resolve=>setTimeout(resolve,0));
+    }
+    status.textContent="Scanned "+scanned+" of "+files.length+" selected file(s)…";
+    await new Promise(resolve=>setTimeout(resolve,0));
+    if(findings.length>=500)break;
+   }
+   render(findings);reportText=createReport(findings,scanned);downloadButton.disabled=false;
+   status.textContent=(stopRequested||window.recoveryStopRequested?"Stopped. ":"Completed. ")+scanned+" file(s) scanned; "+findings.length+" possible exposure(s). Secret values were not included."+(findings.length>=500?" Finding limit reached.":"");
+  }catch(error){status.textContent="Scan failed: "+(error&&error.message?error.message:"unknown error");}
+  finally{running=false;runButton.disabled=false;}
+ });
+ stopButton.addEventListener("click",()=>{
+  stopRequested=true;
+  status.textContent=running?"Stop requested. The scan will stop at its next check.":"No scan is currently running.";
+ });
+ downloadButton.addEventListener("click",()=>{
+  if(!reportText)return;
+  const blob=new Blob([reportText],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="discord-security-scan-report.txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ });
+ buildButton.addEventListener("click",()=>{
+  const tokenCheck=patterns[0].re.test("aaaaaaaaaaaaaaaaaaaaaaaa.bbbbbb.cccccccccccccccccccccccccccccccc");
+  const webhookCheck=patterns[1].re.test("https://discord.com/api/webhooks/123456/fake_secret");
+  const fileCheck=typeof File!=="undefined"&&typeof File.prototype.text==="function";
+  const exportCheck=typeof Blob!=="undefined"&&typeof URL.createObjectURL==="function";
+  status.textContent=tokenCheck&&webhookCheck&&fileCheck&&exportCheck?"Build / self-test passed. File reading, Discord pattern checks, and report export are available. No user files were read.":"Build / self-test failed. This browser may not support all scanner features.";
+ });
+ clearButton.addEventListener("click",()=>{
+  stopRequested=true;fileInput.value="";reportText="";downloadButton.disabled=true;
+  result.textContent="Cleared. No scan results remain in this page.";
+  status.textContent="Ready. Select files to begin a new scan.";
+ });
+})();
 
 function inspectFortniteText(s,sourceName){
   const rules=[
