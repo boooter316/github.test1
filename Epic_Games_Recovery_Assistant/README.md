@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — C++17 Edition
 
-**Version 3.0.** A Windows C++17 local recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 3.1.** A Windows C++17 local recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Build and run (Windows)
 
@@ -9,17 +9,19 @@
 3. Run `setup.bat` to compile `recovery_assistant.cpp`.
 4. Run `run.bat` to launch the program.
 
-The PDF generator is built into the C++ source; no Python or external PDF package is needed.
+The PDF generator is built into the C++ source; no Python, external PDF package, or separate PDF installer is needed. `setup.bat` builds the C++ program; it does not install a PDF reader.
 
 ## Features
 
 - Organizes Epic Account ID, current/previous display names and emails, account dates, creator code, invoice/order ID, purchase name, optional billing address, payment provider, and card last four digits only.
 - Records 2FA method (Epic Authenticator, third-party authenticator app, email, SMS/phone) and whether it is accessible.
 - Optional historical IP and VPN/proxy-use notes for truthful context only.
-- Support-request and restriction-appeal details for Epic, Xbox, PlayStation, Steam, Nintendo, and other services.
+- Platform-specific recovery/restriction appeal notes and official support links for Epic, Xbox, PlayStation, Steam, and Nintendo.
+- Linked-service review fields for Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
+- Planning fields for Epic display-name/email changes; actual changes require official sign-in and verification.
 - Linked-service review list includes Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
 - Exports a local PDF, JSON file, text details, and support-request draft.
-- Opens official Epic recovery, support, linked-account, and 2FA/security pages.
+- Opens official Epic recovery, support, sign-in, account settings, display-name/email help, linked-account, and 2FA/security pages, plus official Xbox, PlayStation, Steam, and Nintendo support pages.
 
 ## Security and limitations
 
