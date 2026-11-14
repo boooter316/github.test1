@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 3.4 - C++17
+// Epic Games Recovery Assistant 3.5 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <cstdlib>
@@ -61,7 +61,7 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.4 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.5 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -90,6 +90,8 @@ int main(){
  add("Can you access your email inbox now? (yes/no/unsure)");
  add("Can you access your SMS phone number now? (yes/no/unsure)");
  add("Can you access your authenticator app now? (yes/no/unsure)");
+ add("2FA help requested: set up / switch method / lost email / lost phone / lost authenticator / other (planning only)");
+ add("2FA recovery notes: describe which registered methods you can still access; never enter codes or backup codes");
  add("Phone number associated with SMS 2FA (optional; never enter SMS codes)");
  add("Linked services to review (Xbox, PlayStation, Nintendo, Steam, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other Epic-connected apps/services)");
  add("Linked-service actions requested (review only; actual unlinking must be done by the platform owner)");
@@ -116,7 +118,9 @@ int main(){
  add("Steam restriction notice, reason, date, and case/reference number (if applicable)");
  add("Nintendo restriction notice, reason, date, and case/reference number (if applicable)");
  add("Appeal history and any response received from the relevant platform");
- add("Exact error message and date"); add("Prior support ticket/reference number");
+ add("Exact recovery/sign-in error message and date (for example, canceled, disabled, or verification failed; do not assume the account is disabled)");
+ add("What happened immediately before the error? (brief factual description)");
+ add("Number of recent recovery attempts (approximate); stop repeated attempts if the official page asks you to wait"); add("Prior support ticket/reference number");
  add("Other truthful, non-secret ownership evidence");
  add("Reminder: Epic's form may request account ID/invoice ID, historic emails/display names, original country, linked-account identifiers/link dates, phone 2FA status, and payment history. Supply details only in Epic's official form.");
  add("IP address is optional historical context only; do not use it as an ownership test or attempt to imitate another network.");
@@ -128,7 +132,7 @@ int main(){
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
  std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.4 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.5 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional context, not proof of ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, 2FA codes, or backup codes.",
@@ -143,7 +147,7 @@ int main(){
  if(!pdf(dir/"recovery_request.pdf",lines))std::cerr<<"PDF export failed; other exports attempted.\n";
  std::cout<<"\nSaved packet to: "<<dir.string()<<"\nIncludes PDF, JSON, text details, and support-request draft.\n"
  <<"No account action was taken. If evidence is missing, pause and ask official support about alternatives.\n\n"
- <<"1 Open Epic account recovery request form\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n5 Epic sign-in\n6 Epic display-name help\n7 Epic email-change help\n8 Xbox enforcement/support\n9 PlayStation suspension support\n10 Steam account help\n11 Nintendo support\n12 Epic account settings\n13 Epic lost-2FA help\n14 Epic unlink help\n15 Epic sanctions and appeals\n16 Epic support contact / ticket options\n0 Exit\n";
+ <<"1 Open Epic account recovery request form\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n5 Epic sign-in\n6 Epic display-name help\n7 Epic email-change help\n8 Xbox enforcement/support\n9 PlayStation suspension support\n10 Steam account help\n11 Nintendo support\n12 Epic account settings\n13 Epic lost-2FA help\n14 Epic unlink help\n15 Epic sanctions and appeals\n16 Epic support contact / ticket options\n17 2FA methods and setup guide\n18 Lost access to 2FA help\n19 Epic recovery help\n0 Exit\n";
  std::string choice=ask("Choose an official page");
  if(choice=="1")openLink("https://www.epicgames.com/help/c-45487929/a21414514");
  else if(choice=="2")openLink("https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US");
@@ -161,5 +165,8 @@ int main(){
  else if(choice=="14")openLink("https://www.epicgames.com/help/c-Category_EpicAccounts/c-38854402/a17347934?lang=en-US");
  else if(choice=="15")openLink("https://safety.epicgames.com/en-US/sanctions-and-appeals");
  else if(choice=="16")openLink("https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US");
+ else if(choice=="17")openLink("https://www.epicgames.com/help/c-45487929/c-38978022/a11272697");
+ else if(choice=="18")openLink("https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US");
+ else if(choice=="19")openLink("https://www.epicgames.com/help/c-45487929/a21414514");
  return 0;
 }
