@@ -82,14 +82,16 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <section class="panel hidden" id="fortniteTab">
 <h2>Pro Multi-Platform Security Scanner</h2>
 <section class="panel" id="networkPrivacyPanel">
-<h2>Optional VPN &amp; Proxy Connection (Windows 11)</h2>
-<p class="hint">This is an optional network-privacy helper for your own Windows 11 computer. Connect any Windows-compatible VPN using its official app; when it creates a system VPN route, the browser and scanner traffic follow Windows routing automatically. The helper below can also manage a Windows built-in VPN profile and an optional Windows user-level HTTP/HTTPS proxy.</p>
-<div class="notice"><strong>Compatibility note:</strong> No app can control every third-party VPN client. Use each provider's official app to connect or disconnect third-party VPNs. The helper does not install VPN software, create anonymous accounts, rotate proxies, or bypass platform security. Proxy endpoints must be ones you own or are authorized to use.</div>
+<h2>Optional VPN &amp; Proxy Controls (Windows 11)</h2>
+<p class="hint">Choose your installed VPN provider and manage Windows proxy settings independently. Third-party VPNs must be connected in their official applications. Windows-compatible built-in VPN profiles can be connected by the downloadable helper.</p>
+<div class="notice"><strong>Routing and privacy:</strong> These controls configure Windows networking for compatible applications. VPN-only, proxy-only, both, and neither are selectable as your intended setup, but Windows/provider routing determines the actual path. Some apps ignore the Windows proxy. This scanner has no remote scan-upload feature: selected files and detected secrets stay local and are never sent through either route.</div>
 <div class="grid">
-<div><label>VPN control</label><p class="hint">Open Windows 11 VPN settings to use any compatible VPN app or configured Windows VPN profile.</p><button type="button" class="secondary" id="openWindowsVpn">Open Windows VPN settings</button></div>
-<div><label>Proxy control</label><p class="hint">The downloadable helper can enable or restore a user-level HTTP/HTTPS proxy. SOCKS5 support depends on the specific browser/app; configure SOCKS5 in that app if supported.</p><button type="button" class="secondary" id="downloadNetworkHelper">Download Windows network helper (.ps1)</button></div>
+<div><label for="vpnProviderChoice">VPN provider</label><select id="vpnProviderChoice"><option value="provider-app">Use my installed provider's official app</option><option value="windows-profile">Windows built-in VPN profile</option><option value="other">Other Windows-compatible VPN</option></select><p class="hint">Provider selection is a reminder/launcher choice, not universal control of third-party VPN software.</p><button type="button" class="secondary" id="openWindowsVpn">Open Windows VPN settings</button></div>
+<div><label for="vpnMode">Preferred network route</label><select id="vpnMode"><option value="neither">Neither VPN nor proxy</option><option value="vpn">VPN only</option><option value="proxy">Proxy only</option><option value="both">VPN and proxy</option></select><p class="hint">This records your preference. It cannot force apps or providers that do not support the selected route.</p><div class="actions"><button type="button" id="vpnOn">VPN On / Connect</button><button type="button" class="secondary" id="vpnOff">VPN Off / Disconnect</button></div><p id="vpnStatus" class="hint" role="status">VPN status: not checked. Use your provider app or Windows VPN settings.</p></div>
+<div><label for="proxyScheme">Proxy type</label><select id="proxyScheme"><option value="http">HTTP</option><option value="https">HTTPS</option></select><label for="proxyHost">Proxy host</label><input id="proxyHost" placeholder="proxy.example.com"><label for="proxyPort">Proxy port</label><input id="proxyPort" type="number" min="1" max="65535" placeholder="8080"><div class="actions"><button type="button" id="proxyOn">Proxy On</button><button type="button" class="secondary" id="proxyOff">Proxy Off / Restore</button></div><p id="proxyStatus" class="hint" role="status">Proxy status: not configured by this page.</p></div>
 </div>
-<p class="hint">VPN and proxy are independent. Turn either off in its provider app or restore your previous proxy settings with the helper. The scanner continues local file analysis when both are off. Scanned files and detected secrets are never routed to a proxy by this scanner.</p>
+<div class="actions"><button type="button" class="secondary" id="downloadNetworkHelper">Download Windows network helper (.ps1)</button></div>
+<p class="hint">The helper backs up and restores the current user's prior proxy settings. It supports HTTP/HTTPS Windows proxy configuration, not SOCKS5 management. No paid VPS or DigitalOcean is required. The scanner's local file analysis is unaffected when networking is off.</p>
 </section>
 <div class="notice" role="note" aria-label="Legal and authorized-use notice"><strong>Legal and authorized-use notice:</strong> Use this scanner only on files and accounts you own or are expressly authorized to assess, and comply with applicable laws, platform terms, and workplace policies. The scanner performs local pattern matching on selected files; it does not grab accounts, establish ownership, validate credentials, or determine whether an account is compromised. Do not use findings to access another person's account, impersonate anyone, bypass security controls, or disclose private information. You are responsible for reviewing files before sharing reports and for promptly revoking or rotating exposed credentials. This independent tool is provided “as is,” without warranty; it is not legal advice and does not guarantee account recovery or security.</div>
 <p>Review account logs, text/configuration files, and text-based PDFs that you choose on this device. The scan runs locally in this browser tab. Supported labels include Epic Games, Xbox, PlayStation, Nintendo, Steam, Google, Twitch, YouTube, TikTok, Instagram, WeGo, and Roblox.</p>
@@ -190,6 +192,24 @@ document.getElementById("downloadNetworkHelper").addEventListener("click",()=>{
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");a.href=url;a.download="windows-network-helper.ps1";
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+function setNetworkStatus(id,message){document.getElementById(id).textContent=message}
+document.getElementById("vpnOn").addEventListener("click",()=>{
+ const choice=document.getElementById("vpnProviderChoice").value;
+ setNetworkStatus("vpnStatus",choice==="windows-profile"?"Open the helper and connect your configured Windows VPN profile.": "Open your selected VPN provider's official app and connect. This page cannot verify third-party provider status.");
+ if(choice!=="provider-app") window.location.href="ms-settings:network-vpn";
+});
+document.getElementById("vpnOff").addEventListener("click",()=>{
+ setNetworkStatus("vpnStatus","Use your VPN provider's official app to disconnect, or the helper to disconnect a Windows built-in VPN profile.");
+});
+document.getElementById("proxyOn").addEventListener("click",()=>{
+ const host=document.getElementById("proxyHost").value.trim();
+ const port=Number(document.getElementById("proxyPort").value);
+ if(!host||!Number.isInteger(port)||port<1||port>65535){setNetworkStatus("proxyStatus","Enter a valid proxy host and port (1–65535). No settings changed.");return}
+ setNetworkStatus("proxyStatus","Proxy details validated for download. Run the Windows helper and choose Enable authorized HTTP/HTTPS proxy; this page does not silently change Windows settings.");
+});
+document.getElementById("proxyOff").addEventListener("click",()=>{
+ setNetworkStatus("proxyStatus","Run the Windows helper and choose Restore previous proxy settings / turn proxy off.");
 });
 document.getElementById("openWindowsVpn").addEventListener("click",()=>{
   document.getElementById("fortniteResult").textContent="Use Windows Settings > Network & internet > VPN, or open your VPN provider's official Windows app. Windows routes compatible system traffic through an active VPN according to its configuration.";
