@@ -9,7 +9,7 @@ if errorlevel 1 (
   exit /b 1
 )
 echo Building C++17 application...
-g++ -std=c++17 -O2 -Wall -Wextra recovery_assistant.cpp -o recovery_assistant.exe
+g++ -std=c++17 -O2 -Wall -Wextra recovery_assistant.cpp -o recovery_assistant.exe -lshell32
 if errorlevel 1 (
   echo Build failed. Check the compiler and source.
   pause
