@@ -126,7 +126,7 @@ jobs:
       - name: Start container and verify served assets
         shell: bash
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           docker run -d --name recovery-assistant-web-test -p 18080:8080 recovery-assistant-web:test
           cleanup() { docker logs recovery-assistant-web-test || true; docker rm -f recovery-assistant-web-test >/dev/null 2>&1 || true; }
           trap cleanup EXIT
@@ -134,13 +134,17 @@ jobs:
             if curl --fail --silent http://127.0.0.1:18080/healthz >/dev/null; then break; fi
             sleep 1
           done
-          test "$(curl --fail --silent http://127.0.0.1:18080/healthz)" = "ok"
-          curl --fail --silent http://127.0.0.1:18080/ | grep -q 'network_security.js'
-          curl --fail --silent http://127.0.0.1:18080/ | grep -q 'IP &amp; Network Tools'
-          curl --fail --silent http://127.0.0.1:18080/network-tools.html | grep -q 'Local IP & Network Tools'
-          curl --fail --silent http://127.0.0.1:18080/network_tools.ps1 | grep -q 'Test-PrivateIPv4'
-          curl --fail --silent http://127.0.0.1:18080/SETUP_AND_USAGE.txt | grep -q 'SETUP AND USAGE'
-          curl --fail --silent -D headers.txt -o index.html http://127.0.0.1:18080/
+          curl --fail --silent http://127.0.0.1:18080/healthz | grep -Fxq ok
+          curl --fail --silent http://127.0.0.1:18080/ -o root.html
+          grep -Fq 'network_security.js' root.html
+          grep -Fq 'IP &amp; Network Tools' root.html
+          curl --fail --silent http://127.0.0.1:18080/network-tools.html -o network-tools.html
+          grep -Fq 'Local IP & Network Tools' network-tools.html
+          curl --fail --silent http://127.0.0.1:18080/network_tools.ps1 -o network_tools.ps1
+          grep -Fq 'Test-PrivateIPv4' network_tools.ps1
+          curl --fail --silent http://127.0.0.1:18080/SETUP_AND_USAGE.txt -o SETUP_AND_USAGE.txt
+          grep -Fq 'SETUP AND USAGE' SETUP_AND_USAGE.txt
+          curl --fail --silent -D headers.txt -o /dev/null http://127.0.0.1:18080/
           grep -qi 'Content-Security-Policy:.*https://cdnjs.cloudflare.com' headers.txt
           grep -qi 'worker-src.*blob:' headers.txt
           echo "Container health, existing assets, network tools page/helper, setup guide, and CSP checks passed."
