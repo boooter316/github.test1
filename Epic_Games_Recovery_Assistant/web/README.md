@@ -14,7 +14,7 @@ Until SellHub confirms its supported integration and hosting capabilities, treat
 
 The GitHub Actions Linux build confirms only that the C++ server compiles. It does not create a public website or deploy a running service.
 
-The container expects HTTP port `8080` (or the `PORT` environment variable). Put it behind a provider-managed HTTPS ingress or a correctly configured reverse proxy with TLS. Do not expose the plain-HTTP container directly to the public internet.
+The container expects HTTP port `8080` (or the `PORT` environment variable). It serves both `index.html` and the local `network_security.js` analyzer asset, plus `/healthz`. Its Content Security Policy allows the pinned PDF.js CDN script and its worker while keeping network connections disabled for the browser app. Put it behind a provider-managed HTTPS ingress or a correctly configured reverse proxy with TLS. Do not expose the plain-HTTP container directly to the public internet.
 
 ## Updated recovery and appeal form
 

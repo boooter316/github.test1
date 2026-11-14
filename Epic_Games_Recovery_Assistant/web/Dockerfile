@@ -7,6 +7,7 @@ FROM debian:bookworm-slim
 WORKDIR /app
 COPY --from=build /src/recovery-web /app/recovery-web
 COPY index.html /app/index.html
+COPY network_security.js /app/network_security.js
 ENV PORT=8080
 EXPOSE 8080
 USER 10001:10001
