@@ -171,8 +171,23 @@ document.getElementById("runFortniteScan").addEventListener("click",async()=>{
     catch(e){skipped.push(file.name+" (unreadable)")}
   }
   const out=[];
-  out.push("Files selected: "+files.length+" | Findings: "+findings.length);
-  out.push("Findings are numbered in scan order. Secret values are redacted; account identifiers are masked.");
+  const counts=new Map();
+  const maskedAccounts=new Set();
+  findings.forEach(item=>{
+    counts.set(item.type,(counts.get(item.type)||0)+1);
+    if(item.type==="Email/account contact"||item.type==="Account ID field"||item.type==="Display name field"){
+      maskedAccounts.add(item.preview);
+    }
+  });
+  out.push("Files selected: "+files.length+" | Total findings: "+findings.length);
+  out.push("Finding summary:");
+  if(counts.size){
+    for(const [type,count] of counts.entries())out.push("• "+type+": "+count);
+  }else{
+    out.push("• No matching patterns");
+  }
+  out.push("Distinct masked account details: "+maskedAccounts.size);
+  out.push("Findings are numbered in scan order. Passwords and tokens are redacted; emails and account identifiers are masked.");
   out.push("");
   if(findings.length){
     findings.forEach((item,index)=>{
