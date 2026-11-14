@@ -97,3 +97,17 @@ The scanner accepts selected text/log/configuration files and text-based PDF fil
 **Credential safety:** Passwords, passphrases, tokens, cookies, session identifiers, and similar secret values are redacted. The scanner does not grab accounts or credentials, access browser password stores, validate logins, sign in, inspect platform databases, or bypass security controls. Account IDs, email addresses, and usernames are non-secret identifiers but may still be personal information; review reports before sharing them.
 
 Detection is pattern-based and may produce false positives or miss formats not covered by its rules. Confidence labels describe pattern strength, not whether an account or credential is valid. PDF.js requires an internet connection to load; if it is unavailable, PDF files are reported as skipped. This is a local file auditor, not a commercial certification or guarantee of security.
+
+
+## Windows 11 VPN and proxy controls
+
+The Pro Multi-Platform Scanner tab includes optional controls for selecting a VPN setup preference, opening Windows VPN settings, entering an HTTP/HTTPS proxy endpoint, and downloading a PowerShell helper.
+
+- Use the official app for third-party VPN providers. The helper can connect/disconnect a configured Windows built-in VPN profile; it is not a universal controller for every VPN client.
+- The helper backs up the current-user Windows proxy values before enabling a proxy and offers a restore/off action. Use only proxy endpoints you own or are authorized to use.
+- The page's VPN/proxy route selector records the intended mode (VPN only, proxy only, both, or neither); it cannot override provider routing or force applications that ignore Windows proxy settings. The status text distinguishes guidance from verified connection state.
+- Windows proxy settings are HTTP/HTTPS only. SOCKS5 must be configured separately in an application that supports it.
+- No paid VPS or DigitalOcean service is required.
+- File selection, parsing, pattern matching, and reports remain local. The scanner does not upload scanned files or passwords, tokens, cookies, or session secrets through a VPN or proxy.
+
+The browser cannot directly change Windows registry/network settings. Use the downloaded PowerShell helper and your VPN provider's official app to apply or restore settings. Review the script before running it. Windows runtime testing is required on the target PC before relying on it.
