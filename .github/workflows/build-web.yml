@@ -11,6 +11,7 @@ on:
     branches: [main]
     paths:
       - "Epic_Games_Recovery_Assistant/web/**"
+      - "recovery-panel/**"
       - ".github/workflows/build-web.yml"
 jobs:
   build:
