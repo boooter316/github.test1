@@ -1,6 +1,7 @@
-// Epic Games Recovery Assistant 4.2 - C++17
+// Epic Games Recovery Assistant 4.3 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
+#include <ctime>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -53,6 +54,36 @@ bool pdf(const fs::path& path,const std::vector<std::string>& lines){
  for(size_t i=1;i<off.size();++i){std::ostringstream z;z.width(10);z.fill('0');z<<off[i];f<<z.str()<<" 00000 n \n";}
  f<<"trailer\n<< /Size "<<off.size()<<" /Root 1 0 R >>\nstartxref\n"<<x<<"\n%%EOF\n";return(bool)f;
 }
+
+std::string csv(const std::string& s) {
+ std::string out="\"";
+ for(char c:s){ if(c=='\"') out+="\"\""; else if(c=='\r'||c=='\n') out+=' '; else out+=c; }
+ return out+"\"";
+}
+void logHistoricalIPs(const fs::path& dir,const std::string& accountId) {
+ std::cout<<"\nOPTIONAL HISTORICAL IP LOG\n"
+  <<"Enter only IP addresses from your own records. This log does NOT test whether an IP belongs to an Epic account.\n";
+ std::string choice=ask("Add a historical IP record? (y/n)");
+ fs::path logPath=dir/"ip_history_log.csv";
+ bool newFile=!fs::exists(logPath);
+ std::ofstream log(logPath,std::ios::app);
+ if(!log){std::cerr<<"Could not open IP history log.\n";return;}
+ if(newFile) log<<"logged_at_local,epic_account_id,ip_address,ip_used_date,source,verification_status\n";
+ while(choice=="y"||choice=="Y"||choice=="yes"||choice=="YES"){
+  std::string ip=ask("Historical IP address (manual entry only; do not guess)");
+  std::string date=ask("Approximate date/period this IP was used");
+  std::string source=ask("Source of this record (for example, your router records or old email)");
+  std::time_t now=std::time(nullptr); std::tm* local=std::localtime(&now);
+  char stamp[32]="unknown";
+  if(local) std::strftime(stamp,sizeof(stamp),"%Y-%m-%d %H:%M:%S",local);
+  log<<csv(stamp)<<","<<csv(accountId)<<","<<csv(ip)<<","<<csv(date)<<","<<csv(source)
+     <<","<<csv("NOT VERIFIED - Epic must compare with its own records")<<"\n";
+  log.flush();
+  std::cout<<"Saved one user-entered historical record. No network lookup or account match was performed.\n";
+  choice=ask("Add another historical IP record? (y/n)");
+ }
+}
+
 void openLink(const char* url){
 #ifdef _WIN32
  ShellExecuteA(nullptr,"open",url,nullptr,nullptr,SW_SHOWNORMAL);
@@ -61,7 +92,7 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.2 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.3 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -175,14 +206,17 @@ int main(){
  fields.push_back({"Support request summary",request});
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
  std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
+ std::string epicId;
+ for(const auto& f:fields) if(f.label=="Epic Account ID (also called account number, if shown by Epic)") { epicId=f.value; break; }
+ logHistoricalIPs(dir,epicId);
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.2 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.3 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional user-reported context; this app cannot compare it with Epic records or verify account ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, full phone numbers, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.2\n\n";
- j<<"{\n \"version\":\"4.1\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.3\n\n";
+ j<<"{\n \"version\":\"4.3\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
  j<<" ]\n}\n";
