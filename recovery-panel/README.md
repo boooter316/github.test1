@@ -1,0 +1,60 @@
+# Recovery Assistant Web Panel
+
+A separate, self-hosted dashboard. It is an independent organizer and is not affiliated with Epic Games.
+
+## Features
+
+- Server-side administrator sign-in; no public sign-up.
+- Session cookies, login rate limiting, security headers, and scrypt password verification.
+- Mobile-friendly dashboard for iPhone and desktop.
+- Epic Account ID/account-number field, display name, optional account email, case status, support reference, non-secret error text, and notes.
+- Tracks access status for email, phone/SMS, and authenticator-app recovery methods.
+- JSON and readable TXT exports downloadable on a phone or computer.
+- Optional generic Discord notifications for panel sign-in, sign-out, and general dashboard errors. No account data or error contents are sent.
+
+Recovery records are stored in browser local storage on the device and are not uploaded to the server or Discord. Export backups before clearing browser data or changing devices.
+
+## Requirements and setup
+
+Requires Node.js 20+. Generate a scrypt password hash from a strong unique panel password:
+
+    node -e "const c=require('node:crypto');const s=c.randomBytes(16).toString('hex');const h=c.scryptSync('REPLACE_WITH_A_LONG_UNIQUE_PANEL_PASSWORD',s,64).toString('hex');console.log(s+':'+h)"
+
+Set these environment secrets on your host:
+
+- ADMIN_EMAIL — administrator email for this panel.
+- ADMIN_PASSWORD_SCRYPT — generated salt:hash value.
+- SESSION_SECRET — random secret of at least 32 characters. Generate with: node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))"
+- NODE_ENV=production
+- PORT — supplied by many hosts, otherwise defaults to 3000.
+- Optional DISCORD_WEBHOOK_URL — webhook URL for a Discord server you control.
+
+Never commit passwords, password hashes, session secrets, or webhook URLs. Never send Epic account data, IP addresses, email addresses, recovery notes, evidence, or submitted error text to Discord.
+
+## Run locally
+
+    npm install
+    npm start
+
+Open http://localhost:3000 on the same computer. For phone access, the server must be reachable on a trusted network. Do not expose an unencrypted HTTP login to the public internet.
+
+## Production caution
+
+This starter uses Express MemoryStore for sessions. MemoryStore is not suitable for production or multi-instance hosting. Before public deployment, replace it with a maintained persistent session store, configure HTTPS, restrict network access, and review hosting backups and logs. This is not a completed security audit.
+
+## Official Epic links
+
+- https://www.epicgames.com/id/login
+- https://www.epicgames.com/help/en-US/
+
+The panel links to Epic's official pages; it does not imitate them, collect Epic passwords or verification codes, submit recovery requests, access Epic private systems, or bypass ownership checks. Email, SMS, and authenticator options are access-status notes only.
+
+## Troubleshooting
+
+- Missing configuration: set all three required administrator environment variables and restart.
+- Sign-in fails: verify the admin email and exact scrypt salt:hash value.
+- Page will not load: run npm install, confirm Node.js 20+, then npm start and inspect the server terminal.
+- Discord notifications do not arrive: verify the secret is an HTTPS Discord webhook URL for a server you control. Notifications are optional.
+- iPhone export: use Safari and check Files > Downloads. The dashboard creates a file on demand; it does not email or upload records.
+
+Never share panel passwords, webhook URLs, Epic passwords, 2FA codes, backup codes, cookies, or tokens when asking for help.
