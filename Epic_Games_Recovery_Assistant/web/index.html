@@ -190,6 +190,25 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <p class="hint">A match is only a troubleshooting clue, not proof of an account restriction, ban, or compromise. For errors, verify game files in the Epic Games Launcher, install official updates, and use the official Easy Anti-Cheat repair option if applicable.</p>
 </section>
 <h3>Recommended next steps</h3><ol><li>If a credential-like pattern is found, do not post the file publicly.</li><li>Secure your Epic account through Epic's official account-security page, change a potentially exposed password, and enable two-factor authentication.</li><li>Sign out of sessions using the official account controls where available, and rotate any exposed API key or webhook through its provider.</li><li>Download Fortnite only through official Epic channels and avoid third-party “token checker” tools.</li></ol>
+
+<section class="panel" id="networkSecuritySuite">
+<h3>Network Security &amp; Wireshark</h3>
+<p>Review network metadata from your own Windows device and analyze Wireshark captures you are authorized to inspect.</p>
+<div class="risk"><strong>Safe-use boundary:</strong> The Windows helper reports interface addresses, connection endpoints, ports, states, and byte/packet counters only. The PCAP analyzer reports packet metadata, protocol counts, DNS names, and TLS handshake counts; it does not display packet payloads, passwords, cookies, tokens, or login sessions. Capture only networks and devices you own or are authorized to assess.</div>
+<div class="grid">
+<div><h4>Windows connection snapshot</h4><p class="hint">Download and run the helper on Windows 11. It creates a JSON or JSONL snapshot file for import here.</p><p><a href="./network_security_snapshot.ps1" download>Download Windows network snapshot helper (.ps1)</a></p><label for="networkSnapshotFiles">Import helper output (.json / .jsonl)</label><input id="networkSnapshotFiles" type="file" accept=".json,.jsonl" multiple></div>
+<div><h4>Wireshark capture analyzer</h4><p class="hint">Import an authorized Ethernet PCAP or PCAPNG capture. Maximum file size: 50 MB; maximum packets parsed: 250,000.</p><label for="networkCaptureFiles">Choose capture (.pcap / .pcapng)</label><input id="networkCaptureFiles" type="file" accept=".pcap,.pcapng,.cap" multiple></div>
+</div>
+<div class="actions no-print"><button type="button" id="analyzeNetworkSnapshot">Analyze connection snapshot</button><button type="button" id="analyzeNetworkCapture">Analyze Wireshark capture</button></div>
+<hr>
+<h4>Redacted credential-exposure indicator</h4>
+<p class="hint">Optionally inspect a Wireshark text export or log you are authorized to review. The detector reports category counts only; it never displays matched values. It does not inspect packet payloads in PCAP files.</p>
+<label for="networkLeakFiles">Choose text exports/logs (optional)</label><input id="networkLeakFiles" type="file" accept=".txt,.log,.json,.csv,.md,.conf,.ini" multiple>
+<label for="networkLeakText">Or paste text (remove unrelated personal data first)</label><textarea id="networkLeakText" placeholder="Paste an authorized Wireshark text export or log. Suspected secret values will be counted and discarded."></textarea>
+<div class="actions no-print"><button type="button" class="secondary" id="scanNetworkLeak">Check for exposed-secret patterns</button><button type="button" class="secondary" id="clearNetworkSecurity">Clear inputs and results</button><button type="button" class="secondary" id="downloadNetworkReport" disabled>Download TXT report</button><button type="button" class="secondary" id="printNetworkReport" disabled>Print / Save report as PDF</button></div>
+<h4>Network security report</h4><div id="networkSecurityResult" class="scanner-result" role="status" aria-live="polite">No network analysis has been run.</div>
+<p class="hint">Browser pages cannot capture live network packets or read Windows network interfaces directly. Use the helper for local connection snapshots and Wireshark for authorized packet capture. Some endpoints may be omitted by Windows permissions or application behavior. DNS names and IP addresses can reveal sensitive browsing or network activity; keep reports private.</p>
+</section>
 </section>
 <p class="foot">Keep exported files private. The browser form processes entries in your tab and does not submit them to this site.</p><section class="panel hidden" id="accountLinksTab">
 <h2>Official Account &amp; Platform Links</h2>
@@ -719,10 +738,11 @@ createToolSubtabs("fortniteTab","proTools",[
   {label:"VPN & Proxy",members:["networkPrivacyPanel"]},
   {label:"IP Evidence Checker",members:["ipAccountConsistency"]},
   {label:"Ownership Packet",members:["ownershipEvidencePacket"]},
-  {label:"Fortnite Diagnostics",members:["fortniteDiagnostics"]}
+  {label:"Fortnite Diagnostics",members:["fortniteDiagnostics"]},
+  {label:"Network Security & Wireshark",members:["networkSecuritySuite"]}
 ]);
 document.getElementById("recoveryTabButton").textContent="Recovery Assistant";
 document.getElementById("securityTabButton").textContent="Discord Scanner";
 document.getElementById("fortniteTabButton").textContent="Pro Multi-Tool";
 document.getElementById("accountLinksTabButton").textContent="Account Links";
-</script></body></html>
+</script><script src="./network_security.js"></script></body></html>
