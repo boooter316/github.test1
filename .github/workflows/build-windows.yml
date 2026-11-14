@@ -56,10 +56,10 @@ jobs:
             if ($setup.Contains($forbidden)) { throw "Desktop launcher still contains browser/server startup: $forbidden" }
           }
           $source = Get-Content 'Epic_Games_Recovery_Assistant/recovery_assistant.c++' -Raw
-          foreach ($required in @('NATIVE COMMAND DASHBOARD', 'Recovery progress tracker', 'Official Epic account and support links', 'Start / continue an Epic recovery case')) {
+          foreach ($required in @('NATIVE COMMAND DASHBOARD', 'Recovery progress tracker', 'Official Epic account and support links', 'Start / continue an Epic recovery case', 'runLocalSecretHygieneScanner', 'Potential hard-coded secret-like assignment', 'VALUE REDACTED', 'Recovery tracker - Epic Account ID')) {
             if (-not $source.Contains($required)) { throw "Missing native dashboard feature: $required" }
           }
-          Write-Host 'Native command dashboard and desktop-only launcher checks passed.'
+          Write-Host 'Native command dashboard, local secret-hygiene scanner, recovery tracker, and desktop-only launcher checks passed.'
       - name: Build Windows executable through one-click builder
         shell: cmd
         working-directory: Epic_Games_Recovery_Assistant
