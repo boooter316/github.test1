@@ -1,0 +1,138 @@
+EPIC GAMES RECOVERY ASSISTANT - WINDOWS 11 SETUP GUIDE
+==========================================================
+
+IMPORTANT
+---------
+Use the scanners only on your own accounts, devices, home network, or systems
+for which you have explicit permission. This project is an independent tool,
+not an Epic Games product. It cannot verify account ownership or guarantee
+recovery. Never enter passwords, one-time codes, backup codes, cookies,
+tokens, full card numbers, CVV, wallet seed phrases, or private keys.
+
+1. DOWNLOAD THE PROJECT
+-----------------------
+1. Open https://github.com/boooter316/github.test1
+2. Select the main branch.
+3. Choose Code > Download ZIP, or clone the repository with GitHub Desktop.
+4. Extract the ZIP to a folder you control, such as:
+   C:\Users\<your-user>\Documents\Epic_Games_Recovery_Assistant
+5. Open the extracted Epic_Games_Recovery_Assistant folder.
+
+2. BUILD THE WINDOWS C++ APPLICATION
+------------------------------------
+1. Install a current MinGW-w64 GCC toolchain that includes g++.
+2. Add the compiler's bin folder to your Windows PATH.
+3. Open Command Prompt in the project folder.
+4. Run: build.bat
+5. Confirm Epic_Games_Recovery_Assistant.exe appears.
+6. To launch it, run: run.bat
+7. If the build fails, copy the complete compiler output and check that g++
+   works from a new Command Prompt with: g++ --version
+
+The GitHub Actions workflow also builds through build.bat. A passing cloud build
+does not replace testing on your Windows PC.
+
+3. RUN THE BROWSER COMPANION
+----------------------------
+For the web companion, open a terminal in Epic_Games_Recovery_Assistant\web.
+If Docker is installed, run:
+   docker build -t recovery-assistant-web .
+   docker run --rm -p 8080:8080 recovery-assistant-web
+Then open http://localhost:8080.
+The static page keeps form and scan data in the browser tab. Do not host it
+publicly without HTTPS and a security review.
+
+4. USE THE IP / ACCOUNT EVIDENCE CHECKER
+----------------------------------------
+1. Open Pro Multi-Tool > IP Evidence Checker.
+2. Enter an IP, account ID, username, and/or email copied from records you
+   are authorized to review.
+3. Optional location context fields are State/Province, Region/County,
+   ZIP/Postal Code, and Street Address. These are user-entered notes only.
+4. Select relevant text/log/CSV/JSON evidence files or paste non-secret text.
+5. Choose Review evidence consistency.
+6. Export the TXT report or use Print / Save as PDF.
+An IP address or location does not identify a person and is not proof of
+ownership. No geolocation service, public lookup, or account login is used.
+
+5. RUN A BOUNDED TCP PORT CHECK
+-------------------------------
+1. Use only one private IP address for a device you own or administer.
+2. Open PowerShell in the project root folder.
+3. Example command:
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\network_tools.ps1 -ScanPorts -Target 192.168.1.10 -Ports 22,80,443
+4. Replace 192.168.1.10 with your authorized private device address.
+5. The tool allows 1-32 TCP ports and rejects public IPs, hostnames, CIDR
+   ranges, and bulk scans. It does not exploit, authenticate, or transfer data.
+6. Import the resulting JSON in Wireshark & Ports > Import helper status report.
+
+A result of open means a TCP connection was accepted at that moment. A
+closed-or-filtered or timeout-or-filtered result is not a vulnerability verdict.
+
+6. CHECK VPN AND PROXY STATUS
+-----------------------------
+Run:
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\network_tools.ps1 -ScanStatus
+The JSON report summarizes Windows VPN profiles/adapters and current-user
+proxy configuration. It does not reveal proxy passwords, inspect traffic, or
+change network settings. Import the JSON in Wireshark & Ports.
+
+Third-party VPN status may require opening the provider's official app.
+The browser page cannot prove a third-party VPN tunnel is active. SOCKS5
+settings must be managed in the application that uses them.
+
+7. OPTIONAL DAILY VPN / PROXY STATUS SNAPSHOT
+----------------------------------------------
+Install a daily local configuration snapshot:
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\network_tools.ps1 -InstallDailyStatusCheck
+It creates a Windows Task Scheduler task for 9:15 AM while your Windows user
+is signed in. It writes a local JSON snapshot under:
+   %LOCALAPPDATA%\EpicRecoveryAssistant\NetworkChecks
+It only reads local configuration; it does not turn a VPN or proxy on/off.
+Remove the task with:
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\network_tools.ps1 -RemoveDailyStatusCheck
+
+8. OPTIONAL DAILY PROJECT UPDATE
+--------------------------------
+Install GitHub CLI from https://cli.github.com/
+Then open a terminal and run:
+   gh auth login
+From the project folder run:
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\install_auto_update.ps1
+This installs the existing daily checksum-verified project update task. The
+task requires this PC to be on, the Windows user to be signed in, and GitHub
+CLI authentication to remain valid. It backs up the project before copying
+the verified package. To remove it:
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\install_auto_update.ps1 -Remove
+
+9. WIRESHARK
+------------
+Install Wireshark only from https://www.wireshark.org/download.html
+Capture only your own traffic or traffic you are explicitly authorized to
+inspect. The browser analyzer reads supported PCAP/PCAPNG metadata; it does
+not decrypt traffic or display payloads, passwords, cookies, or tokens.
+
+10. TROUBLESHOOTING
+-------------------
+- "g++ not found": install MinGW-w64 and add its bin folder to PATH.
+- Build fails: run build.bat from the project root and save the full output.
+- Docker command missing: install Docker Desktop or use the native build.
+- PowerShell blocks a script: review the script first; run it for the current
+  process only with -ExecutionPolicy Bypass as shown above. Do not weaken the
+  machine-wide execution policy.
+- Task does not run: confirm the PC is on, the user is signed in, and check
+  Task Scheduler > Task Scheduler Library for the task name.
+- Port check rejects a target: it accepts only a single private, loopback,
+  link-local, or IPv6 unique-local IP literal; public targets and ranges are
+  intentionally disabled.
+- Network status is incomplete: run PowerShell as the normal user first;
+  some Windows VPN profile details may require the profile owner or admin.
+
+11. PRIVACY AND LIMITATIONS
+---------------------------
+All browser evidence checks run locally in the browser tab. The helper scripts
+read local Windows network configuration and write local JSON reports.
+They do not upload scan files or secrets, collect packet payloads, intercept
+credentials, validate account logins, or bypass platform security.
+The project is provided as-is. Test it on your Windows 11 PC before relying on
+it, and review exported reports before sharing them.
