@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 4.4 - C++17
+// Epic Games Recovery Assistant 4.5 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <ctime>
@@ -279,7 +279,7 @@ int main(){
  "Never provide passwords, account PINs, full card numbers, CVV, full phone numbers, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
  txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.5\n\n";
- j<<"{\n \"version\":\"4.4\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
+ j<<"{\n \"version\":\"4.5\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
  j<<" ]\n}\n";
