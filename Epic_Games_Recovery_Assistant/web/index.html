@@ -101,6 +101,16 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div class="actions no-print"><button type="button" id="runFortniteScan">Scan selected files</button><button type="button" class="secondary" id="clearFortniteScan">Clear</button><button type="button" class="secondary" id="downloadFortniteReport" disabled>Download findings .txt</button><button type="button" class="secondary" id="printFortniteReport" disabled>Print / Save report as PDF</button></div>
 <h3>Scan result</h3><div id="fortniteResult" class="scanner-result" role="status" aria-live="polite">No scan has been run.</div>
 <p class="hint">Checks every match for platform-specific account IDs, emails, usernames, account-log references, credential-labelled fields, token/JWT-shaped strings, and common SQL, XSS/HTML, command, path-traversal, template, and LDAP injection indicators. PDF files are text-extracted locally; image-only/scanned PDFs need OCR and may yield no findings. Each match is numbered with its source and line. Injection matches are heuristic only. Findings are numbered and show the source file and line. Passwords and tokens are redacted; non-secret account details (emails, account IDs, and display names) are shown in full. A match is not proof of compromise.</p>
+<section class="panel" id="fortniteDiagnostics">
+<h3>Fortnite / Epic diagnostic log checks</h3>
+<p>Run a separate local-only check for common crash, launch, network, Easy Anti-Cheat, Epic Online Services, update, and graphics indicators. This reports counts only and does not display log excerpts.</p>
+<div class="risk"><strong>Privacy:</strong> Selected diagnostic logs are processed in this browser. No log excerpts, credentials, tokens, or cookies are displayed, saved, or transmitted by this diagnostic check.</div>
+<p><label for="diagnosticFiles">Choose Fortnite / Epic diagnostic log files</label><input id="diagnosticFiles" type="file" accept=".txt,.log,.json,.md,.ini,.cfg,.conf,.yaml,.yml" multiple></p>
+<p><label for="diagnosticText">Or paste diagnostic log text (optional)</label><textarea id="diagnosticText" placeholder="Paste a Fortnite or Epic Launcher diagnostic excerpt. Remove personal details first."></textarea></p>
+<div class="actions no-print"><button type="button" id="runDiagnosticScan">Scan diagnostic logs locally</button><button type="button" class="secondary" id="clearDiagnosticScan">Clear diagnostics</button></div>
+<h3>Diagnostic result</h3><div id="diagnosticResult" class="scanner-result" role="status" aria-live="polite">No diagnostic scan has been run.</div>
+<p class="hint">A match is only a troubleshooting clue, not proof of an account restriction, ban, or compromise. For errors, verify game files in the Epic Games Launcher, install official updates, and use the official Easy Anti-Cheat repair option if applicable.</p>
+</section>
 <h3>Recommended next steps</h3><ol><li>If a credential-like pattern is found, do not post the file publicly.</li><li>Secure your Epic account through Epic's official account-security page, change a potentially exposed password, and enable two-factor authentication.</li><li>Sign out of sessions using the official account controls where available, and rotate any exposed API key or webhook through its provider.</li><li>Download Fortnite only through official Epic channels and avoid third-party “token checker” tools.</li></ol>
 </section>
 <p class="foot">Keep exported files private. The browser form processes entries in your tab and does not submit them to this site.</p></main>
@@ -247,6 +257,45 @@ document.getElementById("runFortniteScan").addEventListener("click",async()=>{
 });
 document.getElementById("clearFortniteScan").addEventListener("click",()=>{document.getElementById("fortniteText").value="";document.getElementById("fortniteFiles").value="";document.getElementById("fortniteResult").textContent="Cleared. No scan has been run.";document.getElementById("downloadFortniteReport").disabled=true;document.getElementById("printFortniteReport").disabled=true});
 
+const diagnosticChecks=[
+  ["Crash or fatal error",/\b(?:fatal error|crash(?:ed)?|unhandled exception|assertion failed)\b/gi],
+  ["Launch or installation issue",/\b(?:failed to launch|launch failed|installation failed|missing files|verify files|manifest error)\b/gi],
+  ["Network or connection issue",/\b(?:connection timed out|timeout|network error|unable to connect|connection lost|dns lookup failed|socket error)\b/gi],
+  ["Easy Anti-Cheat indicator",/\b(?:easy anti[- ]cheat|easyanticheat|eac)\b/gi],
+  ["Epic Online Services indicator",/\b(?:epic online services|eos[_ -]?(?:auth|connect|sdk)|eos error)\b/gi],
+  ["Update or version mismatch",/\b(?:version mismatch|outdated version|update required|patch failed|download error)\b/gi],
+  ["Graphics or device issue",/\b(?:device removed|gpu crash|directx error|out of video memory|d3d device)\b/gi]
+];
+function countDiagnosticIndicators(value){
+  const result={};
+  for(const [name,re] of diagnosticChecks){re.lastIndex=0;let count=0;while(re.exec(value)!==null)count++;result[name]=count}
+  return result;
+}
+document.getElementById("runDiagnosticScan").addEventListener("click",async()=>{
+  const pasted=document.getElementById("diagnosticText").value;
+  const files=[...document.getElementById("diagnosticFiles").files];
+  const totals=Object.fromEntries(diagnosticChecks.map(([name])=>[name,0]));
+  let scanned=0;const skipped=[];
+  const add=counts=>{for(const name of Object.keys(totals))totals[name]+=counts[name]||0;scanned++};
+  if(pasted.trim())add(countDiagnosticIndicators(pasted));
+  for(const file of files){
+    if(file.size>5*1024*1024){skipped.push(file.name+" (over 5 MB)");continue}
+    try{add(countDiagnosticIndicators(await file.text()))}
+    catch(error){skipped.push(file.name+" (unreadable)")}
+  }
+  const total=Object.values(totals).reduce((sum,value)=>sum+value,0);
+  const lines=["Files/text scanned: "+scanned,"Diagnostic indicator matches: "+total,
+    ...Object.entries(totals).map(([name,count])=>name+": "+count),
+    ...(skipped.length?["Skipped: "+skipped.join(", ")]:[]),"",
+    "Only counts were produced; no log excerpts or credential values were displayed, saved, or transmitted.",
+    "These indicators are troubleshooting clues, not an account-status or enforcement check."];
+  document.getElementById("diagnosticResult").textContent=lines.join("\n");
+});
+document.getElementById("clearDiagnosticScan").addEventListener("click",()=>{
+  document.getElementById("diagnosticText").value="";
+  document.getElementById("diagnosticFiles").value="";
+  document.getElementById("diagnosticResult").textContent="Cleared. No diagnostic scan has been run.";
+});
 function getFortniteReportText(){
   return "Pro Multi-Platform Local Security Scan Report\\nGenerated: "+new Date().toISOString()+"\\n\\n"+document.getElementById("fortniteResult").textContent+"\\n";
 }
