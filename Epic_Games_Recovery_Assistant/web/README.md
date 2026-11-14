@@ -74,3 +74,12 @@ Open http://localhost:8080 for local testing.
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic server.cpp -o recovery-web
 PORT=8080 ./recovery-web
 ```
+
+
+## Legal disclaimer and authorized-use notice
+
+This project is provided for educational, informational, and defensive security-auditing purposes. Use it only on files, devices, accounts, and systems that you own or are expressly authorized to assess. You are responsible for complying with applicable laws, platform terms, workplace rules, and data-protection requirements.
+
+The scanners perform local pattern matching only. They do not authenticate users, verify credentials, establish account ownership, access platform systems, or guarantee that a finding is accurate. Pattern matches may be incomplete or false positives. Do not use findings to access another person's account or disclose another person's private information.
+
+The software is provided “as is,” without warranties of any kind, to the extent permitted by law. The authors and contributors are not responsible for misuse, data loss, account actions, or damages arising from use. This notice is informational and is not legal advice; it does not override applicable law.
