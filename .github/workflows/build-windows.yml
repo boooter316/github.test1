@@ -60,6 +60,17 @@ jobs:
             if (-not $source.Contains($required)) { throw "Missing native dashboard feature: $required" }
           }
           Write-Host 'Native command dashboard, local secret-hygiene scanner, recovery tracker, and desktop-only launcher checks passed.'
+      - name: Validate local PDF evidence scanner
+        shell: pwsh
+        run: |
+          python -m py_compile Epic_Games_Recovery_Assistant/pdf_evidence_scanner.py
+          $source = Get-Content 'Epic_Games_Recovery_Assistant/pdf_evidence_scanner.py' -Raw
+          foreach ($required in @('NO READABLE TEXT', 'OCR is not performed', 'document text not retained', 'Ownership verification: NOT PERFORMED')) {
+            if (-not $source.Contains($required)) { throw "Missing PDF scanner safety/report behavior: $required" }
+          }
+          $native = Get-Content 'Epic_Games_Recovery_Assistant/recovery_assistant.c++' -Raw
+          if ($native -match 'notifyDiscord|WinHttpSendRequest|EPIC_RECOVERY_DISCORD_WEBHOOK') { throw 'Native desktop source still contains an outbound Discord webhook path.' }
+          Write-Host 'PDF scanner syntax and local-only safety checks passed.'
       - name: Build Windows executable through one-click builder
         shell: cmd
         working-directory: Epic_Games_Recovery_Assistant
@@ -93,21 +104,3 @@ jobs:
             SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 30
-      - name: Send generic Discord build notification
-        if: always()
-        shell: pwsh
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          BUILD_RESULT: ${{ job.status }}
-        run: |
-          if (-not $env:DISCORD_WEBHOOK_URL) {
-            Write-Host "Discord webhook secret is not configured; notification skipped."
-            exit 0
-          }
-          $payload = @{ content = "Epic Games Recovery Assistant Windows build: $($env:BUILD_RESULT)." } | ConvertTo-Json -Compress
-          try {
-            Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK_URL -Method Post -ContentType "application/json" -Body $payload | Out-Null
-            Write-Host "Generic Discord build notification sent."
-          } catch {
-            Write-Warning "Discord build notification failed; build result is unchanged."
-          }
