@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 3.5.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 3.6.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Download the Windows executable
 
@@ -29,13 +29,20 @@ The GitHub Actions workflow also builds a Windows executable whenever the deskto
 ## Features
 
 - Organizes Epic Account ID, current/previous display names and emails, account dates, creator code, invoice/order ID, purchase name, optional billing address, payment provider, and card last four digits only.
-- Records each 2FA method (Epic Authenticator, third-party authenticator app, email, SMS/phone), preferred method, and access status separately. Never stores verification codes.
-- Optional historical IP and VPN/proxy provider/region/use notes for truthful context only; the app does not connect to, configure, rotate, or use a VPN/proxy.
+- Records each 2FA method (Epic Authenticator, third-party authenticator app, email, SMS/phone), preferred method, and separate access-status notes for each method. Never stores verification codes.
+- Optional historical IP and VPN/proxy provider/region/use/date notes for truthful context only; the app does not connect to, configure, rotate, or use a VPN/proxy.
 - Platform-specific recovery/restriction appeal notes and official support links for Epic, Xbox, PlayStation, Steam, and Nintendo.
 - Linked-service review fields for Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
 - Planning fields for Epic display-name/email changes; actual changes require official sign-in and verification.
-- Exports a local recovery packet: PDF, JSON data, readable text details, and support-request draft.
+- Exports a local recovery evidence packet: PDF report, JSON data, readable text details, and support-request draft. This exports only information the user enters; it is not an account dump and cannot extract platform databases, credentials, cookies, tokens, or scripts.
 - Opens official recovery, support, account settings, linked-account and 2FA help pages.
+
+## Version 3.6 additions
+
+- Separate access-status fields for email, SMS/phone, Epic Authenticator, and third-party authenticator apps.
+- Additional historical VPN/proxy-use notes and explicit prompts to use only remembered, truthful network history.
+- Separate appeal-summary fields for Xbox, PlayStation, Steam, and Nintendo.
+- Clear evidence-export wording: the PDF/JSON/text packet contains only information typed into the app; there is no account dump or account-extraction script.
 
 ## Security and limitations
 
