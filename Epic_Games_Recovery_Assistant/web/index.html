@@ -33,7 +33,8 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <header><h1>Account Recovery Request Assistant</h1><p>Prepare a factual support request for Epic Games or another platform. This is an independent organizer, not an official support tool.</p>
 <div class="notice"><strong>Privacy:</strong> Recovery-form entries and local scanner results stay in this browser tab. If you use Faze Jarvis, your chat messages are sent to DeepSeek through this server’s API proxy. The DeepSeek API key remains server-side. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, tokens, or private keys.</div></header>
 <nav class="tabs no-print" aria-label="Application pages">
-<button type="button" class="tab active" id="recoveryTabButton" aria-selected="true">Recovery Assistant</button>
+<button type="button" class="tab active" id="dashboardTabButton" aria-selected="true">Dashboard</button>
+<button type="button" class="tab secondary" id="recoveryTabButton" aria-selected="false">Recovery Assistant</button>
 <button type="button" class="tab secondary" id="fazeJarvisTabButton" aria-selected="false">Faze Jarvis AI</button>
 <button type="button" class="tab secondary" id="securityTabButton" aria-selected="false">Discord Security Scanner</button>
 <button type="button" class="tab secondary" id="fortniteTabButton" aria-selected="false">Pro Multi-Platform Scanner</button>
@@ -48,6 +49,20 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 </nav><div id="globalTaskControls" class="panel no-print" style="position:sticky;top:8px;z-index:20;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px">
 <strong>Task controls</strong><button type="button" id="globalStopButton" class="secondary">Stop current task</button><span id="globalStopStatus" class="hint" role="status">No stop request active.</span>
 </div>
+<section id="dashboardTab">
+<section class="panel">
+<h2>Project Dashboard</h2>
+<p class="hint">Your local workspace for account-recovery preparation, defensive file scanning, network diagnostics, setup, and script development.</p>
+<div class="grid">
+<div class="panel"><h3>Recovery Assistant</h3><p class="hint">Prepare factual support requests and local reports.</p><button type="button" class="secondary" data-open-page="recovery">Open Recovery Assistant</button></div>
+<div class="panel"><h3>Security tools</h3><p class="hint">Review selected local files and troubleshoot your own systems.</p><button type="button" class="secondary" data-open-page="security">Open Discord Scanner</button><button type="button" class="secondary" data-open-page="fortnite">Open Pro Scanner</button></div>
+<div class="panel"><h3>Script Builder</h3><p class="hint">Prepare Python, C++17, and C# source and Windows EXE build packages.</p><button type="button" data-open-page="scriptBuilder">Open Script Builder</button></div>
+<div class="panel"><h3>Accounts &amp; network</h3><p class="hint">Open official account links, connection notes, and network diagnostics.</p><button type="button" class="secondary" data-open-page="accountLinks">Account Links</button><button type="button" class="secondary" data-open-page="accountConnections">Account Connections</button><button type="button" class="secondary" data-open-page="packetDiagnostics">Wireshark &amp; Ports</button></div>
+<div class="panel"><h3>Setup &amp; updates</h3><p class="hint">Install prerequisites and open the first-run setup guide.</p><button type="button" class="secondary" data-open-page="setupInstall">Setup &amp; Install</button></div>
+</div>
+<div class="notice"><strong>Task control:</strong> The Stop current task control remains visible above the pages. It requests cancellation for cooperative browser tasks; it cannot terminate a program you launched separately in Windows.</div>
+</section>
+</section>
 <section class="hidden" id="scriptBuilderTab">
 <section class="panel">
 <h2>Script Builder &amp; Local EXE Workbench</h2>
@@ -94,7 +109,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <h3>Optional browser server</h3><p>Install and start Docker Desktop separately if you want the Node.js web server. Then open a terminal in <code>Epic_Games_Recovery_Assistant/web</code>, build with <code>docker build -t recovery-assistant-web .</code>, and run with <code>docker run --rm -p 8080:8080 recovery-assistant-web</code>. Visit <code>http://localhost:8080</code>. Do not expose the plain-HTTP server directly to the public internet.</p>
 <p class="hint">The launcher does not modify or replace your source files, install browser extensions, change VPN/proxy settings, or upload local files. It does not install DeepSeek or Telegram credentials. Configure API/bot secrets separately as private server environment variables only if you use those integrations.</p>
 </section></div>
-<div id="recoveryTab">
+<div class="hidden" id="recoveryTab">
 <form id="packet">
 <section class="panel"><h2>Account and contact details</h2><div class="grid">
 <div><label for="name">Name used on purchases (optional)</label><input id="name" autocomplete="name"></div>
@@ -514,6 +529,7 @@ updateTicketLimitStatus();
 
 // Page navigation
 const pageTabs={
+ dashboard:{button:document.getElementById("dashboardTabButton"),panel:document.getElementById("dashboardTab")},
  recovery:{button:document.getElementById("recoveryTabButton"),panel:document.getElementById("recoveryTab")},
  fazeJarvis:{button:document.getElementById("fazeJarvisTabButton"),panel:document.getElementById("fazeJarvisTab")},
  security:{button:document.getElementById("securityTabButton"),panel:document.getElementById("securityTab")},
@@ -536,6 +552,8 @@ function showTab(which){
  }
 }
 for(const [key,item] of Object.entries(pageTabs))item.button.addEventListener("click",()=>showTab(key));
+document.querySelectorAll("[data-open-page]").forEach(button=>button.addEventListener("click",()=>showTab(button.dataset.openPage)));
+showTab("dashboard");
 document.getElementById("buildWiresharkFilter").addEventListener("click",()=>{
  const raw=document.getElementById("wiresharkPort").value.trim();
  const port=Number(raw);
