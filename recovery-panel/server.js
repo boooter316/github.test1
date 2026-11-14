@@ -55,7 +55,10 @@ async function notify(event) {
 function auth(req,res,next){ if(req.session && req.session.authenticated===true) return next(); res.status(401).json({error:"Please sign in to the Recovery Assistant panel."}); }
 app.post("/api/login",loginLimiter,(req,res,next)=>{
   const email=String(req.body?.email||"").trim().toLowerCase(), password=String(req.body?.password||"");
-  const emailMatches=safeEqual(email,adminEmail);\n  let passwordMatches=false;\n  try { passwordMatches=validPassword(password); } catch (_) {}\n  if(!emailMatches||!passwordMatches){notify("unsuccessful panel sign-in attempt");return res.status(401).json({error:"Sign-in failed. Check your panel email and password."});}
+  const emailMatches=safeEqual(email,adminEmail);
+  let passwordMatches=false;
+  try { passwordMatches=validPassword(password); } catch (_) {}
+  if(!emailMatches||!passwordMatches){notify("unsuccessful panel sign-in attempt");return res.status(401).json({error:"Sign-in failed. Check your panel email and password."});}
   req.session.regenerate(err=>{if(err)return next(err);req.session.authenticated=true;req.session.save(err2=>{if(err2)return next(err2);notify("panel sign-in successful");res.json({ok:true});});});
 });
 app.get("/api/session",(req,res)=>res.json({authenticated:!!(req.session&&req.session.authenticated)}));
