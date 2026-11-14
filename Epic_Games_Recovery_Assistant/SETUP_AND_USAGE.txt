@@ -1,150 +1,127 @@
 EPIC GAMES RECOVERY ASSISTANT — SETUP AND USAGE
 ================================================
 
-IMPORTANT
----------
-This project is an independent recovery organizer and local defensive
-diagnostics toolkit. It is not affiliated with Epic Games or other providers.
-Use network checks only on devices and networks you own or are authorized to
-administer. Do not enter passwords, one-time codes, recovery codes, cookies,
-tokens, full payment-card details, wallet seed phrases, or private keys.
+CANONICAL PROJECT GUIDES
+------------------------
+The complete, maintained setup walkthrough is:
+  ../docs/SETUP_GUIDE.md
+The repository folder/component map is:
+  ../docs/PROJECT_STRUCTURE.md
+
+This file summarizes the Windows desktop app and its local tools. The
+project is an independent organizer and defensive diagnostics toolkit; it
+is not affiliated with Epic Games or other providers.
 
 A. DOWNLOAD AND EXTRACT
-----------------------
-1. Open https://github.com/boooter316/github.test1
-2. Select Code > Download ZIP.
-3. Extract the ZIP to a folder such as C:\Tools\Epic_Games_Recovery_Assistant.
-4. Keep the folder structure intact. Do not move individual scripts away from
-   the project folder unless you also update the paths in your shortcuts.
+-----------------------
+1. Download the repository source ZIP or a current Windows build artifact.
+2. Extract the ZIP to a normal folder, for example C:\Tools\Epic_Games_Recovery_Assistant.
+3. Keep all folders and filenames intact. Do not run scripts from inside the
+   ZIP preview.
 
-B. BUILD THE WINDOWS DESKTOP APPLICATION
+B. WINDOWS DESKTOP APP — FIRST RUN
+----------------------------------
+1. Open the extracted Epic_Games_Recovery_Assistant folder.
+2. Double-click OPEN_PROJECT.bat.
+3. The setup checks for a C++17 compiler (g++) and may offer MSYS2/GCC setup.
+4. The build also checks for Poppler pdftotext.exe for PDF text extraction.
+5. Approve only the installations you expect. Reopen the terminal or restart
+   Windows if a new PATH entry is not visible.
+6. The build creates:
+     Epic_Games_Recovery_Assistant.exe
+     paf_evidence_scanner.exe
+7. The native desktop dashboard launches after a successful build.
+
+IMPORTANT: OPEN_PROJECT.bat does NOT install Node.js, start the browser
+website, or open a browser. START_HERE.bat is an alternative desktop setup
+path. run.bat launches the already-built native desktop app.
+
+C. MAIN BROWSER MULTITOOL — SEPARATE APP
 ----------------------------------------
-1. Install a Windows 64-bit MinGW-w64/GCC distribution that provides g++.
-2. Add the MinGW-w64 bin directory to the Windows PATH.
-3. Open Command Prompt in the Epic_Games_Recovery_Assistant folder.
-4. Run: build.bat
-5. Confirm that Epic_Games_Recovery_Assistant.exe was created.
-6. Run: run.bat
+1. Install Node.js 26 LTS or newer from https://nodejs.org/.
+2. Open PowerShell in the web folder:
+     cd .\web
+3. Start the server:
+     node .\server.mjs
+4. Open http://127.0.0.1:8080 in your browser.
+5. Stop the server with Ctrl+C in PowerShell.
 
-If the build fails:
-- Run g++ --version and confirm g++ is found.
-- Read the first compiler error, not only the final error count.
-- Confirm the source file is named recovery_assistant.c++.
-- Run build.bat again after correcting the missing compiler/dependency.
-- The GitHub Actions Windows build checks compilation, but cannot test every
-  individual Windows PC or local security policy.
+The browser multitool includes Dashboard, Recovery Assistant, Faze Jarvis AI,
+Discord Security Scanner, Pro Multi-Platform Scanner, PDF Evidence Scanner,
+Account Links, Account Connections, Wireshark & Ports, Account Status &
+Details, Telegram Connect, Fortnite Skin Check, Setup & Install, and Script
+Builder. Some optional integrations require separate server-side setup.
+Do not put API keys or bot tokens in browser code or Git.
 
-C. BROWSER RECOVERY ASSISTANT
------------------------------
-1. Open the web folder and run the Docker commands in web/README.md, or use
-   the hosted/static project page if one has been deployed by you.
-2. The main page contains Recovery Assistant, Discord Security Scanner,
-   Pro Multi-Platform Scanner, Account Links, Account Connections,
-   Wireshark & Ports, and Account Status & Details.
-3. Use only accurate, non-secret details. Export a JSON packet or print/save
-   the recovery request as PDF.
-4. The account links are shortcuts only. They do not sign in or connect
-   provider accounts. Only the provider can confirm or change account status.
+D. SEPARATE RECOVERY PANEL
+--------------------------
+The Recovery Panel lives in the repository's recovery-panel folder. It is
+not the same application as the browser multitool.
 
-D. LOCAL IP AND NETWORK TOOLS
------------------------------
-Open http://localhost:8080/network-tools.html when running the web container.
-The page provides:
-- IP evidence notes: IP, observed date/time, city, state/region, ZIP/postal
-  code, country, optional street address, evidence source, and notes.
-- A command builder for a limited private-network TCP port check.
-- Instructions for VPN/proxy configuration status snapshots.
-- TXT/PDF export of the IP evidence notes.
+Requires Node.js 26 LTS or newer. From recovery-panel:
+     npm install
+Set ADMIN_EMAIL, ADMIN_PASSWORD_SCRYPT (salt:hash), and SESSION_SECRET
+(32+ random characters) in your local environment. Then run:
+     npm start
+Open http://localhost:3000.
 
-The IP/location form performs no geolocation or identity lookup. All location
-fields are user-entered and unverified. A street address and IP address are
-sensitive; include them only when necessary and keep exports private.
+See recovery-panel/README.md for password-hash generation and all settings.
+Panel tabs are Recovery Records and PDF Evidence Scanner. Records are stored
+in that browser's local storage; export a backup before clearing browser
+data or changing devices.
 
-E. WINDOWS VPN / PROXY STATUS CHECK
------------------------------------
-1. Download web/network_tools.ps1 or use the copy in the extracted project.
-2. Open PowerShell in the project folder.
-3. Run:
-   powershell -NoProfile -ExecutionPolicy Bypass -File .\web\network_tools.ps1 -Status
-4. The report is saved under %LOCALAPPDATA%\EpicRecoveryAssistant\NetworkStatus.json.
-5. The helper reads Windows VPN profile status, network adapter state,
-   current-user Windows proxy values, and the WinHTTP proxy summary.
-6. It does not connect/disconnect a VPN, change proxy settings, capture
-   traffic, inspect credentials, or upload the report.
+The panel currently uses Express MemoryStore. Do not expose it publicly or
+treat it as production-ready until a maintained persistent session store,
+HTTPS, network restrictions, backups, and deployment controls are configured
+and reviewed. A committed package-lock.json is not yet present; CI uses
+npm install, not npm ci.
 
-To install a daily local status snapshot at 9:00 AM:
-   powershell -NoProfile -ExecutionPolicy Bypass -File .\web\network_tools.ps1 -InstallDailyStatusTask
+E. IP AND NETWORK TOOLS
+-----------------------
+The browser's Network Tools page and Windows helper provide local network
+status and bounded private IPv4 TCP checks. Use these only on systems and
+networks you own or are authorized to administer. Review web/README.md and
+web/network-tools.html for the feature details.
 
-To remove the task:
-   powershell -NoProfile -ExecutionPolicy Bypass -File .\web\network_tools.ps1 -RemoveDailyStatusTask
+The Windows helper does not capture credentials, change VPN connections,
+upload reports, or send scanner files through a VPN/proxy. Do not use network
+features to evade provider security or access systems without authorization.
 
-The PC must be on and the user must be signed in for the interactive task.
-The task writes a local status file only; it does not send notifications.
+F. PDF EVIDENCE SCANNERS
+------------------------
+The native C++ scanner uses Poppler pdftotext.exe to extract text. It does
+not OCR image-only pages. Browser PDF scanning uses PDF.js loaded from a CDN
+and requires internet access to load the library. Encrypted, damaged, or
+image-only documents may not yield readable text.
 
-F. LIMITED PRIVATE-IP TCP PORT CHECK
-------------------------------------
-Only check a loopback or RFC1918 private IPv4 address on a network you own
-or administer. Public targets and address ranges are rejected by the helper.
+Reports are evidence-organizing aids, not proof of account ownership or
+credential validity. Keep source PDFs and exports private.
 
-Example:
-   powershell -NoProfile -ExecutionPolicy Bypass -File .\web\network_tools.ps1 -PortCheck -TargetIP 192.168.1.1 -Ports 22,53,80,443,8080
+G. IP / ACCOUNT PRIVACY
+-----------------------
+Do not enter passwords, one-time codes, recovery codes, cookies, tokens,
+full payment-card details, wallet seed phrases, or private keys. Never share
+webhook URLs, API keys, or session secrets. Remove personal data and secrets
+from logs before asking for support.
 
-Limits:
-- One private IPv4 target per run.
-- Up to 32 unique, explicitly selected TCP ports.
-- A short connection timeout is used.
-- No UDP scan, host discovery, subnet/range scan, exploit test, credential
-  attempt, packet capture, or public-IP scan is included.
+The app does not sign in to provider accounts, verify account ownership,
+bypass account checks, or submit recovery requests automatically. Scanner
+inputs and reports must remain local and must never be exfiltrated.
 
-OPEN means a TCP connection was accepted at the time of the test.
-CLOSED_OR_REFUSED means the target rejected the connection or it failed.
-NO_RESPONSE_OR_FILTERED means no response arrived before the timeout.
-These results are not a vulnerability assessment.
+H. UPDATES AND TROUBLESHOOTING
+------------------------------
+The Windows updater requires GitHub CLI (gh) and authenticated access to the
+private repository. It downloads a successful main-branch build artifact,
+checks its SHA-256 manifest, backs up local files, and updates project files.
+Close the app before updating. The updater does not execute downloaded code.
 
-G. EXISTING WIRESHARK & PORT FILTERS
-------------------------------------
-The existing Wireshark & Ports tab builds display filters such as
-tcp.port == 443. A display filter only narrows packets already captured.
-Use Wireshark only to capture traffic you own or are authorized to inspect.
-The browser's PCAP analyzer reports metadata and does not decrypt TLS or
-display packet payloads.
+If a build fails, note the first meaningful error and compiler/runtime
+versions. Remove passwords, tokens, cookies, IP addresses, and personal
+information from logs before sharing. A green GitHub Actions run confirms
+only the checks in that workflow; it does not guarantee every feature works
+on every PC.
 
-H. VPN / PROXY SAFETY
---------------------
-Use the official VPN provider application to connect or disconnect a
-third-party VPN. The existing Windows proxy helper may configure a current-
-user HTTP/HTTPS proxy; inspect its backup/restore behavior before use.
-Do not use proxies or VPNs to impersonate another account owner, bypass
-provider security, or conceal unauthorized activity. Scanner inputs and
-reports stay local; they are not uploaded through a VPN/proxy.
-
-I. UPDATER AND BUILD MONITORING
--------------------------------
-The project updater requires GitHub CLI (gh) and authentication:
-   gh auth login
-Then review and run update_project.ps1. The optional Windows daily updater
-task is installed with install_auto_update.ps1 and removed with its -Remove
-switch. It downloads a checksum-verified CI artifact and backs up local files.
-It does not execute downloaded code.
-
-Repository build monitoring is separate from the Windows updater. GitHub
-Actions validates pull requests and main-branch changes. A successful CI
-build is not a guarantee of error-free operation on every PC.
-
-J. PRIVACY / TROUBLESHOOTING
-----------------------------
-- Do not publish IP/location exports, router snapshots, packet captures, or
-  account evidence.
-- If a port appears open unexpectedly, identify the service on the device
-  itself and review firewall/router rules with the network administrator.
-- If VPN/proxy status appears incorrect, compare the helper's read-only
-  report with the official VPN application and Windows Settings.
-- If the app fails, save the exact error text and relevant log excerpt after
-  removing passwords, tokens, cookies, and personal data.
-- Never treat an IP address, ZIP code, or street address as proof of account
-  ownership. Providers must verify account claims using their own records.
-
-
-## Project checklist
-
-The main website and Recovery Panel include an optional on-page checklist for tracking the included Recovery Assistant, local PDF scanner, navigation tabs, and background artwork. Checklist selections are temporary in the current page and are not saved or uploaded.
+The Windows executable does not run on iPhone. Mobile users can access the
+browser interfaces only when the web server is reachable over a trusted
+network or a properly configured HTTPS deployment. Browser-local panel
+records do not automatically sync between phone and PC.

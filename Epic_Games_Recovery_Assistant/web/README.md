@@ -4,24 +4,27 @@ This folder contains the browser-based recovery-request builder, a Node.js web/A
 
 ## First-run Windows setup
 
-For Windows 10/11, extract the complete repository ZIP and double-click
-`Epic_Games_Recovery_Assistant/OPEN_PROJECT.bat`. This is the full local
-launcher. It calls `FIRST_RUN_SETUP.bat` and `first_run_setup.ps1`, checks
-for the required tools, builds the existing C++17 desktop application, starts
-the Node.js browser server, and opens both the desktop app and browser
-dashboard at `http://127.0.0.1:8080`.
+For Windows 10/11, extract the project and double-click
+`Epic_Games_Recovery_Assistant/OPEN_PROJECT.bat`. This launcher runs
+`FIRST_RUN_SETUP.bat` and `first_run_setup.ps1`, checks for the C++ build
+tools, builds the native desktop application and launches it.
 
-The wizard checks for `winget`, offers to install Node.js LTS if it is
-missing, and offers to install MSYS2 plus the UCRT64 GCC toolchain if
-`g++` is missing. Package installation requires user approval. The script
-may need a sign-out or restart before a newly installed PATH entry is visible.
-Declining an installation leaves the project source untouched.
+**This launcher does not install Node.js, start the browser server, or open
+the browser dashboard.** The actual batch and PowerShell launchers were
+checked against this description on the current main branch.
 
-`START_HERE.bat` is a separate desktop-focused launcher. Use
-`OPEN_PROJECT.bat` when you want both the browser dashboard and desktop app.
-For the desktop app only, use `run.bat`. To start only the browser server
-manually, open a terminal in this `web/` folder and run
-`node server.mjs`, then visit `http://127.0.0.1:8080`.
+For the browser multitool, install Node.js 26 LTS or newer separately. Open a
+terminal in this `web/` folder, run `node server.mjs`, then visit
+`http://127.0.0.1:8080`. Press Ctrl+C in the server terminal to stop it.
+
+`START_HERE.bat` is another desktop-focused setup path. `run.bat` launches
+the already-built native desktop app only. The optional Dockerfile runs the
+Node.js browser server in a container; Docker is not required for local use.
+Package installation requires user approval, and a new PATH entry may
+require opening a fresh terminal or restarting Windows.
+
+For the complete, current walkthrough, see [the repository setup guide](../../docs/SETUP_GUIDE.md)
+and [the project structure map](../../docs/PROJECT_STRUCTURE.md).
 
 Docker is optional for local use. It is only needed if you specifically want
 to run the browser server in a container. Windows does not run installers
