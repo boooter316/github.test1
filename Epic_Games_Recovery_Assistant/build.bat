@@ -1,5 +1,8 @@
 @echo off
-rem One-click builder; the compiler logic lives in setup.bat.
-cd /d "%~dp0"
-call setup.bat
-exit /b %ERRORLEVEL%
+setlocal
+rem One-click builder. setup.bat owns compiler detection and build errors.
+cd /d "%~dp0" || exit /b 1
+call "%~dp0setup.bat"
+set "BUILD_EXIT=%ERRORLEVEL%"
+if not "%BUILD_EXIT%"=="0" echo Build failed with exit code %BUILD_EXIT%.
+exit /b %BUILD_EXIT%
