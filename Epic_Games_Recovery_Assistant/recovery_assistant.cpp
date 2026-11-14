@@ -61,7 +61,7 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.9 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.1 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -130,6 +130,16 @@ int main(){
  add("Appeal evidence checklist: notice screenshot, case ID, dates, relevant receipts, and concise factual timeline (store files privately; do not include secrets)");
  add("Evidence bundle description: list only lawful, truthful documents you already possess; do not dump credentials, cookies, tokens, or private account databases");
  add("Epic recovery request status (not started / submitted / waiting / approved / denied / unsure)");
+ add("ACCOUNT RECOVERY FAILED: has an Epic recovery attempt failed? (yes / no / waiting / unsure)");
+ add("ACCOUNT RECOVERY FAILED: date and approximate time of the failed attempt");
+ add("ACCOUNT RECOVERY FAILED: exact error or denial message shown by Epic (copy wording; no passwords or codes)");
+ add("ACCOUNT RECOVERY FAILED: Epic request/reference number, if provided");
+ add("ACCOUNT RECOVERY FAILED: what step failed? (email verification / 2FA / ownership questions / form submission / sign-in / other)");
+ add("ACCOUNT RECOVERY FAILED: what troubleshooting steps have already been tried? (factual notes)");
+ add("ACCOUNT RECOVERY FAILED: did Epic specify a waiting period or ask you not to retry? (yes/no/unsure; record the stated period)");
+ add("ACCOUNT RECOVERY FAILED: date of last support contact and response received (if any)");
+ add("ACCOUNT RECOVERY FAILED: follow-up request to Epic (ask for clarification/review and approved alternative verification options; do not demand guaranteed recovery)");
+
  add("Epic recovery request ID (if provided; never enter a verification code)");
  add("Date of most recent Epic recovery request and any stated waiting period");
  add("Official recovery-form details still missing (list non-secret items only)");
@@ -160,17 +170,19 @@ int main(){
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
  std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.9 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.1 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional context, not proof of ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 3.9\n\n";
- j<<"{\n \"version\":\"3.9\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.1\n\n";
+ j<<"{\n \"version\":\"4.1\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
  j<<" ]\n}\n";
- draft<<"Subject: Request for account recovery / support\n\nHello Support Team,\n\nI am requesting assistance with my account. I can provide truthful, non-secret information through your official secure process and additional evidence if requested.\n\nRequest: "<<request<<"\n\nPlease advise which official verification steps and documents are required. I understand that only your team can verify ownership, review restrictions, or approve account changes.\n\nThank you.\n";
+ draft<<"Subject: Follow-up: Epic account recovery attempt was unsuccessful\n\nHello Epic Support,\n\nI am following up because my account recovery attempt was unsuccessful. Please review the information below and let me know whether there are approved alternative verification steps or additional non-secret evidence I can provide. I understand that Epic Support alone determines account ownership and recovery eligibility.\n\nMy request: "<<request<<"\n\nRecovery failure details (as entered by me):\n";
+ for(const auto& field:fields) if(field.label.find("ACCOUNT RECOVERY FAILED:")==0) draft<<field.label.substr(26)<<": "<<field.value<<"\n";
+ draft<<"\nPlease do not treat an IP address alone as proof of ownership. I will provide any requested information only through Epic's official secure support process.\n\nThank you.\n";
  save(dir/"recovery_details.txt",txt.str());save(dir/"recovery_details.json",j.str());save(dir/"support_request_draft.txt",draft.str());
  // Copy the C++ source into the packet when it is beside the executable/source.
  fs::path appDir=fs::current_path();
