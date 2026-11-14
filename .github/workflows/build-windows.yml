@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "Epic_Games_Recovery_Assistant/recovery_assistant.cpp"
+      - "Epic_Games_Recovery_Assistant/recovery_assistant.c++"
       - "Epic_Games_Recovery_Assistant/README.md"
       - "Epic_Games_Recovery_Assistant/setup.bat"
       - "Epic_Games_Recovery_Assistant/build.bat"
@@ -23,7 +23,7 @@ jobs:
         working-directory: Epic_Games_Recovery_Assistant
         run: |
           g++ --version
-          g++ -std=c++17 -O2 -Wall -Wextra recovery_assistant.cpp -o Epic_Games_Recovery_Assistant.exe -static -static-libgcc -static-libstdc++ -lshell32
+          g++ -std=c++17 -O2 -Wall -Wextra recovery_assistant.c++ -o Epic_Games_Recovery_Assistant.exe -static -static-libgcc -static-libstdc++ -lshell32
           if ($LASTEXITCODE -ne 0) { throw "C++ build failed" }
       - name: Upload executable
         uses: actions/upload-artifact@v4
