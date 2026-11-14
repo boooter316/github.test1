@@ -22,7 +22,7 @@ jobs:
       - name: Validate PowerShell updater scripts
         shell: pwsh
         run: |
-          $files = @('Epic_Games_Recovery_Assistant/update_project.ps1', 'Epic_Games_Recovery_Assistant/install_auto_update.ps1', 'Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1')
+          $files = @('Epic_Games_Recovery_Assistant/update_project.ps1', 'Epic_Games_Recovery_Assistant/install_auto_update.ps1', 'Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1', 'Epic_Games_Recovery_Assistant/network_tools.ps1')
           foreach ($file in $files) {
             $tokens = $null
             $errors = $null
