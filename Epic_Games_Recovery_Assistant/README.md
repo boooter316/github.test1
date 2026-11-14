@@ -40,6 +40,9 @@ The PDF generator is built into the C++ source; no Python, external PDF package,
 - Support/contact: https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US
 - Linked accounts: https://www.epicgames.com/account/connections
 - 2FA/security settings: https://www.epicgames.com/account/password
+- Available 2FA methods: https://www.epicgames.com/help/c-45487929/c-38978022/a11272697
+- Lost authenticator/SMS access: https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US
+- Unlink a console account: https://www.epicgames.com/help/c-Category_EpicAccounts/c-38854402/a17347934?lang=en-US
 - Sign-in: https://www.epicgames.com/id/login
 
 ## Test status
