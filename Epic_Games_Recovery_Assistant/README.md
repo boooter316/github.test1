@@ -64,7 +64,7 @@ Epic's available 2FA methods and recovery steps can change. Check the live offic
 - [Steam Support](https://help.steampowered.com/en/wizard/HelpWithAccount)
 - [Steam Community Ban FAQ](https://help.steampowered.com/en/faqs/view/4F62-35F9-F395-5C23)
 - [Nintendo account suspension guidance](https://en-americas-support.nintendo.com/app/answers/detail/a_id/50788/p/989/c/913)
-- [Nintendo Account recovery process](https://en-americas-support.nintendo.com/app/answers/detail/p/850/a_id/47194)
+- [Nintendo Account recovery process](https://en-americas-support.nintendo.com/app/answers/detail/a_id/47194/c/495)
 - [Nintendo Support](https://en-americas-support.nintendo.com/)
 - [Epic Support](https://www.epicgames.com/help/en-US/)
 
