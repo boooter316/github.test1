@@ -13,7 +13,8 @@ const files = new Map([
   ["/network_security.js", ["network_security.js", "text/javascript; charset=utf-8"]],
   ["/network-tools.html", ["network-tools.html", "text/html; charset=utf-8"]],
   ["/network_tools.ps1", ["network_tools.ps1", "text/plain; charset=utf-8"]],
-  ["/SETUP_AND_USAGE.txt", ["SETUP_AND_USAGE.txt", "text/plain; charset=utf-8"]]
+  ["/SETUP_AND_USAGE.txt", ["SETUP_AND_USAGE.txt", "text/plain; charset=utf-8"]],
+  ["/FAZE_JARVIS_SETUP.md", ["FAZE_JARVIS_SETUP.md", "text/markdown; charset=utf-8"]]
 ]);
 const limits = new Map();
 const json = (res, status, body) => {
@@ -56,7 +57,7 @@ const server = http.createServer(async (req, res) => {
     return res.end("ok\n");
   }
   if (req.method === "GET" && url.pathname === "/api/health") {
-    return json(res, 200, { provider: "DeepSeek", configured: Boolean(API_KEY && CHAT_PASSWORD) });
+    return json(res, 200, { provider: "DeepSeek", apiKeyConfigured: Boolean(API_KEY), accessPasswordConfigured: Boolean(CHAT_PASSWORD), configured: Boolean(API_KEY && CHAT_PASSWORD) });
   }
   if (req.method === "POST" && url.pathname === "/api/chat") {
     if (!API_KEY || !CHAT_PASSWORD) return json(res, 503, { error: "Chat is not configured. Set DEEPSEEK_API_KEY and CHAT_ACCESS_PASSWORD on the server." });
@@ -99,7 +100,7 @@ const server = http.createServer(async (req, res) => {
       return json(res, 502, { error: "Could not reach DeepSeek. Check the server connection and try again." });
     }
     if (!upstream.ok) {
-      return json(res, 502, { error: upstream.status === 401 ? "DeepSeek rejected the server API key. Check the server secret." : "DeepSeek returned an error. Check API availability and account quota." });
+      return json(res, 502, { error: upstream.status === 401 ? "DeepSeek rejected the server API key. Check or replace DEEPSEEK_API_KEY on the server." : upstream.status === 402 ? "DeepSeek reports insufficient balance. Check billing or available credits in your DeepSeek platform account." : upstream.status === 429 ? "DeepSeek rate limit reached. Wait briefly and try again." : upstream.status >= 500 ? "DeepSeek is temporarily unavailable. Wait briefly and try again." : "DeepSeek rejected the request (HTTP " + upstream.status + "). Check the model and API documentation." });
     }
     let result;
     try { result = await upstream.json(); }

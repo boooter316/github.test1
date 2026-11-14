@@ -10,3 +10,4 @@ ENV PORT=8080
 EXPOSE 8080
 USER node
 CMD ["node", "/app/server.mjs"]
+COPY FAZE_JARVIS_SETUP.md /app/FAZE_JARVIS_SETUP.md

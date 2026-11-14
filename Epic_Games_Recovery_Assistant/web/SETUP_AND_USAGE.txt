@@ -192,3 +192,17 @@ running synchronously, stop an external Windows process, cancel a program
 already launched outside the browser, or undo a recovery request already
 submitted to a provider. Recovery requests are drafts only and must be sent
 manually by the user through official support.
+
+
+K. FAZE JARVIS — DEEPSEEK API KEY, SETUP, STATUS, AND TROUBLESHOOTING
+-----------------------------------------------------------------------
+See web/FAZE_JARVIS_SETUP.md for the full illustrated-by-steps setup, Windows 11 Docker commands, API key creation link, status meanings, and troubleshooting.
+
+Quick summary:
+1. Create a key only at https://platform.deepseek.com/api_keys.
+2. Create a separate app password.
+3. Put DEEPSEEK_API_KEY and CHAT_ACCESS_PASSWORD in a private env file outside the repository.
+4. Start/recreate the Docker container with --env-file pointing to that file.
+5. In Faze Jarvis, enter only the app access password. Never paste the DeepSeek API key into the browser.
+6. Check http://localhost:8080/api/health for configuration presence, then send a test chat message.
+API usage may incur charges. Do not expose the plain-HTTP service directly to the public internet.

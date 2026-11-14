@@ -139,7 +139,7 @@ jobs:
           done
           curl --fail --silent http://127.0.0.1:18080/healthz | grep -Fxq ok
           curl --fail --silent http://127.0.0.1:18080/api/health -o api-health.json
-          grep -Fq '"provider":"DeepSeek","configured":false' api-health.json
+          grep -Fq '"provider":"DeepSeek","apiKeyConfigured":false,"accessPasswordConfigured":false,"configured":false' api-health.json
           api_status=$(curl --silent --output api-error.json --write-out '%{http_code}' -X POST http://127.0.0.1:18080/api/chat -H 'Content-Type: application/json' -d '{"messages":[{"role":"user","content":"test"}]}')
           test "$api_status" = "503"
           curl --fail --silent http://127.0.0.1:18080/ -o root.html
@@ -151,6 +151,8 @@ jobs:
           grep -Fq 'Test-PrivateIPv4' network_tools.ps1
           curl --fail --silent http://127.0.0.1:18080/SETUP_AND_USAGE.txt -o SETUP_AND_USAGE.txt
           grep -Fq 'SETUP AND USAGE' SETUP_AND_USAGE.txt
+          curl --fail --silent http://127.0.0.1:18080/FAZE_JARVIS_SETUP.md -o FAZE_JARVIS_SETUP.md
+          grep -Fq 'Create your own DeepSeek API key' FAZE_JARVIS_SETUP.md
           curl --fail --silent -D headers.txt -o /dev/null http://127.0.0.1:18080/
           grep -qi 'Content-Security-Policy:.*https://cdnjs.cloudflare.com' headers.txt
           grep -qi 'worker-src.*blob:' headers.txt
