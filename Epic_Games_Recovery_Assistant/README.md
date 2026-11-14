@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 4.4.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 4.5.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Download the Windows executable
 
@@ -10,6 +10,23 @@ The Windows build is produced by GitHub Actions. Open the latest successful **Bu
 - [Windows build workflow](https://github.com/boooter316/github.test1/blob/main/.github/workflows/build-windows.yml)
 
 The repository is private, so downloading the artifact requires access to this repository. GitHub Actions builds the executable; it does not install or run it on your computer. Windows may show a security warning for an unsigned executable. Only run a build you downloaded from this repository and trust.
+
+## Optional Discord notifications (Version 4.5)
+
+Two optional, generic status notifications are supported and remain disabled unless configured:
+
+- **Build notifications:** add a GitHub Actions repository secret named `DISCORD_WEBHOOK_URL` containing your Discord webhook URL. The workflow sends a generic build success/failure message. If the secret is absent, the notification is skipped.
+- **App notifications:** set the Windows user environment variable `EPIC_RECOVERY_DISCORD_WEBHOOK` to your Discord webhook URL. The app sends only generic “application started”, “application closed”, and “general application error” messages.
+
+The app never sends account details, names, email addresses, IP addresses, recovery notes, evidence, exports, or error contents to Discord. The webhook URL is read from an environment variable, is not hardcoded or logged, and is never included in recovery exports. Use only an HTTPS Discord webhook URL hosted at `discord.com/api/webhooks/`. Notifications are best-effort and do not affect recovery or build outcomes.
+
+To configure app notifications on Windows, open PowerShell and run this command locally, replacing the placeholder with your webhook URL. Do not share or commit the URL:
+
+```powershell
+[Environment]::SetEnvironmentVariable("EPIC_RECOVERY_DISCORD_WEBHOOK", "YOUR_DISCORD_WEBHOOK_URL", "User")
+```
+
+Close and reopen the app after setting it. To disable app notifications, remove that user environment variable or leave it unset. For build notifications, add `DISCORD_WEBHOOK_URL` under the repository's **Settings → Secrets and variables → Actions → New repository secret**.
 
 ## No hosting required
 
