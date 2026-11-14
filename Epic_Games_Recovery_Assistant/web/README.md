@@ -1,4 +1,4 @@
-# Browser-based Recovery Assistant (C++17)
+# Browser-based Recovery Assistant (C++17) — updated companion form
 
 This folder contains a C++17 web server and a browser-based recovery-request builder.
 
@@ -15,6 +15,10 @@ Until SellHub confirms its supported integration and hosting capabilities, treat
 The GitHub Actions Linux build confirms only that the C++ server compiles. It does not create a public website or deploy a running service.
 
 The container expects HTTP port `8080` (or the `PORT` environment variable). Put it behind a provider-managed HTTPS ingress or a correctly configured reverse proxy with TLS. Do not expose the plain-HTTP container directly to the public internet.
+
+## Updated recovery and appeal form
+
+The browser form includes current and previous Epic contact/display-name details, requested display-name/email changes for planning, email/SMS/phone/authenticator-app 2FA method and access notes, optional historical VPN/proxy context, linked-platform identifiers, and platform-specific recovery/appeal fields for Epic, Xbox, PlayStation, Steam, and Nintendo. It can export a JSON packet and use browser print-to-PDF. The PDF/JSON/text packet is a user-entered evidence summary only—not an account dump, database export, credential dump, or executable script.
 
 ## Privacy and scope
 
