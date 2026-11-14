@@ -19,6 +19,30 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+      - name: Validate PowerShell updater scripts
+        shell: pwsh
+        run: |
+          $files = @('Epic_Games_Recovery_Assistant/update_project.ps1', 'Epic_Games_Recovery_Assistant/install_auto_update.ps1')
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD $file), [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; throw "PowerShell syntax validation failed: $file" }
+          }
+          Write-Host 'PowerShell updater scripts parsed successfully.'
+      - name: Validate embedded web JavaScript syntax
+        shell: pwsh
+        run: |
+          @'
+          const fs = require('fs');
+          const html = fs.readFileSync('Epic_Games_Recovery_Assistant/web/index.html', 'utf8');
+          const scripts = [...html.matchAll(/<script(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/gi)];
+          if (!scripts.length) throw new Error('No inline JavaScript blocks found');
+          for (const [i, match] of scripts.entries()) {
+            if (match[1].trim()) new Function(match[1]);
+          }
+          console.log(`Validated ${scripts.length} inline script block(s).`);
+          '@ | node
       - name: Build Windows executable
         shell: pwsh
         working-directory: Epic_Games_Recovery_Assistant
