@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 3.2 - C++17
+// Epic Games Recovery Assistant 3.3 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <cstdlib>
@@ -61,7 +61,7 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.2 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.3 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -72,10 +72,15 @@ int main(){
  add("Desired display name (planning only)"); add("Desired email (planning only)");
  add("Epic Account ID"); add("Country/region"); add("Approximate account creation date");
  add("Support-A-Creator code (if applicable)"); add("Purchase invoice/order ID");
+ add("Country/region used when the Epic account was originally created");
+ add("Approximate date of first Epic purchase (if known)");
  add("Epic account country at creation (if different from current country)");
  add("Name on a past purchase"); add("Billing street address (optional)");
  add("Billing city"); add("Billing state/region"); add("Billing ZIP/postal code");
- add("Payment provider"); add("Card last four digits ONLY (optional)");
+ add("Payment provider (for example, card issuer or PayPal)");
+ add("Payment method type used for purchases (card / PayPal / other)");
+ add("Card last four digits ONLY (optional; never enter full card number or CVV)");
+ add("Payment method review request (describe the issue; do not request or enter payment credentials)");
  add("Remembered historical public IP (optional; do not guess)");
  add("Approximate date/period IP was used");
  add("VPN/proxy provider and region used (history only; no spoofing)");
@@ -93,6 +98,8 @@ int main(){
  add("Nintendo account nickname/ID and whether currently linked (public details only)");
  add("Steam profile name/ID and whether currently linked (public details only)");
  add("Other linked services and public profile names/IDs (Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook)");
+ add("For each linked service: service type, public ID/profile name, approximate link date, and whether it is currently linked");
+ add("Linked-account concern: unknown link / lost access / wrong account / unlink information / other");
  add("Approximate dates each relevant service was linked (if known)");
  add("Requested Epic display-name change (planning only; official account settings required)");
  add("Requested Epic email change (planning only; official verification required)");
@@ -103,9 +110,17 @@ int main(){
  add("Public linked profile names/IDs only (no login credentials)");
  add("Requested action: recovery / 2FA help / name change / email change / unlink / restriction appeal / other");
  add("Restriction platform: Epic / Xbox / PlayStation / Steam / Nintendo / other");
- add("Restriction notice, reason, date, or case number");
+ add("Epic restriction notice, reason, date, duration, and case number (if applicable)");
+ add("Xbox enforcement notice, reason, date, and case/reference number (if applicable)");
+ add("PlayStation suspension notice, reason, date, and case/reference number (if applicable)");
+ add("Steam restriction notice, reason, date, and case/reference number (if applicable)");
+ add("Nintendo restriction notice, reason, date, and case/reference number (if applicable)");
+ add("Appeal history and any response received from the relevant platform");
  add("Exact error message and date"); add("Prior support ticket/reference number");
  add("Other truthful, non-secret ownership evidence");
+ add("Reminder: Epic's form may request account ID/invoice ID, historic emails/display names, original country, linked-account identifiers/link dates, phone 2FA status, and payment history. Supply details only in Epic's official form.");
+ add("IP address is optional historical context only; do not use it as an ownership test or attempt to imitate another network.");
+ add("Account safety preference if ownership cannot be established: stop and refer to official support (no automatic lock or disable action).");
  std::cout<<"\nEvidence readiness (self-assessment only; this program cannot verify ownership):\n1. Have requested evidence\n2. Unsure\n3. Do not have requested evidence\n";
  fields.push_back({"Evidence readiness",ask("Choose 1, 2, or 3")});
  std::string request=ask("Describe the support request (do not include secrets)");
@@ -113,7 +128,7 @@ int main(){
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
  std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.2 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.3 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional context, not proof of ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, 2FA codes, or backup codes.",
@@ -144,5 +159,6 @@ int main(){
  else if(choice=="12")openLink("https://www.epicgames.com/account/personal");
  else if(choice=="13")openLink("https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US");
  else if(choice=="14")openLink("https://www.epicgames.com/help/c-Category_EpicAccounts/c-38854402/a17347934?lang=en-US");
+ else if(choice=="15")openLink("https://www.epicgames.com/help/c-45487929");
  return 0;
 }
