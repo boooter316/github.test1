@@ -245,17 +245,33 @@ See web/TELEGRAM_FORTNITE_SETUP.md for complete setup and troubleshooting.
 M. FIRST-RUN WINDOWS SETUP
 --------------------------
 1. Extract the complete project ZIP and keep the folder structure intact.
-2. Double-click Epic_Games_Recovery_Assistant\\START_HERE.bat.
-3. The wizard checks for g++. If missing, it asks before installing MSYS2
-   through winget and GCC through the official MSYS2 package manager.
-4. The wizard adds the standard UCRT64 compiler folder to your user PATH,
-   builds with the existing build.bat, then starts the existing run.bat.
-5. Docker Desktop is optional; the wizard offers it separately for the web
-   container. It may require administrator approval and a Windows restart.
+2. Double-click Epic_Games_Recovery_Assistant\\OPEN_PROJECT.bat to open
+   both the browser dashboard and Windows desktop application.
+3. The full wizard checks for winget and offers to install Node.js LTS if
+   missing, for the local browser dashboard.
+4. If g++ is missing, it offers to install MSYS2 through winget and GCC
+   through the official MSYS2 package manager.
+5. The wizard builds the C++ desktop app, starts the Node.js server from
+   the web folder, opens http://127.0.0.1:8080, and launches the desktop app.
 
-You can also double-click run.bat later. If the compiler is missing, the
-existing setup.bat now invokes the same consent-based dependency wizard.
+START_HERE.bat is a separate desktop-focused launcher. Use OPEN_PROJECT.bat
+for both interfaces. To run only the desktop app later, use run.bat. Docker
+is optional and is not required for local dashboard use. To start only the
+browser server manually, open a terminal in the web folder and run
+node server.mjs, then visit http://127.0.0.1:8080.
+
 Windows will not run installers merely because a folder is opened; a user
-must launch one of these batch files. Declining an install does not modify
-project source files. API keys, Telegram bot tokens, VPN/proxy settings, and
-browser extensions are not installed or configured by this wizard.
+must launch the batch file and approve requested installations. Declining
+an install does not modify project source files. API keys, Telegram bot
+tokens, VPN/proxy settings, and browser extensions are not installed or
+configured by this wizard.
+
+N. DASHBOARD AND SCRIPT BUILDER
+-------------------------------
+The Dashboard page links to the existing application pages. The Script
+Builder supports local source editing/import for Python, C++17, and C#.
+It prepares a single ZIP with source, README, test and run scripts, and
+Windows EXE build instructions. Python uses PyInstaller, C++17 uses MSVC or
+g++, and C# targets .NET 10. The browser does not execute or upload source
+code. Review all files before running the generated scripts on Windows.
+Changing a file extension does not translate code between languages.

@@ -36,11 +36,15 @@ To configure app notifications on Windows, open PowerShell and run this command 
 
 Close and reopen the app after setting it. To disable app notifications, remove that user environment variable or leave it unset. For build notifications, add `DISCORD_WEBHOOK_URL` under the repository's **Settings → Secrets and variables → Actions → New repository secret**.
 
-## No hosting required
+## Desktop app and local browser dashboard
 
-This is a **desktop executable**, not a website deployment. It runs locally on a Windows computer and does not require DigitalOcean, SellHub, a VPS, Docker, a public server, or a continuously running hosting provider. SellHub is not required to launch or use the program. No SellHub API key or webhook is needed.
+The Windows desktop executable runs locally and does not require a VPS, public server, DigitalOcean, SellHub, or a paid hosting provider. The companion browser dashboard in the `web/` folder also runs locally; it is not a public website deployment.
 
-The separate browser-based prototype in the `web/` folder is not the Windows desktop executable and is not needed to run this program.
+To open both interfaces on Windows 10/11, extract the project ZIP and double-click `OPEN_PROJECT.bat` in the `Epic_Games_Recovery_Assistant` folder. The wizard offers to install Node.js LTS for the browser dashboard and MSYS2/GCC for the C++ desktop build, builds the desktop app, starts the local Node.js server, and opens the dashboard at `http://127.0.0.1:8080` alongside the desktop app. Approve package installs only if you want them. A restart or sign-out may be needed for PATH changes.
+
+Use `run.bat` to launch only the desktop executable later, and `build.bat` to rebuild it. Docker is optional for users who specifically want a containerized browser server; it is not required for local use. The browser dashboard's Faze Jarvis and Telegram integrations remain optional and require separate private server configuration. The local recovery, scanner, account, network, Dashboard, and Script Builder pages do not require those integrations.
+
+SellHub is not required to launch or use either local interface. No SellHub API key or webhook is needed.
 
 ## Build from source (optional)
 

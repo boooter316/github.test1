@@ -5,23 +5,68 @@ This folder contains the browser-based recovery-request builder, a Node.js web/A
 ## First-run Windows setup
 
 For Windows 10/11, extract the complete repository ZIP and double-click
-`Epic_Games_Recovery_Assistant/START_HERE.bat`. The launcher runs the
-consent-based dependency checker, builds the existing C++17 application with
-the existing `build.bat`, and starts it with `run.bat`.
+`Epic_Games_Recovery_Assistant/OPEN_PROJECT.bat`. This is the full local
+launcher. It calls `FIRST_RUN_SETUP.bat` and `first_run_setup.ps1`, checks
+for the required tools, builds the existing C++17 desktop application, starts
+the Node.js browser server, and opens both the desktop app and browser
+dashboard at `http://127.0.0.1:8080`.
 
-If GCC is missing, the checker asks before using Windows Package Manager
-(`winget`) to install MSYS2, then uses the official MSYS2 package manager
-to install the UCRT64 GCC toolchain. It adds the standard compiler folder to
-the current user's PATH. Docker Desktop is optional and is offered separately
-because it may require administrator approval or a restart. Declining an
-installation leaves the project source untouched.
+The wizard checks for `winget`, offers to install Node.js LTS if it is
+missing, and offers to install MSYS2 plus the UCRT64 GCC toolchain if
+`g++` is missing. Package installation requires user approval. The script
+may need a sign-out or restart before a newly installed PATH entry is visible.
+Declining an installation leaves the project source untouched.
 
-Windows intentionally does not execute arbitrary installers just because a
-folder is opened. The user must double-click the included launcher (or
-`run.bat`); the browser Setup & Install tab explains this security boundary.
-The setup does not install or configure API keys, Telegram bot tokens,
-VPN/proxy settings, or browser extensions. Those remain separate, explicit
-configuration steps.
+`START_HERE.bat` is a separate desktop-focused launcher. Use
+`OPEN_PROJECT.bat` when you want both the browser dashboard and desktop app.
+For the desktop app only, use `run.bat`. To start only the browser server
+manually, open a terminal in this `web/` folder and run
+`node server.mjs`, then visit `http://127.0.0.1:8080`.
+
+Docker is optional for local use. It is only needed if you specifically want
+to run the browser server in a container. Windows does not run installers
+merely because a folder is opened; the user must launch the setup batch file
+and approve any requested installations. The setup does not install or
+configure API keys, Telegram bot tokens, VPN/proxy settings, or browser
+extensions. Those remain separate, explicit configuration steps.
+
+## Dashboard and Script Builder
+
+The browser dashboard links to the existing Recovery Assistant, scanners,
+account pages, network diagnostics, and Setup & Install page. The separate
+Script Builder imports and edits user-selected text source locally (up to
+2 MB) and supports Python, C++17, and C#.
+
+The builder can download a source file or a single ZIP containing source,
+README/setup instructions, a test script, a Windows run script, and an EXE
+build script. Python projects use PyInstaller; C++17 projects use MSVC or
+g++; C# projects target .NET 10 and publish a self-contained Windows x64
+single-file executable. Visual Studio Code and Visual Studio are supported
+as editors.
+
+### Script Builder requirements
+
+- **Python:** Python 3.10 or newer and pip. The generated build script installs
+  the requirements listed in `requirements.txt` and PyInstaller.
+- **C++17:** Visual Studio with the Desktop development with C++ workload
+  (MSVC), or MSYS2 with the UCRT64 GCC toolchain.
+- **C#:** .NET 10 SDK, or a Visual Studio version with .NET 10 support and
+  the .NET desktop development workload.
+- **Editors:** Visual Studio Code or Visual Studio. The editor alone is not
+  a compiler; install the language SDK/toolchain as listed above.
+
+The browser never executes imported code or uploads source files to the
+server. It prepares local files for the user to review and run on Windows.
+The Debug/Review action checks only basic file integrity; the generated
+Test script invokes the actual language compiler/runtime locally. The Build
+EXE package creates the Windows build instructions and batch file, but the
+EXE is not built until that batch file succeeds on the Windows computer.
+Changing a file extension does not translate code between languages. Review
+source and third-party dependencies before running them. Do not use the
+builder for credential theft, token grabbers, malware, unauthorized access,
+stealth, or exfiltration. The global Stop control requests cancellation for
+cooperative browser tasks; a separate Windows process must be stopped in
+its own terminal (Ctrl+C).
 
 ## Hosting and SellHub decision
 
