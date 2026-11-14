@@ -71,7 +71,8 @@ int main(){
  add("Current Epic email (never enter password)"); add("Previous Epic emails");
  add("Desired display name (planning only)"); add("Desired email (planning only)");
  add("Epic Account ID"); add("Country/region"); add("Approximate account creation date");
- add("Support-A-Creator code (if applicable)"); add("Purchase invoice/order ID");\n add("Epic account country at creation (if different from current country)");
+ add("Support-A-Creator code (if applicable)"); add("Purchase invoice/order ID");
+ add("Epic account country at creation (if different from current country)");
  add("Name on a past purchase"); add("Billing street address (optional)");
  add("Billing city"); add("Billing state/region"); add("Billing ZIP/postal code");
  add("Payment provider"); add("Card last four digits ONLY (optional)");
@@ -79,8 +80,11 @@ int main(){
  add("Approximate date/period IP was used");
  add("VPN/proxy provider and region used (history only; no spoofing)");
  add("VPN/proxy active during recovery attempts? (yes/no/unsure)");
- add("2FA method: Epic Authenticator / authenticator app / email / SMS-phone");
- add("Can you access that 2FA method now? (yes/no/unsure)");
+ add("2FA methods enabled: Epic Authenticator / third-party authenticator app / email / SMS-phone (list methods only)");
+ add("Preferred or primary 2FA method (if known)");
+ add("Can you access your email inbox now? (yes/no/unsure)");
+ add("Can you access your SMS phone number now? (yes/no/unsure)");
+ add("Can you access your authenticator app now? (yes/no/unsure)");
  add("Phone number associated with SMS 2FA (optional; never enter SMS codes)");
  add("Linked services to review (Xbox, PlayStation, Nintendo, Steam, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other Epic-connected apps/services)");
  add("Linked-service actions requested (review only; actual unlinking must be done by the platform owner)");
@@ -124,7 +128,7 @@ int main(){
  if(!pdf(dir/"recovery_request.pdf",lines))std::cerr<<"PDF export failed; other exports attempted.\n";
  std::cout<<"\nSaved packet to: "<<dir.string()<<"\nIncludes PDF, JSON, text details, and support-request draft.\n"
  <<"No account action was taken. If evidence is missing, pause and ask official support about alternatives.\n\n"
- <<"1 Open Epic recovery page\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n5 Epic sign-in\n6 Epic display-name help\n7 Epic email-change help\n8 Xbox enforcement/support\n9 PlayStation suspension support\n10 Steam account help\n11 Nintendo support\n12 Epic account settings\n0 Exit\n";
+ <<"1 Open Epic account recovery request form\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n5 Epic sign-in\n6 Epic display-name help\n7 Epic email-change help\n8 Xbox enforcement/support\n9 PlayStation suspension support\n10 Steam account help\n11 Nintendo support\n12 Epic account settings\n13 Epic lost-2FA help\n14 Epic unlink help\n0 Exit\n";
  std::string choice=ask("Choose an official page");
  if(choice=="1")openLink("https://www.epicgames.com/help/c-45487929/a21414514");
  else if(choice=="2")openLink("https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US");
@@ -137,6 +141,8 @@ int main(){
  else if(choice=="9")openLink("https://www.playstation.com/en-us/support/account/suspensions/");
  else if(choice=="10")openLink("https://help.steampowered.com/en/wizard/HelpWithAccount");
  else if(choice=="11")openLink("https://en-americas-support.nintendo.com/");
- else if(choice=="12")openLink("https://www.epicgames.com/account/personal");\n else if(choice=="13")openLink("https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US");\n else if(choice=="14")openLink("https://www.epicgames.com/help/c-Category_EpicAccounts/c-38854402/a17347934?lang=en-US");
+ else if(choice=="12")openLink("https://www.epicgames.com/account/personal");
+ else if(choice=="13")openLink("https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US");
+ else if(choice=="14")openLink("https://www.epicgames.com/help/c-Category_EpicAccounts/c-38854402/a17347934?lang=en-US");
  return 0;
 }
