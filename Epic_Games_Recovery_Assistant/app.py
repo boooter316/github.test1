@@ -35,7 +35,7 @@ STEAM_ACCOUNT_HELP_URL = "https://help.steampowered.com/en/wizard/HelpWithAccoun
 STEAM_COMMUNITY_BAN_URL = "https://help.steampowered.com/en/faqs/view/4F62-35F9-F395-5C23"
 NINTENDO_SUPPORT_URL = "https://en-americas-support.nintendo.com/"
 NINTENDO_SUSPENSION_URL = "https://en-americas-support.nintendo.com/app/answers/detail/a_id/50788/p/989/c/913"
-NINTENDO_RECOVERY_URL = "https://en-americas-support.nintendo.com/app/answers/detail/p/850/a_id/47194"
+NINTENDO_RECOVERY_URL = "https://en-americas-support.nintendo.com/app/answers/detail/a_id/47194/c/495"
 TWO_FA_METHODS = ("Epic Authenticator", "Authenticator app", "Email", "SMS / phone")
 
 class EpicRecoveryAssistant:
