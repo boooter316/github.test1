@@ -85,7 +85,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div class="risk"><strong>Security boundary:</strong> This tool does not access Fortnite or Epic accounts, browser storage, game memory, saved passwords, cookies, or session stores. It cannot validate logins or retrieve tokens. It shows a numbered findings list with file names, line numbers, match categories, and redacted previews. Email addresses, account IDs, and display names are shown in full in this local browser result. Passwords, tokens, cookies, and session secrets are always redacted.</div>
 <p><label for="fortniteFiles">Choose Fortnite/Epic text logs or configuration files</label><input id="fortniteFiles" type="file" accept=".txt,.log,.ini,.cfg,.json,.xml,.csv,.md,.conf" multiple></p>
 <p><label for="fortniteText">Or paste text to inspect (optional)</label><textarea id="fortniteText" placeholder="Paste a Fortnite log/config excerpt. Do not paste passwords, active tokens, or 2FA codes."></textarea></p>
-<div class="actions no-print"><button type="button" id="runFortniteScan">Scan Fortnite files</button><button type="button" class="secondary" id="clearFortniteScan">Clear</button></div>
+<div class="actions no-print"><button type="button" id="runFortniteScan">Scan Fortnite files</button><button type="button" class="secondary" id="clearFortniteScan">Clear</button><button type="button" class="secondary" id="downloadFortniteReport" disabled>Download findings .txt</button><button type="button" class="secondary" id="printFortniteReport" disabled>Print / Save report as PDF</button></div>
 <h3>Scan result</h3><div id="fortniteResult" class="scanner-result" role="status" aria-live="polite">No scan has been run.</div>
 <p class="hint">Checks for token/JWT-shaped strings, credential-labelled fields, account identifiers, and Fortnite/Epic authentication references. Findings are numbered and show the source file and line. Passwords and tokens are redacted; non-secret account details (emails, account IDs, and display names) are shown in full. A match is not proof of compromise.</p>
 <h3>Recommended next steps</h3><ol><li>If a credential-like pattern is found, do not post the file publicly.</li><li>Secure your Epic account through Epic's official account-security page, change a potentially exposed password, and enable two-factor authentication.</li><li>Sign out of sessions using the official account controls where available, and rotate any exposed API key or webhook through its provider.</li><li>Download Fortnite only through official Epic channels and avoid third-party “token checker” tools.</li></ol>
@@ -119,7 +119,7 @@ document.getElementById("clearScan").addEventListener("click",()=>{document.getE
 function inspectFortniteText(s,sourceName){
   const rules=[
     {name:"JWT-shaped secret",re:/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,secret:true},
-    {name:"Credential-labelled secret",re:/\b(password|passwd|access[_-]?token|refresh[_-]?token|authorization|client[_-]?secret|api[_-]?key|session[_-]?key)\b\s*[:=]\s*["']?([^\s,;"'}]{4,})/gi,secret:true},
+    {name:"Credential-labelled secret",re:/\b(password|passwd|access[_-]?token|refresh[_-]?token|authorization|client[_-]?secret|api[_-]?key|session[_-]?key|cookie|set-cookie|session[_-]?id|session[_-]?token)\b\s*[:=]\s*["']?([^\s,;"'}]{4,})/gi,secret:true},
     {name:"Epic/Fortnite token-like value",re:/\b(?:eg1~|bearer\s+)[A-Za-z0-9._~\-]{12,}/gi,secret:true},
     {name:"Email/account contact",re:/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,account:true},
     {name:"Account ID field",re:/\b((?:(?:epic|fortnite)[_ -]?)?account[_ -]?id|user[_ -]?id)\b\s*[:=]\s*["']?([A-Za-z0-9_-]{5,})/gi,account:true},
@@ -202,7 +202,31 @@ document.getElementById("runFortniteScan").addEventListener("click",async()=>{
   out.push("");
   out.push("Important: pattern matches do not verify a login, prove account ownership, or establish that a secret is active.");
   document.getElementById("fortniteResult").textContent=out.join("\n");
+  document.getElementById("downloadFortniteReport").disabled=false;
+  document.getElementById("printFortniteReport").disabled=false;
 });
-document.getElementById("clearFortniteScan").addEventListener("click",()=>{document.getElementById("fortniteText").value="";document.getElementById("fortniteFiles").value="";document.getElementById("fortniteResult").textContent="Cleared. No scan has been run."});
+document.getElementById("clearFortniteScan").addEventListener("click",()=>{document.getElementById("fortniteText").value="";document.getElementById("fortniteFiles").value="";document.getElementById("fortniteResult").textContent="Cleared. No scan has been run.";document.getElementById("downloadFortniteReport").disabled=true;document.getElementById("printFortniteReport").disabled=true});
+
+function getFortniteReportText(){
+  return "Fortnite / Epic Local Security Scan Report\\nGenerated: "+new Date().toISOString()+"\\n\\n"+document.getElementById("fortniteResult").textContent+"\\n";
+}
+document.getElementById("downloadFortniteReport").addEventListener("click",()=>{
+  const blob=new Blob([getFortniteReportText()],{type:"text/plain;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="fortnite-epic-security-scan-report.txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+document.getElementById("printFortniteReport").addEventListener("click",()=>{
+  const w=window.open("","_blank");
+  if(!w){alert("Allow pop-ups to print or save the report as PDF.");return;}
+  const safe=getFortniteReportText().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Fortnite Epic Scan Report</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Fortnite / Epic Local Security Scan Report</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\/script></body></html>");
+  w.document.close();
+});
 
 </script></body></html>
