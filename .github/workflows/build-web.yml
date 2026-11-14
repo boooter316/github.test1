@@ -1,6 +1,11 @@
 name: Build Recovery Assistant Web Server
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "Epic_Games_Recovery_Assistant/web/**"
+      - ".github/workflows/build-web.yml"
   push:
     branches: [main]
     paths:
