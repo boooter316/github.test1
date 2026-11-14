@@ -153,3 +153,14 @@ The Pro scanner includes a local-only ownership evidence packet builder. It lets
 - Checklist selections, IP details, and notes are user-entered claims; the tool does not authenticate receipts, screenshots, emails, IP history, or documents.
 - Users should submit only original, unedited platform-issued records through official secure support. Do not fabricate or alter evidence or submit another person's private records.
 - The feature does not request or accept passwords, 2FA codes, backup codes, cookies, tokens, full payment-card numbers, or document uploads. No account login, external lookup, API request, or upload occurs; the report is generated in the browser.
+
+
+## Multi-tool tab navigation
+
+The browser interface groups the existing features into selectable tabs so users can open one tool at a time instead of scrolling through every section.
+
+- **Recovery Assistant** has separate Recovery Form, Ticket Manager, and Setup & Help tabs.
+- **Discord Scanner** remains its own top-level tab.
+- **Pro Multi-Tool** has separate Multi-Platform Scanner, VPN & Proxy, IP Evidence Checker, Ownership Packet, and Fortnite Diagnostics tabs.
+- The tab organizer moves the existing feature elements without replacing their controls or event handlers. The original local-only processing and credential-redaction boundaries remain in force.
+- Tabs are created in the browser at page load. This change does not install or run user-supplied scripts, activate Windows networking, connect to accounts, or make account changes.
