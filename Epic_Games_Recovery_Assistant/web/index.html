@@ -50,6 +50,21 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <section class="panel"><h2>Linked platforms and restrictions</h2><p class="hint">Prepare separate, truthful recovery or appeal details for Epic, Xbox, PlayStation, Steam, and Nintendo. Only each platform can review or change its own restrictions or account settings.</p><div class="grid">
 <div><label for="linked">Linked services / public profile IDs</label><textarea id="linked" placeholder="Xbox, PlayStation, Nintendo, Steam, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other"></textarea></div>
 <div><label for="appeal">Restriction or appeal details</label><textarea id="appeal" placeholder="Platform, notice date, case/reference number, notice wording, and what you are appealing"></textarea></div><div><label for="platform">Platform needing recovery or appeal</label><select id="platform"><option>Epic Games</option><option>Xbox</option><option>PlayStation</option><option>Steam</option><option>Nintendo</option><option>GeForce NOW</option><option>Roblox</option><option>Minecraft</option><option>GTA</option><option>Disney</option><option>Twitch</option><option>YouTube</option><option>TikTok</option><option>More than one platform</option></select></div><div><label for="platformId">Public gamertag / Online ID / Steam profile / Nintendo nickname</label><input id="platformId"></div><div><label for="caseId">Support case or enforcement reference</label><input id="caseId"></div><div><label for="noticeDate">Notice date (if known)</label><input id="noticeDate" type="date"></div><div><label for="requestedOutcome">Requested outcome</label><select id="requestedOutcome"><option>Account recovery guidance</option><option>Review or appeal of restriction</option><option>Correct account email or display name</option><option>Review linked-account issue</option><option>Understand enforcement notice</option></select></div></div></section>
+<section class="panel" id="ticketManager">
+<h2>Support Ticket Reporter &amp; Recovery Follow-ups</h2>
+<p class="hint">Prepare a factual new support request or an update to an existing case. This organizer does not submit tickets to Epic or any other platform.</p>
+<div class="notice"><strong>Anti-spam limit:</strong> Up to 3 ticket preparations per account in a rolling 24-hour period. When the limit is reached, ticket preparation pauses until the cooldown ends. This is a local browser safeguard, not an Epic account lock or a server-enforced limit.</div>
+<div class="grid">
+<div><label for="ticketAction">Ticket action</label><select id="ticketAction"><option value="new">Prepare a new recovery ticket</option><option value="update">Prepare an update to an existing ticket</option></select></div>
+<div><label for="ticketReference">Existing support case/reference number (required for updates)</label><input id="ticketReference" placeholder="Enter your open case number"></div>
+<div><label for="ticketReason">Reason for this request/update</label><select id="ticketReason"><option>Additional ownership evidence</option><option>New recovery information</option><option>Follow-up on an unanswered case</option><option>Clarification requested by support</option><option>Correction to information previously provided</option></select></div>
+</div>
+<p><label for="ticketUpdateDetails">What is new or needs attention? (facts only)</label><textarea id="ticketUpdateDetails" placeholder="Explain only the new information. Do not repeat a request already being reviewed."></textarea></p>
+<div class="actions no-print"><button type="button" id="prepareTicket">Prepare ticket / follow-up draft</button><button type="button" class="secondary" id="clearTicketDraft">Clear draft</button></div>
+<p id="ticketLimitStatus" class="hint" role="status" aria-live="polite">Ticket preparation limit: 3 per account per 24 hours.</p>
+<textarea id="ticketDraft" class="no-print" placeholder="Your support ticket draft will appear here." style="margin-top:12px"></textarea>
+<p class="hint">If a case is already open, choose “update” and include its reference number. Send one clear, relevant update through the platform’s official support channel. Repeated duplicate tickets or reports can delay review and may trigger platform anti-abuse controls.</p>
+</section>
 <section class="panel"><h2>Review and export</h2><p class="hint">Check details for accuracy before sharing through the platform's official secure support form.</p>
 <div class="actions no-print"><button type="button" id="json">Download JSON packet</button><button type="button" class="secondary" id="pdf">Print / Save as PDF</button><button type="button" class="secondary" id="draft">Create support-request draft</button></div>
 <textarea id="draftText" class="no-print" placeholder="Your support request draft will appear here." style="margin-top:12px"></textarea></section></form>
@@ -121,6 +136,61 @@ function makeDraft(o){const f=o.fields;return ["Hello Support Team,","","I am re
 document.getElementById("json").addEventListener("click",()=>{const b=new Blob([JSON.stringify(collect(),null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="recovery-request.json";a.click();URL.revokeObjectURL(a.href)});
 document.getElementById("pdf").addEventListener("click",()=>window.print());
 document.getElementById("draft").addEventListener("click",()=>document.getElementById("draftText").value=makeDraft(collect()));
+
+// Local ticket-preparation rate limit. Drafts are not submitted to any platform.
+const ticketLimitKey="recoveryAssistantTicketAttempts_v1";
+const ticketWindowMs=24*60*60*1000;
+const ticketMaxAttempts=3;
+function readTicketAttempts(){
+  try{
+    const data=JSON.parse(localStorage.getItem(ticketLimitKey)||"{}");
+    const account=(document.getElementById("accountId").value||document.getElementById("email").value||"").trim().toLowerCase();
+    const key=account||"unspecified-account";
+    const entries=Array.isArray(data[key])?data[key]:[];
+    const recent=entries.filter(t=>Number.isFinite(t)&&Date.now()-t<ticketWindowMs&&t<=Date.now());
+    data[key]=recent;localStorage.setItem(ticketLimitKey,JSON.stringify(data));
+    return {data,key,recent};
+  }catch(error){return {data:{},key:"local-only-unavailable",recent:[]};}
+}
+function refreshTicketLimit(){
+  const state=readTicketAttempts(),remaining=Math.max(0,ticketMaxAttempts-state.recent.length);
+  const status=document.getElementById("ticketLimitStatus");
+  const button=document.getElementById("prepareTicket");
+  if(remaining===0){
+    const unlockAt=Math.min(...state.recent)+ticketWindowMs;
+    status.textContent="Recovery ticket preparation is temporarily locked because there have been too many attempts. Try again after "+new Date(unlockAt).toLocaleString()+". This does not lock your platform account.";
+    button.disabled=true;
+  }else{
+    status.textContent="Ticket preparation attempts remaining in this 24-hour window: "+remaining+" of "+ticketMaxAttempts+".";
+    button.disabled=false;
+  }
+}
+document.getElementById("prepareTicket").addEventListener("click",()=>{
+  const action=document.getElementById("ticketAction").value;
+  const reference=document.getElementById("ticketReference").value.trim();
+  const details=document.getElementById("ticketUpdateDetails").value.trim();
+  if(action==="update"&&!reference){document.getElementById("ticketLimitStatus").textContent="Enter the existing support case number before preparing an update.";return;}
+  if(!details){document.getElementById("ticketLimitStatus").textContent="Describe the factual new information before preparing a request.";return;}
+  const state=readTicketAttempts();
+  if(state.recent.length>=ticketMaxAttempts){refreshTicketLimit();return;}
+  const account=document.getElementById("accountId").value.trim()||document.getElementById("email").value.trim()||"Not provided";
+  const platform=document.getElementById("platform").value;
+  const reason=document.getElementById("ticketReason").value;
+  const now=new Date().toLocaleString();
+  const heading=action==="update"?"SUPPORT CASE FOLLOW-UP":"NEW ACCOUNT RECOVERY REQUEST";
+  const draft=[heading,"Prepared: "+now,"Platform: "+platform,"Account reference: "+account,"Existing case: "+(action==="update"?reference:"No existing case specified"),"Reason: "+reason,"","New information / request:",details,"","Please review this information and advise on the official recovery process. I understand that account ownership and recovery eligibility must be verified by the platform.","","This is a draft prepared by an independent organizer; it has not been submitted."].join("\n");
+  state.recent.push(Date.now());
+  try{state.data[state.key]=state.recent;localStorage.setItem(ticketLimitKey,JSON.stringify(state.data));}catch(error){}
+  document.getElementById("ticketDraft").value=draft;
+  refreshTicketLimit();
+});
+document.getElementById("clearTicketDraft").addEventListener("click",()=>{
+  document.getElementById("ticketDraft").value="";
+  document.getElementById("ticketUpdateDetails").value="";
+});
+["accountId","email"].forEach(id=>document.getElementById(id).addEventListener("input",refreshTicketLimit));
+refreshTicketLimit();
+
 
 // Page navigation
 const recoveryTabButton=document.getElementById("recoveryTabButton");
