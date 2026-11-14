@@ -41,6 +41,12 @@ Never commit passwords, password hashes, session secrets, or webhook URLs. Never
 
 Open http://localhost:3000 on the same computer. For phone access, the server must be reachable on a trusted network. Do not expose an unencrypted HTTP login to the public internet.
 
+## Dependency reproducibility
+
+The direct dependency versions in `package.json` are pinned, but this repository does not currently commit a `package-lock.json`. Use `npm install` for setup; `npm ci` is not available until a lockfile is generated, reviewed, and committed. CI currently installs with `npm install` and runs the production dependency audit. This means transitive dependency resolution is not fully reproducible yet.
+
+For the repository-wide component map and Windows/browser/mobile setup steps, see [the project setup guide](../docs/SETUP_GUIDE.md) and [project structure](../docs/PROJECT_STRUCTURE.md).
+
 ## Production caution
 
 The panel currently uses Express MemoryStore for sessions. MemoryStore is not suitable for production or multi-instance hosting. Do not expose this panel publicly until you configure a maintained persistent session store, enforce HTTPS, restrict network access, and review hosting backups and logs. The app emits a production warning; this update does not certify the panel as production-ready. This is not a completed security audit.
