@@ -29,7 +29,9 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 #scriptBuilderTab textarea{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;min-height:220px;white-space:pre;tab-size:4}
 #scriptBuilderTab .actions button{flex:1 1 145px}
 #scriptBuilderTab .scanner-result{min-height:48px}
-</style></head><body><main class="wrap">
+
+.project-checklist{margin:24px 0;padding:18px;border:1px solid #64748b;border-radius:14px;background:rgba(10,15,25,.88);color:#f8fafc}.project-checklist h2{margin:0 0 10px}.project-checklist p{color:#cbd5e1}.project-checklist label{display:flex;gap:10px;align-items:center;margin:10px 0;color:#f8fafc}.project-checklist input{width:auto;min-width:18px;min-height:18px;accent-color:#22c55e}
+</style></head><body style="background:linear-gradient(rgba(5,8,16,.78),rgba(5,8,16,.84)),url('ghostface-bg.jpg') center center / cover fixed no-repeat;"><main class="wrap">
 <header><h1>Account Recovery Request Assistant</h1><p>Prepare a factual support request for Epic Games or another platform. This is an independent organizer, not an official support tool.</p>
 <div class="notice"><strong>Privacy:</strong> Recovery-form entries and local scanner results stay in this browser tab. If you use Faze Jarvis, your chat messages are sent to DeepSeek through this server’s API proxy. The DeepSeek API key remains server-side. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, tokens, or private keys.</div></header>
 <nav class="tabs no-print" aria-label="Application pages">
@@ -475,7 +477,15 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <label for="wiresharkFilterOutput">Wireshark display filter</label><input id="wiresharkFilterOutput" readonly value="Enter a port and choose Build filter">
 <p class="hint">To capture your own traffic, install Wireshark from its official site, select the correct local network interface, start a short capture, then apply a display filter. A display filter narrows packets already captured; it does not create a connection or open a port. Router/firewall port changes should be made only by the network owner.</p>
 </section>
-</main>
+<section class="project-checklist" aria-labelledby="projectChecklistTitle">
+<h2 id="projectChecklistTitle">Project checklist ✅✔️😈</h2>
+<p>Use these checkboxes to track the included project features.</p>
+<label><input type="checkbox"> ✅ Recovery Assistant and existing records</label>
+<label><input type="checkbox"> ✔️ Local PDF Evidence Scanner</label>
+<label><input type="checkbox"> ✅ Website and Recovery Panel tabs</label>
+<label><input type="checkbox"> 😈 Ghostface background artwork</label>
+<label><input type="checkbox"> ✔️ Existing file and folder names preserved</label>
+</section></main>
 <script>
 const ids=["name","accountId","display","oldDisplay","email","oldEmail","desiredDisplay","desiredEmail","country","creator","incident","error","date","firstSeen","details","mfaAccess","invoice","provider","last4","billingCity","ip","vpn","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"];
 function collect(){const o={app:"Account Recovery Request Assistant",schemaVersion:1,createdAt:new Date().toISOString(),fields:{}};ids.forEach(id=>o.fields[id]=document.getElementById(id).value.trim());o.fields.twoStepMethods=[...document.querySelectorAll('input[name="mfa"]:checked')].map(x=>x.value);return o}
