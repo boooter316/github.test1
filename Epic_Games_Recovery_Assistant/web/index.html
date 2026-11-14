@@ -108,7 +108,8 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 </div>
 <div class="hidden" id="fazeJarvisTab">
 <h2>Faze Jarvis — Safe Coding Assistant</h2>
-<p class="hint">Hello! This is Faze Jarvis, your coding assistant. I can help plan projects, explain code, create benign scripts, troubleshoot build errors, and draft defensive security tools. This offline demo does not connect to an AI service; its replies are starter guidance, not generated or executed code.</p>
+<p class="hint">Hello! This is Faze Jarvis, your AI coding assistant powered by DeepSeek. Chat requests are sent to the server-side DeepSeek proxy. Your DeepSeek API key stays on the server and must never be pasted here.</p>
+<label for="fazeJarvisAccessPassword">App access password (not your DeepSeek API key)</label><input id="fazeJarvisAccessPassword" type="password" autocomplete="off" placeholder="Enter the app access password configured by the server"><p id="fazeJarvisApiStatus" class="hint" role="status">Checking DeepSeek connection…</p>
 <div id="fazeJarvisChat" class="scanner-result" role="log" aria-live="polite">Faze Jarvis: Hello! This is Faze Jarvis. What are we building today?</div>
 <label for="fazeJarvisPrompt">Message Faze Jarvis</label><textarea id="fazeJarvisPrompt" placeholder="Describe a project or paste a non-secret error message."></textarea>
 <div class="actions no-print"><button type="button" id="fazeJarvisSend">Send message</button><button type="button" class="secondary" id="fazeJarvisClear">Clear chat</button></div>
@@ -470,29 +471,60 @@ accountPdf.addEventListener("click",()=>{
  const pre=w.document.createElement("pre");pre.textContent=report;pre.style.cssText="white-space:pre-wrap;font:12pt Arial;max-width:800px;margin:32px auto";
  w.document.body.appendChild(pre);w.document.title="Account details";w.focus();w.print();
 });
-// Faze Jarvis offline demonstration chat: no network calls and no execution of user prompts.
+// Faze Jarvis connects to the same-origin server proxy. The DeepSeek key never enters the browser.
 const jarvisLog=document.getElementById("fazeJarvisChat");
-function jarvisReply(message){
- const m=message.toLowerCase();
- if(/hack|exploit|steal|token|password|credential|bypass|malware|ransomware/.test(m))return "I can help with defensive security, secure coding, threat modeling, and authorized lab exercises, but I can't create credential theft, malware, bypasses, or unauthorized access tools.";
- if(/error|exception|failed|build/.test(m))return "Share the exact non-secret error text, the command you ran, your Windows version, and the relevant source snippet. Start with the first error in the log; later messages may be cascading failures.";
- if(/python/.test(m))return "For a Python project, define its input, output, dependencies, and tests first. I can draft a safe script and a requirements file for review.";
- if(/powershell/.test(m))return "For PowerShell, specify the Windows task and required permissions. I recommend -WhatIf support, explicit confirmation for changes, and clear exit codes.";
- return "Let's plan it safely: describe the user-visible goal, operating system, inputs, expected output, and how you want to test it. I can help draft and explain the source.";
+const jarvisStatus=document.getElementById("fazeJarvisApiStatus");
+const jarvisHistory=[];
+let jarvisBusy=false;
+async function checkJarvisStatus(){
+ try{
+  const response=await fetch("/api/health",{cache:"no-store"});
+  const state=await response.json();
+  jarvisStatus.textContent=state.configured?"DeepSeek is configured on the server. Enter the app access password to chat.":"DeepSeek chat is not configured. The server administrator must set DEEPSEEK_API_KEY and CHAT_ACCESS_PASSWORD.";
+ }catch(_){jarvisStatus.textContent="DeepSeek server is unavailable. Run the Docker web service with the server-side configuration.";}
 }
-document.getElementById("fazeJarvisSend").addEventListener("click",()=>{
- const box=document.getElementById("fazeJarvisPrompt"),msg=box.value.trim();if(!msg)return;
- jarvisLog.textContent+="\nYou: "+msg+"\nFaze Jarvis: "+jarvisReply(msg);box.value="";jarvisLog.scrollTop=jarvisLog.scrollHeight;
+function appendJarvis(role,text){
+ jarvisLog.textContent+="\n"+(role==="user"?"You: ":"Faze Jarvis: ")+text;
+ jarvisLog.scrollTop=jarvisLog.scrollHeight;
+}
+checkJarvisStatus();
+document.getElementById("fazeJarvisSend").addEventListener("click",async()=>{
+ const box=document.getElementById("fazeJarvisPrompt");
+ const password=document.getElementById("fazeJarvisAccessPassword").value;
+ const button=document.getElementById("fazeJarvisSend");
+ const msg=box.value.trim();
+ if(!msg||jarvisBusy)return;
+ if(!password){jarvisStatus.textContent="Enter the app access password. Do not enter your DeepSeek API key.";return;}
+ if(/(?:sk-[a-z0-9_-]{12,}|deepseek[_-]?api[_-]?key\s*[:=])/i.test(msg)){
+  jarvisStatus.textContent="Please remove API keys or secrets from the message before sending.";
+  return;
+ }
+ jarvisBusy=true;button.disabled=true;box.value="";jarvisHistory.push({role:"user",content:msg});appendJarvis("user",msg);
+ try{
+  const signal=window.beginRecoveryTask();
+  const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json","X-Chat-Access":password},body:JSON.stringify({messages:jarvisHistory.slice(-20)}),signal});
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.error||"Chat request failed.");
+  jarvisHistory.push({role:"assistant",content:result.reply});
+  appendJarvis("assistant",result.reply);
+  jarvisStatus.textContent="Connected to "+(result.model||"DeepSeek")+".";
+ }catch(error){
+  if(error.name==="AbortError"){jarvisStatus.textContent="Chat request stopped.";}
+  else{jarvisStatus.textContent=error.message||"DeepSeek request failed.";appendJarvis("assistant","I couldn't complete that request. Check the server configuration and try again.");}
+ }finally{jarvisBusy=false;button.disabled=false;}
 });
 document.getElementById("fazeJarvisPrompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();document.getElementById("fazeJarvisSend").click();}});
-document.getElementById("fazeJarvisClear").addEventListener("click",()=>{jarvisLog.textContent="Faze Jarvis: Hello! This is Faze Jarvis. What are we building today?";});
+document.getElementById("fazeJarvisClear").addEventListener("click",()=>{
+ jarvisHistory.length=0;
+ jarvisLog.textContent="Faze Jarvis: Hello! This is Faze Jarvis. What are we building today?";
+});
 // Local starter-source generator. Generated code is downloaded, never run in this page.
 document.getElementById("builderGenerate").addEventListener("click",()=>{
  const name=(document.getElementById("builderProjectName").value.trim()||"my-project").replace(/[^a-zA-Z0-9_-]/g,"-");
  const kind=document.getElementById("builderLanguage").value,desc=document.getElementById("builderDescription").value.trim();
  const safeDesc=desc.replace(/[<>]/g,"").slice(0,1000);
  const templates={
- html:"<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><title>"+name+"</title><body><h1>"+name+"</h1><p>"+safeDesc.replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</p><script>console.log('Project ready');</script></body></html>\n",
+ html:"<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><title>"+name+"</title><body><h1>"+name+"</h1><p>"+safeDesc.replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</p><script>console.log('Project ready');<\/script></body></html>\n",
  python:'"""'+name+' — starter project. '+safeDesc.replace(/"""/g,"")+"\n"+'"""\n\ndef main():\n    print("'+name+' is ready")\n\nif __name__ == "__main__":\n    main()\n',
  powershell:'# '+name+' — starter script\n# '+safeDesc.replace(/\r?\n/g," ")+'\n[CmdletBinding(SupportsShouldProcess=$true)]\nparam()\nWrite-Output "'+name+' is ready"\n',
  cpp:'#include <iostream>\n\nint main() {\n    std::cout << "'+name+' is ready\\n";\n    return 0;\n}\n// Goal: '+safeDesc.replace(/\r?\n/g," ")+'\n'
