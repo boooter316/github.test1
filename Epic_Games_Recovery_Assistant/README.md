@@ -176,3 +176,14 @@ The Windows workflow compiles the C++ source (including the Windows BCrypt libra
 A mobile-friendly, separately hosted dashboard is available in the [recovery-panel folder](https://github.com/boooter316/github.test1/tree/main/recovery-panel). It includes a server-side administrator login, local browser recovery records, Epic Account ID/account-number field, email/phone/authenticator access tracking, official Epic sign-in and support links, JSON/TXT exports, and optional generic Discord status notifications. See the [panel setup guide](https://github.com/boooter316/github.test1/blob/main/recovery-panel/README.md).
 
 The panel is a Node.js web application, not a standalone iPhone app or a static HTML page. It must be configured and run on a trusted server before its login page can be used. Its recovery records are stored in the browser on the device, so export backups before switching devices. The panel is separate from the Windows C++ desktop executable. Do not put Epic credentials, verification codes, webhook URLs, or server secrets in source control.
+
+## Automatic Windows builds and project updates
+
+- GitHub Actions builds the Windows C++17 executable and packages the complete project whenever files under `Epic_Games_Recovery_Assistant/` change on `main`. Pull requests also run the build for validation.
+- Each successful build publishes two downloadable artifacts: the Windows executable and a complete project ZIP with a SHA-256 checksum manifest. Artifacts are retained for 30 days.
+- This repository is private. On the Windows PC, install GitHub CLI from https://cli.github.com/ and run `gh auth login` once using an account with repository access.
+- To update immediately, open PowerShell in this folder and run: `powershell -ExecutionPolicy Bypass -File .\update_project.ps1`.
+- To enable a daily update check at 9:00 AM, run: `powershell -ExecutionPolicy Bypass -File .\install_auto_update.ps1`. The PC must be on and the Windows user signed in. Add `-Remove` to the installer command to remove the scheduled task.
+- The updater downloads the latest successful `main` build, verifies the ZIP checksum, backs up the current project under `%LOCALAPPDATA%\EpicRecoveryAssistant\UpdateBackups`, then updates project files and scripts. It preserves local history CSVs and the local account database.
+- The updater never executes downloaded scripts or executables. Close the application before updating, then launch the newly built executable yourself. Review the project backup if you need to roll back.
+- Pull requests do not update the automatic update channel; changes must be merged into `main` and pass the Windows build first. Scanner-selected files and secrets are not included in build uploads.
