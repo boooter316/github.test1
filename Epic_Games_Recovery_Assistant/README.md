@@ -26,6 +26,26 @@ The separate browser-based prototype in the `web/` folder is not the Windows des
 
 The GitHub Actions workflow also builds a Windows executable whenever the desktop source or build workflow changes, and can be manually run from the GitHub Actions tab.
 
+## Prompts
+
+Use the following prompts when asking an AI assistant to help maintain this project. Share the relevant source files and error messages, but never share passwords, 2FA codes, backup codes, session cookies, access tokens, or other account secrets.
+
+**Add a feature**
+
+> Update the Epic Games Recovery Assistant in C++17. Preserve the existing Windows desktop console application, menu structure, local-only design, and current features. Add the requested feature using truthful user-entered recovery notes and official platform guidance only. Do not add account scraping, credential collection, IP spoofing, proxy rotation, verification bypasses, or automatic account actions. Update the README and build scripts if needed.
+
+**Fix a build error**
+
+> Review the supplied C++17 source and exact compiler output. Identify the cause, make the smallest safe correction, and keep the project compatible with the existing Windows build workflow and setup.bat. Do not claim the program builds or runs unless the build and runtime tests have actually passed.
+
+**Review security and privacy**
+
+> Audit this project for collection or storage of passwords, 2FA codes, backup codes, authenticator secrets, cookies, tokens, full payment-card numbers, or CVV. Check that exports contain only user-entered non-secret information, that local data stays local, and that recovery and appeal actions remain with the official platform.
+
+**Update the documentation**
+
+> Update the README to match the actual current source code, setup instructions, menu options, export files, and GitHub Actions workflow. Keep setup/build instructions separate from usage instructions, and put this Prompts section directly after the project setup/build instructions.
+
 ## Features
 
 - Organizes Epic Account ID, current/previous display names and emails, account dates, creator code, invoice/order ID, purchase name, optional billing address, payment provider, and card last four digits only.
