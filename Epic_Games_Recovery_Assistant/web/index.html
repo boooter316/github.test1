@@ -17,6 +17,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <nav class="tabs no-print" aria-label="Application pages">
 <button type="button" class="tab active" id="recoveryTabButton" aria-selected="true">Recovery Assistant</button>
 <button type="button" class="tab secondary" id="securityTabButton" aria-selected="false">Discord Security Scanner</button>
+<button type="button" class="tab secondary" id="fortniteTabButton" aria-selected="false">Fortnite Security Scanner</button>
 </nav>
 <div id="recoveryTab">
 <form id="packet">
@@ -78,6 +79,17 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <h3>If a possible secret is found</h3><ol><li>Do not share the file or scan output publicly.</li><li>Revoke or rotate the affected credential using the service's official security settings.</li><li>Change a reused password and enable two-step verification.</li><li>Remove the exposed secret from public commits and logs; rotating it is still necessary because old copies may remain.</li></ol>
 <p class="hint">For an exposed Discord webhook, delete/regenerate it in Discord. For Epic Games, use Epic's official account security and recovery pages. This scanner cannot validate or recover an Epic account.</p>
 </section>
+<section class="panel hidden" id="fortniteTab">
+<h2>Fortnite Security Scanner</h2>
+<p>Review Fortnite or Epic text logs and configuration files that you choose on this device. The scan runs locally in this browser tab.</p>
+<div class="risk"><strong>Security boundary:</strong> This tool does not access Fortnite or Epic accounts, browser storage, game memory, saved passwords, cookies, or session stores. It cannot validate logins or retrieve tokens. It reports counts only and discards matched text.</div>
+<p><label for="fortniteFiles">Choose Fortnite/Epic text logs or configuration files</label><input id="fortniteFiles" type="file" accept=".txt,.log,.ini,.cfg,.json,.xml,.csv,.md,.conf" multiple></p>
+<p><label for="fortniteText">Or paste text to inspect (optional)</label><textarea id="fortniteText" placeholder="Paste a Fortnite log/config excerpt. Do not paste passwords, active tokens, or 2FA codes."></textarea></p>
+<div class="actions no-print"><button type="button" id="runFortniteScan">Scan Fortnite files</button><button type="button" class="secondary" id="clearFortniteScan">Clear</button></div>
+<h3>Scan result</h3><div id="fortniteResult" class="scanner-result" role="status" aria-live="polite">No scan has been run.</div>
+<p class="hint">Checks for token/JWT-shaped strings, credential-labelled fields, and references to Fortnite/Epic authentication components. Authentication references are context clues—not proof of compromise. Only counts and filenames are reported.</p>
+<h3>Recommended next steps</h3><ol><li>If a credential-like pattern is found, do not post the file publicly.</li><li>Secure your Epic account through Epic's official account-security page, change a potentially exposed password, and enable two-factor authentication.</li><li>Sign out of sessions using the official account controls where available, and rotate any exposed API key or webhook through its provider.</li><li>Download Fortnite only through official Epic channels and avoid third-party “token checker” tools.</li></ol>
+</section>
 <p class="foot">Keep exported files private. The browser form processes entries in your tab and does not submit them to this site.</p></main>
 <script>
 const ids=["name","accountId","display","oldDisplay","email","oldEmail","desiredDisplay","desiredEmail","country","creator","incident","error","date","firstSeen","details","mfaAccess","invoice","provider","last4","billingCity","ip","vpn","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"];
@@ -90,9 +102,11 @@ document.getElementById("draft").addEventListener("click",()=>document.getElemen
 // Page navigation
 const recoveryTabButton=document.getElementById("recoveryTabButton");
 const securityTabButton=document.getElementById("securityTabButton");
-function showTab(which){const recovery=which==="recovery";document.getElementById("recoveryTab").classList.toggle("hidden",!recovery);document.getElementById("securityTab").classList.toggle("hidden",recovery);recoveryTabButton.setAttribute("aria-selected",String(recovery));securityTabButton.setAttribute("aria-selected",String(!recovery));recoveryTabButton.classList.toggle("secondary",!recovery);securityTabButton.classList.toggle("secondary",recovery)}
+const fortniteTabButton=document.getElementById("fortniteTabButton");
+function showTab(which){const active={recovery:which==="recovery",security:which==="security",fortnite:which==="fortnite"};for(const [key,on] of Object.entries(active)){document.getElementById(key==="recovery"?"recoveryTab":key==="security"?"securityTab":"fortniteTab").classList.toggle("hidden",!on);const btn=key==="recovery"?recoveryTabButton:key==="security"?securityTabButton:fortniteTabButton;btn.setAttribute("aria-selected",String(on));btn.classList.toggle("secondary",!on)}}
 recoveryTabButton.addEventListener("click",()=>showTab("recovery"));
 securityTabButton.addEventListener("click",()=>showTab("security"));
+fortniteTabButton.addEventListener("click",()=>showTab("fortnite"));
 // Local-only, redacted pattern scan. Never render or retain matched secret values.
 function inspectText(s){const patterns=[
 {name:"JWT-shaped string",re:/\beyJ[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\b/g},
@@ -101,5 +115,13 @@ function inspectText(s){const patterns=[
 ];const counts={};for(const p of patterns){p.re.lastIndex=0;let n=0;while(p.re.exec(s)!==null)n++;counts[p.name]=n}return counts}
 document.getElementById("runScan").addEventListener("click",async()=>{const input=document.getElementById("scanText").value;const files=[...document.getElementById("scanFiles").files];let totals={"JWT-shaped string":0,"Discord-token-shaped string":0,"Credential-labelled field":0};let scanned=0;let tooLarge=[];const add=(name,c)=>{for(const k of Object.keys(totals))totals[k]+=c[k]||0;scanned++};if(input.trim())add("pasted text",inspectText(input));for(const file of files){if(file.size>2*1024*1024){tooLarge.push(file.name);continue}try{const content=await file.text();add(file.name,inspectText(content))}catch(e){tooLarge.push(file.name)}}const total=Object.values(totals).reduce((a,b)=>a+b,0);const lines=["Files/text scanned: "+scanned,"Potential pattern matches: "+total,...Object.entries(totals).map(([k,v])=>k+": "+v),...(tooLarge.length?["Skipped (over 2 MB or unreadable): "+tooLarge.join(", ")]:[]),"","No matched credential values were displayed, saved, or transmitted.","A pattern match does not prove that a token or login is valid."];document.getElementById("scanResult").textContent=lines.join("\n")});
 document.getElementById("clearScan").addEventListener("click",()=>{document.getElementById("scanText").value="";document.getElementById("scanFiles").value="";document.getElementById("scanResult").textContent="Cleared. No scan has been run."});
+
+function inspectFortniteText(s){const patterns=[
+{name:"JWT-shaped string",re:/\\beyJ[a-zA-Z0-9_-]{8,}\\.[a-zA-Z0-9_-]{8,}\\.[a-zA-Z0-9_-]{8,}\\b/g},
+{name:"Credential-labelled field",re:/(?:password|passwd|access[_-]?token|refresh[_-]?token|authorization|client[_-]?secret|api[_-]?key)\\s*[:=]\\s*[^\\s,;"']{4,}/gi},
+{name:"Fortnite/Epic authentication reference",re:/(?:FortniteGame|EpicOnlineServices|EOS[_-]?(?:Auth|Connect)|OAuth|Authorization)/gi}
+];const counts={};for(const p of patterns){p.re.lastIndex=0;let n=0;while(p.re.exec(s)!==null)n++;counts[p.name]=n}return counts}
+document.getElementById("runFortniteScan").addEventListener("click",async()=>{const input=document.getElementById("fortniteText").value;const files=[...document.getElementById("fortniteFiles").files];let totals={"JWT-shaped string":0,"Credential-labelled field":0,"Fortnite/Epic authentication reference":0};let scanned=0;let skipped=[];const add=c=>{for(const k of Object.keys(totals))totals[k]+=c[k]||0;scanned++};if(input.trim())add(inspectFortniteText(input));for(const file of files){if(file.size>2*1024*1024){skipped.push(file.name);continue}try{add(inspectFortniteText(await file.text()))}catch(e){skipped.push(file.name)}}const total=Object.values(totals).reduce((a,b)=>a+b,0);document.getElementById("fortniteResult").textContent=["Files/text scanned: "+scanned,"Potential pattern/reference matches: "+total,...Object.entries(totals).map(([k,v])=>k+": "+v),...(skipped.length?["Skipped (over 2 MB or unreadable): "+skipped.join(", ")]:[]),"","Matched text was not displayed, saved, or transmitted.","A match is not proof that an account or credential is compromised."].join("\\n")});
+document.getElementById("clearFortniteScan").addEventListener("click",()=>{document.getElementById("fortniteText").value="";document.getElementById("fortniteFiles").value="";document.getElementById("fortniteResult").textContent="Cleared. No scan has been run."});
 
 </script></body></html>
