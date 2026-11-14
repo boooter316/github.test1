@@ -61,13 +61,3 @@ The panel links to Epic's official pages; it does not imitate them, collect Epic
 - iPhone export: use Safari and check Files > Downloads. The dashboard creates a file on demand; it does not email or upload records.
 
 Never share panel passwords, webhook URLs, Epic passwords, 2FA codes, backup codes, cookies, or tokens when asking for help.
-
-
-## Project update checklist
-
-- ✅✔️ Main website PDF Evidence Scanner tab and dashboard shortcut included.
-- ✅✔️ Recovery Panel includes separate Recovery Records and PDF Evidence Scanner tabs.
-- ✅✔️ Custom red-and-black Ghostface artwork included as a site background.
-- 😈😈 Visual checklist/theme update included.
-
-These checkmarks describe project files and interface features only. They do not indicate Epic account ownership, verification, or a completed recovery decision.

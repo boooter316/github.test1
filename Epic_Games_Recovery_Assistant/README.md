@@ -58,13 +58,3 @@ Never enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, 
 ## Security
 
 The unsafe legacy Discord token-grabber was removed from the current source in PR #44. Do not restore or run it.  The safe Discord Security Scanner remains available in the retained legacy browser source, but is not currently integrated into this native command dashboard.
-
-
-## Project update checklist
-
-- ✅✔️ Main website PDF Evidence Scanner tab and dashboard shortcut included.
-- ✅✔️ Recovery Panel includes separate Recovery Records and PDF Evidence Scanner tabs.
-- ✅✔️ Custom red-and-black Ghostface artwork included as a site background.
-- 😈😈 Visual checklist/theme update included.
-
-These checkmarks describe project files and interface features only. They do not indicate Epic account ownership, verification, or a completed recovery decision.
