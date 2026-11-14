@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 3.7 - C++17
+// Epic Games Recovery Assistant 3.8 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <cstdlib>
@@ -61,7 +61,7 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.7 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.8 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -123,6 +123,10 @@ int main(){
  add("Nintendo support case/reference ID"); add("Nintendo restriction type (account restriction / online-service restriction / parental-control issue / other)"); add("Nintendo restriction date and end date/duration, if shown"); add("Nintendo support/appeal status (not started / submitted / response received / closed)"); add("Nintendo factual appeal notes (service affected, notice wording, evidence available)");
  add("Nintendo restriction/support request summary (official review only; no automated restriction changes)");
  add("Evidence bundle description: list only lawful, truthful documents you already possess; do not dump credentials, cookies, tokens, or private account databases");
+ add("Epic recovery request status (not started / submitted / waiting / approved / denied / unsure)");
+ add("Epic recovery request ID (if provided; never enter a verification code)");
+ add("Date of most recent Epic recovery request and any stated waiting period");
+ add("Official recovery-form details still missing (list non-secret items only)");
  add("Account data export limitation: this tool exports only the information you type into this form; it cannot extract or dump data from Epic or another platform");
  add("Restriction notice details, appeal eligibility, end date, and case/reference number");
  add("Requested support ticket category and desired outcome (review/appeal/recovery/linking guidance)");
@@ -155,7 +159,7 @@ int main(){
  "IP and VPN/proxy history are optional context, not proof of ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 3.6\n\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 3.8\n\n";
  j<<"{\n \"version\":\"3.7\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
@@ -163,7 +167,13 @@ int main(){
  draft<<"Subject: Request for account recovery / support\n\nHello Support Team,\n\nI am requesting assistance with my account. I can provide truthful, non-secret information through your official secure process and additional evidence if requested.\n\nRequest: "<<request<<"\n\nPlease advise which official verification steps and documents are required. I understand that only your team can verify ownership, review restrictions, or approve account changes.\n\nThank you.\n";
  save(dir/"recovery_details.txt",txt.str());save(dir/"recovery_details.json",j.str());save(dir/"support_request_draft.txt",draft.str());
  // Copy the C++ source into the packet when it is beside the executable/source.
- fs::path sourcePath=fs::current_path()/"recovery_assistant.cpp";
+ fs::path appDir=fs::current_path();
+#ifdef _WIN32
+ char exePath[MAX_PATH]={0};
+ DWORD exeLen=GetModuleFileNameA(nullptr,exePath,MAX_PATH);
+ if(exeLen>0 && exeLen<MAX_PATH) appDir=fs::path(exePath).parent_path();
+#endif
+ fs::path sourcePath=appDir/"recovery_assistant.cpp";
  if(fs::exists(sourcePath)){std::error_code copyEc;fs::copy_file(sourcePath,dir/"recovery_assistant.cpp",fs::copy_options::overwrite_existing,copyEc);if(copyEc)save(dir/"SOURCE_NOT_COPIED.txt","The C++ source file could not be copied: "+copyEc.message());}
  else save(dir/"SOURCE_NOT_COPIED.txt","recovery_assistant.cpp was not found in the current folder. Place the source file beside the executable and run again to include it.");
  if(!pdf(dir/"recovery_request.pdf",lines))std::cerr<<"PDF export failed; other exports attempted.\n";
