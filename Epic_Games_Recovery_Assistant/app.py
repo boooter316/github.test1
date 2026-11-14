@@ -9,7 +9,7 @@ import shutil
 import webbrowser
 
 APP_NAME = "Epic Games Recovery Assistant"
-APP_VERSION = "1.7"
+APP_VERSION = "1.8"
 SUPPORT_URL = "https://www.epicgames.com/help/en-US/"
 RECOVERY_URL = "https://www.epicgames.com/id/login"
 EPIC_CONTACT_URL = "https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US"
@@ -261,8 +261,8 @@ class EpicRecoveryAssistant:
 
     def build_ticket_tab(self):
         ttk.Label(self.ticket_tab, text="Prepare a support request (not submitted automatically)", font=("Segoe UI", 12, "bold")).pack(anchor="w", pady=(0, 6))
-        ttk.Label(self.ticket_tab, text="Create a clear draft for the platform owner. The app cannot impersonate an owner, open a live agent session, unlink accounts, remove restrictions, or submit tickets automatically.", wraplength=850).pack(anchor="w", pady=4)
-        self.add_choice(self.ticket_tab, "Support destination", self.ticket_target, ["Epic Games", "Xbox", "PlayStation", "Steam", "Nintendo", "Apple", "LEGO"])
+        ttk.Label(self.ticket_tab, text="Create a clear draft for the service owner. The app cannot impersonate an owner, open a live agent session, unlink accounts, remove restrictions, or submit tickets automatically. Whether a service can be linked to or unlinked from Epic depends on Epic's current Connections settings and the service owner.", wraplength=850).pack(anchor="w", pady=4)
+        self.add_choice(self.ticket_tab, "Support destination", self.ticket_target, ["Epic Games", "Xbox", "PlayStation", "Steam", "Nintendo", "Apple", "LEGO", "Google", "GeForce NOW", "Disney", "Twitch", "YouTube", "TikTok", "Facebook", "Payment provider"])
         self.add_choice(self.ticket_tab, "Request category", self.ticket_type, ["Account recovery / ownership review", "Compromised account / security incident", "Restriction appeal / case review", "Unlink a connected platform or service", "Remove or update a payment method", "Change account email or display name", "Other support request"])
         self.add_choice(self.ticket_tab, "Can you provide truthful ownership evidence?", self.ownership_ready, ["Not sure", "Yes", "No"])
         self.add_field(self.ticket_tab, "ticket_account_identifier", "Account name / ID (no passwords)")
@@ -289,7 +289,15 @@ class EpicRecoveryAssistant:
             "Steam": STEAM_ACCOUNT_HELP_URL,
             "Nintendo": NINTENDO_SUPPORT_URL,
             "Apple": "https://support.apple.com/",
-            "LEGO": "https://www.lego.com/service"
+            "LEGO": "https://www.lego.com/service",
+            "Google": "https://support.google.com/accounts/",
+            "GeForce NOW": "https://www.nvidia.com/en-us/support/",
+            "Disney": "https://help.disneyplus.com/",
+            "Twitch": "https://help.twitch.tv/",
+            "YouTube": "https://support.google.com/youtube/",
+            "TikTok": "https://support.tiktok.com/",
+            "Facebook": "https://www.facebook.com/help/",
+            "Payment provider": "https://www.epicgames.com/help/en-US/"
         }
         webbrowser.open(urls.get(self.ticket_target.get(), EPIC_CONTACT_URL))
 
@@ -462,7 +470,7 @@ class EpicRecoveryAssistant:
         for note in [
             "Never share passwords, one-time 2FA codes, backup codes, authenticator setup keys, or full payment-card numbers in this document.",
             "VPN/proxy information is recorded only as truthful context. Epic warns VPN/proxy use may contribute to recovery denial; do not use one to submit a recovery request. This app does not connect to proxies, spoof IP addresses, or bypass verification.",
-            "This app does not contact Epic, verify account ownership, or submit recovery requests.",
+            "This app does not contact Epic, verify account ownership, or submit recovery requests. Connected-service availability varies; confirm the service appears in Epic Account > Apps and Accounts / Connections before requesting an unlink.",
             "Use only Epic's official account recovery and support pages: " + SUPPORT_URL
         ]:
             story.append(Paragraph("• " + escape(note), body))
