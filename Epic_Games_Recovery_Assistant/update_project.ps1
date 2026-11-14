@@ -48,7 +48,7 @@ try {
     New-Item -ItemType Directory -Force -Path $stage | Out-Null
     Expand-Archive -LiteralPath $archive -DestinationPath $stage -Force
 
-    $requiredFiles = @('build.bat', 'setup.bat', 'run.bat', 'install_auto_update.ps1', 'update_project.ps1', 'recovery_assistant.c++')
+    $requiredFiles = @('build.bat', 'setup.bat', 'run.bat', 'install_auto_update.ps1', 'update_project.ps1', 'recovery_assistant.c++', 'SETUP_AND_USAGE.txt', 'web\\SETUP_AND_USAGE.txt', 'web\\network-tools.html', 'web\\network_tools.ps1', 'web\\network_security.js', 'web\\network_security_snapshot.ps1')
     foreach ($name in $requiredFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $stage $name) -PathType Leaf)) { throw "Downloaded package is incomplete; missing required file: $name" }
     }
