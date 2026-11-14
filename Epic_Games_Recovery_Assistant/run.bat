@@ -1,7 +1,10 @@
 @echo off
-title Epic Games Recovery Assistant
-py app.py
-if errorlevel 1 (
-  echo Could not start the application. Run setup.bat first.
+title Epic Games Recovery Assistant 3.0
+cd /d "%~dp0"
+if not exist recovery_assistant.exe (
+  echo Run setup.bat first to build the application.
   pause
+  exit /b 1
 )
+recovery_assistant.exe
+pause
