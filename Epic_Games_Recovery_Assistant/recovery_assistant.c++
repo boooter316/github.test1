@@ -9,7 +9,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iomanip>
+#include <limits>
 #ifdef _WIN32
+#include <conio.h>
+#include <bcrypt.h>
 #include <windows.h>
 #include <shellapi.h>
 #include <winhttp.h>
@@ -69,8 +73,8 @@ void notifyDiscord(const std::string& event) {
  if(!WinHttpCrackUrl(url.c_str(),0,0,&parts)) return;
  std::wstring hostname(host,parts.dwHostNameLength), requestPath(path,parts.dwUrlPathLength);
  if(parts.nScheme!=INTERNET_SCHEME_HTTPS || hostname!=L"discord.com" || requestPath.rfind(L"/api/webhooks/",0)!=0) return;
- std::string body="{\"content\":\"Epic Games Recovery Assistant: "+escJson(event)+"\"}";
- HINTERNET session=WinHttpOpen(L"EpicRecoveryAssistant/4.5",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,WINHTTP_NO_PROXY_NAME,WINHTTP_NO_PROXY_BYPASS,0);
+ std::string body="{\"content\":\"Epic Games Recovery Assistant 4.6: "+escJson(event)+"\"}";
+ HINTERNET session=WinHttpOpen(L"EpicRecoveryAssistant/4.6",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,WINHTTP_NO_PROXY_NAME,WINHTTP_NO_PROXY_BYPASS,0);
  if(!session) return;
  HINTERNET connection=WinHttpConnect(session,hostname.c_str(),parts.nPort,0);
  if(connection){
@@ -152,8 +156,136 @@ void openLink(const char* url){
  std::cout<<"Open in browser: "<<url<<"\n";
 #endif
 }
+
+#ifdef _WIN32
+// Local Recovery Assistant accounts: PBKDF2-HMAC-SHA256 password hashes,
+// random per-user salts, and a file under the current Windows user's LOCALAPPDATA.
+static const ULONG AUTH_ITERATIONS = 300000;
+std::string hexEncode(const std::vector<unsigned char>& data) {
+ std::ostringstream out; out<<std::hex<<std::setfill('0');
+ for(unsigned char b:data) out<<std::setw(2)<<(unsigned int)b;
+ return out.str();
+}
+bool hexDecode(const std::string& s,std::vector<unsigned char>& out) {
+ if(s.size()%2) return false; out.clear();
+ for(size_t i=0;i<s.size();i+=2) {
+  char* end=nullptr; unsigned long v=std::strtoul(s.substr(i,2).c_str(),&end,16);
+  if(!end||*end||v>255) return false; out.push_back((unsigned char)v);
+ }
+ return true;
+}
+std::string hiddenPassword(const std::string& prompt) {
+ std::cout<<prompt; std::string value;
+ for(;;) {
+  int ch=_getch();
+  if(ch=='\r'||ch=='\n') { std::cout<<"\n"; break; }
+  if(ch==3) { std::cout<<"\n"; return {}; }
+  if(ch=='\b') { if(!value.empty()){value.pop_back();std::cout<<"\b \b";} continue; }
+  if(ch>=32&&ch<=126&&value.size()<256) { value.push_back((char)ch);std::cout<<'*'; }
+ }
+ return value;
+}
+fs::path authDatabasePath() {
+ const char* base=std::getenv("LOCALAPPDATA");
+ fs::path root=(base&&*base)?fs::path(base):fs::current_path();
+ return root/"EpicRecoveryAssistant"/"local_users.db";
+}
+bool validUsername(const std::string& u) {
+ if(u.size()<3||u.size()>32) return false;
+ for(unsigned char c:u) if(!std::isalnum(c)&&c!='_'&&c!='-'&&c!='.') return false;
+ return true;
+}
+bool derivePasswordHash(const std::string& password,const std::vector<unsigned char>& salt,std::vector<unsigned char>& hash) {
+ hash.assign(32,0);
+ NTSTATUS st=BCryptDeriveKeyPBKDF2(nullptr,
+  (PUCHAR)password.data(),(ULONG)password.size(),
+  (PUCHAR)salt.data(),(ULONG)salt.size(),AUTH_ITERATIONS,0,
+  hash.data(),(ULONG)hash.size());
+ return st>=0;
+}
+bool constantTimeEqual(const std::vector<unsigned char>& a,const std::vector<unsigned char>& b) {
+ if(a.size()!=b.size()) return false; unsigned char diff=0;
+ for(size_t i=0;i<a.size();++i) diff|=(unsigned char)(a[i]^b[i]);
+ return diff==0;
+}
+void wipe(std::string& s) { volatile char* p=s.empty()?nullptr:&s[0]; for(size_t i=0;i<s.size();++i)p[i]=0; s.clear(); }
+bool accountExists(const fs::path& db,const std::string& username) {
+ std::ifstream in(db); std::string line,u;
+ while(std::getline(in,line)){std::istringstream row(line);if(std::getline(row,u,'|')&&u==username)return true;}
+ return false;
+}
+bool registerLocalAccount(const fs::path& db) {
+ std::cout<<"\n=== REGISTER ===\nCreate a local account for this Recovery Assistant.\n";
+ std::string username=ask("Choose a username (3-32 letters/numbers/._-)");
+ if(!validUsername(username)){std::cout<<"Invalid username format.\n";return false;}
+ if(accountExists(db,username)){std::cout<<"That local username already exists. Please sign in.\n";return false;}
+ std::string password=hiddenPassword("Create password (at least 12 characters; input hidden): ");
+ if(password.size()<12){wipe(password);std::cout<<"Password must be at least 12 characters.\n";return false;}
+ std::string confirm=hiddenPassword("Confirm password: ");
+ if(password!=confirm){wipe(password);wipe(confirm);std::cout<<"Passwords did not match.\n";return false;}
+ wipe(confirm);
+ std::vector<unsigned char> salt(16),hash;
+ if(BCryptGenRandom(nullptr,salt.data(),(ULONG)salt.size(),BCRYPT_USE_SYSTEM_PREFERRED_RNG)<0 ||
+    !derivePasswordHash(password,salt,hash)){wipe(password);std::cout<<"Secure password setup failed.\n";return false;}
+ wipe(password);
+ std::ofstream out(db,std::ios::app);
+ if(!out){std::cout<<"Could not save the local account.\n";return false;}
+ out<<username<<"|"<<AUTH_ITERATIONS<<"|"<<hexEncode(salt)<<"|"<<hexEncode(hash)<<"\n";
+ out.close();
+ if(!out){std::cout<<"Could not finish saving the local account.\n";return false;}
+ std::cout<<"Registration complete. You are signed in locally.\n";
+ return true;
+}
+bool signInLocalAccount(const fs::path& db) {
+ std::cout<<"\n=== SIGN IN ===\n";
+ std::string username=ask("Username");
+ std::string password=hiddenPassword("Password (input hidden): ");
+ std::ifstream in(db); std::string line; bool matched=false;
+ while(std::getline(in,line)) {
+  std::istringstream row(line); std::string u,it,saltText,hashText;
+  if(!std::getline(row,u,'|')||!std::getline(row,it,'|')||
+     !std::getline(row,saltText,'|')||!std::getline(row,hashText,'|')||u!=username) continue;
+  char* end=nullptr; unsigned long iterations=std::strtoul(it.c_str(),&end,10);
+  std::vector<unsigned char> salt,expected,actual;
+  if(!end||*end||iterations<100000||iterations>1000000||
+     !hexDecode(saltText,salt)||!hexDecode(hashText,expected)||expected.size()!=32) break;
+  actual.assign(32,0);
+  NTSTATUS st=BCryptDeriveKeyPBKDF2(nullptr,(PUCHAR)password.data(),(ULONG)password.size(),
+    salt.data(),(ULONG)salt.size(),iterations,0,actual.data(),(ULONG)actual.size());
+  matched=(st>=0)&&constantTimeEqual(actual,expected);
+  break;
+ }
+ wipe(password);
+ if(matched) std::cout<<"Sign-in successful.\n";
+ else std::cout<<"Sign-in failed. Check your username and password.\n";
+ return matched;
+}
+bool authGate() {
+ fs::path db=authDatabasePath(); std::error_code ec;
+ fs::create_directories(db.parent_path(),ec);
+ if(ec){std::cout<<"Cannot create the local account-storage folder.\n";return false;}
+ for(;;) {
+  std::cout<<"\n====================================\n"
+           <<" EPIC RECOVERY ASSISTANT - ACCOUNT\n"
+           <<"====================================\n"
+           <<"1. Sign in\n2. Register\n0. Exit\n";
+  std::string choice=ask("Select an option");
+  if(choice=="0") return false;
+  if(choice=="1") { if(signInLocalAccount(db)) return true; }
+  else if(choice=="2") { if(registerLocalAccount(db)) return true; }
+  else std::cout<<"Choose 1, 2, or 0.\n";
+ }
+}
+#else
+bool authGate() {
+ std::cout<<"The local sign-in feature requires Windows.\n";
+ return false;
+}
+#endif
+
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.5 (C++17)\n"
+ if(!authGate()) return 0;
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.6 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -273,12 +405,12 @@ int main(){
  logHistoricalIPs(dir,epicId);
  logLoginActivity(dir,epicId);
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.5 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.6 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional user-reported context; this app cannot compare it with Epic records or verify account ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, full phone numbers, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.5\n\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.6\n\n";
  j<<"{\n \"version\":\"4.5\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
