@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant
 
-Version 1.8. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
+Version 1.9. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
 
 ## Requirements
 - Windows 10 or Windows 11
@@ -29,10 +29,11 @@ Version 1.8. A Windows Python desktop utility for organizing truthful Epic Games
   - `app.py` (copy of the running Python script, when available)
   - `README.txt` (handling and security notes)
 - The app also creates a ZIP archive of the complete packet folder for easier storage or transfer.
-- **Support Ticket Builder** prepares a local draft for Epic Games, Xbox, PlayStation, Steam, Nintendo, Apple, LEGO, Google, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, or a payment provider, with request categories for account recovery, compromised accounts, restriction appeals, platform unlink requests, payment-method changes, and profile changes. The selected destination opens that service's general official support page. The draft is included in the PDF and packet as `support_request_draft.txt`; it is never submitted automatically. Whether a service can be linked to or unlinked from Epic depends on Epic's current Connections settings and the service owner's rules.
-- The ticket builder links to the official Epic Support Assistant/contact page and Epic linked-account settings. Other platform buttons open their official support destinations. Live agent availability depends on the platform and account; the app does not simulate a live chat.
+- **Support Ticket Builder** prepares a local draft for Epic Games, Xbox, PlayStation, Steam, Nintendo, Apple, LEGO, Google, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, or a payment provider, or an additional manually named service, with request categories for account recovery, compromised accounts, restriction appeals, platform unlink requests, payment-method changes, and profile changes. The selected destination opens that service's general official support page. The draft is included in the PDF and packet as `support_request_draft.txt`; it is never submitted automatically. Whether a service can be linked to or unlinked from Epic depends on Epic's current Connections settings and the service owner's rules.
+- The ticket builder links to the official Epic Support Assistant/contact page and Epic linked-account settings. It includes a local ownership-evidence readiness check: if the user marks evidence unavailable, the draft warns them to pause and use official recovery; the check does not verify ownership. Other platform buttons open their official support destinations. Live agent availability depends on the platform and account; the app does not simulate a live chat.
 
-- Version 1.8 expands support-request destinations to Google, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and payment-provider support. These are support links and request-drafting options, not proof that every service can be connected to an Epic account.
+- Version 1.9 adds an **Other service** destination and a field to name a service not listed. It also adds an ownership-evidence readiness check before preparing a support request. This is a reminder only, not an ownership verification or account lock.
+- Support destinations are support links and request-drafting options, not proof that every service can be connected to an Epic account.
 
 ## Privacy and security
 - Packet files are saved to the folder you choose; this app does not upload or send them anywhere.
