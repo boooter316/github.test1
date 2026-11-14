@@ -8,6 +8,7 @@ on:
       - "Epic_Games_Recovery_Assistant/recovery_assistant.cpp"
       - "Epic_Games_Recovery_Assistant/README.md"
       - "Epic_Games_Recovery_Assistant/setup.bat"
+      - "Epic_Games_Recovery_Assistant/build.bat"
       - "Epic_Games_Recovery_Assistant/run.bat"
       - ".github/workflows/build-windows.yml"
 
