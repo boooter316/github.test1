@@ -1,18 +1,19 @@
 @echo off
-title Epic Games Recovery Assistant Setup
-echo Installing dependencies...
-py -m pip install --upgrade pip
+title Epic Games Recovery Assistant 3.0 - Build
+cd /d "%~dp0"
+where g++ >nul 2>nul
 if errorlevel 1 (
-  echo Python or pip was not found. Install Python from https://www.python.org/downloads/
+  echo C++17 compiler not found. Install MinGW-w64/GCC and add g++ to PATH.
+  echo https://www.mingw-w64.org/
   pause
   exit /b 1
 )
-py -m pip install -r requirements.txt
+echo Building C++17 application...
+g++ -std=c++17 -O2 -Wall -Wextra recovery_assistant.cpp -o recovery_assistant.exe
 if errorlevel 1 (
-  echo Dependency installation failed.
+  echo Build failed. Check the compiler and source.
   pause
   exit /b 1
 )
-echo Installation complete. Starting application...
-py app.py
+echo Build complete: recovery_assistant.exe
 pause
