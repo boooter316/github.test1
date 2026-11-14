@@ -131,6 +131,33 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <pre id="identityCheckResult" class="scanner-result" role="status" aria-live="polite">No comparison run. Results stay in this browser tab.</pre>
 <p class="hint">A matching IP only shows that the address appears in a record; it does not identify the person using it. Stronger account-recovery evidence should come from platform-issued records and original purchase receipts submitted through official support. This report is an organizer, not a forensic examination, ownership certificate, or guarantee that nobody accessed the account.</p>
 </section>
+ 
+<section class="panel" id="ownershipEvidencePacket">
+<h3>Pro Account Ownership Evidence Packet</h3>
+<div class="notice"><strong>Verification status: Awaiting official platform review.</strong> This tool cannot certify an owner, authenticate documents, or transfer/lock an account. Only the platform can verify its internal records and decide who is entitled to the account. Never use this packet to claim another person's account.</div>
+<p>Build a structured checklist of original evidence you lawfully possess. Select only items you can genuinely provide to official support. Do not upload documents here or enter passwords, verification codes, full card numbers, or private authentication data.</p>
+<div class="checks">
+<label class="check"><input type="checkbox" class="ownership-proof" value="Original platform-issued account creation or welcome email"> Original platform-issued account creation / welcome email</label>
+<label class="check"><input type="checkbox" class="ownership-proof" value="Original platform-issued purchase receipt or invoice"> Original platform-issued purchase receipt / invoice</label>
+<label class="check"><input type="checkbox" class="ownership-proof" value="Order or transaction reference verifiable by the platform"> Order / transaction reference verifiable by the platform</label>
+<label class="check"><input type="checkbox" class="ownership-proof" value="Historical account email or display-name change notices"> Historical account email / display-name change notices</label>
+<label class="check"><input type="checkbox" class="ownership-proof" value="Platform-generated security or sign-in notification"> Platform-generated security / sign-in notification</label>
+<label class="check"><input type="checkbox" class="ownership-proof" value="Linked-platform ownership record from that platform"> Linked-platform ownership record from that platform</label>
+<label class="check"><input type="checkbox" class="ownership-proof" value="Existing official support case or recovery correspondence"> Existing official support case / recovery correspondence</label>
+<label class="check"><input type="checkbox" class="ownership-proof" value="Original device or account history records"> Original device / account history records</label>
+</div>
+<div class="grid">
+<div><label for="ownershipPlatform">Platform to review the claim</label><select id="ownershipPlatform"><option>Epic Games</option><option>Xbox</option><option>PlayStation</option><option>Steam</option><option>Nintendo</option><option>Other platform</option></select></div>
+<div><label for="ownershipCase">Official support case/reference (if one exists)</label><input id="ownershipCase" autocomplete="off"></div>
+<div><label for="ownershipEvidenceDate">Date of oldest original evidence (if known)</label><input id="ownershipEvidenceDate" type="date"></div>
+<div><label for="ownershipReference">Non-secret receipt/order reference (optional)</label><input id="ownershipReference" autocomplete="off" placeholder="Reference only; no payment details"></div>
+</div>
+<p><label for="ownershipNotes">Evidence notes (source, date, and what it shows; no secrets)</label><textarea id="ownershipNotes" placeholder="Example: original purchase receipt issued by the platform on YYYY-MM-DD; reference ending 1234."></textarea></p>
+<div class="actions no-print"><button type="button" id="buildOwnershipPacket">Build ownership evidence report</button><button type="button" class="secondary" id="printOwnershipPacket" disabled>Print / Save as PDF</button><button type="button" class="secondary" id="downloadOwnershipPacket" disabled>Download .txt</button></div>
+<pre id="ownershipPacketResult" class="scanner-result" role="status" aria-live="polite">No ownership packet generated. Status remains unverified until the platform reviews original evidence.</pre>
+<p class="hint">A checklist selection is a user statement, not proof that a document is genuine. Do not submit altered, fabricated, or someone else's records. Provide original, unedited platform-issued evidence only through the platform's official secure support channel. This report does not establish legal ownership or prove that an account was never accessed by another person.</p>
+</section>
+
 <p><label for="fortniteFiles">Choose account logs, text/config files, or PDFs (PDF text only)</label><input id="fortniteFiles" type="file" accept=".txt,.log,.ini,.cfg,.json,.xml,.csv,.md,.conf,.yaml,.yml,.pdf" multiple></p>
 <p><label for="fortniteText">Or paste text to inspect (optional)</label><textarea id="fortniteText" placeholder="Paste a Fortnite log/config excerpt. Do not paste passwords, active tokens, or 2FA codes."></textarea></p>
 <div class="actions no-print"><button type="button" id="runFortniteScan">Scan selected files</button><button type="button" class="secondary" id="clearFortniteScan">Clear</button><button type="button" class="secondary" id="downloadFortniteReport" disabled>Download findings .txt</button><button type="button" class="secondary" id="printFortniteReport" disabled>Print / Save report as PDF</button></div>
@@ -511,5 +538,53 @@ document.getElementById("clearIdentityCheck").addEventListener("click",()=>{
  ["referenceIp","referenceAccountId","referenceUsername","referenceEmail","identityWindowStart","identityWindowEnd","identityEvidenceText"].forEach(id=>document.getElementById(id).value="");
  document.getElementById("identityEvidenceFiles").value="";document.getElementById("identityCheckResult").textContent="Cleared. No comparison run.";
  latestIdentityReport="";document.getElementById("printIdentityReport").disabled=true;document.getElementById("downloadIdentityReport").disabled=true;
+});
+
+// Pro Account Ownership Evidence Packet: organizes claims for official platform review; never certifies ownership.
+let latestOwnershipPacket="";
+function buildOwnershipPacket(){
+ const platform=document.getElementById("ownershipPlatform").value;
+ const caseRef=document.getElementById("ownershipCase").value.trim();
+ const evidenceDate=document.getElementById("ownershipEvidenceDate").value;
+ const reference=document.getElementById("ownershipReference").value.trim();
+ const notes=document.getElementById("ownershipNotes").value.trim();
+ const selected=[...document.querySelectorAll(".ownership-proof:checked")].map(x=>x.value);
+ const lines=[
+  "PRO ACCOUNT OWNERSHIP EVIDENCE PACKET",
+  "Generated: "+new Date().toISOString(),
+  "Platform requested to review: "+platform,
+  "Official support case/reference: "+(caseRef||"Not supplied"),
+  "Oldest evidence date supplied: "+(evidenceDate||"Not supplied"),
+  "Non-secret order/receipt reference: "+(reference||"Not supplied"),
+  "",
+  "EVIDENCE TYPES THE USER SAYS THEY CAN PROVIDE:",
+  ...(selected.length?selected.map((x,i)=>(i+1)+". "+x):["No evidence types selected"]),
+  "",
+  "USER-PROVIDED NOTES:",
+  notes||"No notes supplied",
+  "",
+  "VERIFICATION STATUS: NOT VERIFIED — AWAITING OFFICIAL PLATFORM REVIEW.",
+  "This packet records user-entered claims and selections only. It does not authenticate documents, verify payment, access platform account records, establish legal ownership, or authorize account transfer, lockout, or recovery.",
+  "Only the platform can compare original records against its internal account history and decide who is entitled to the account. A matching IP address, account ID, receipt reference, screenshot, or PDF alone is not an ownership certificate.",
+  "Submit original, unedited platform-issued records through the official secure support channel. Never submit passwords, 2FA codes, backup codes, cookies, tokens, full payment-card numbers, or another person's private records. Do not fabricate, alter, or claim evidence belonging to someone else.",
+  "No account login, external lookup, document authenticity check, platform API request, or upload was performed. The packet is generated locally in this browser."
+ ].join("\n");
+ latestOwnershipPacket=lines;
+ document.getElementById("ownershipPacketResult").textContent=lines;
+ document.getElementById("printOwnershipPacket").disabled=false;
+ document.getElementById("downloadOwnershipPacket").disabled=false;
+}
+document.getElementById("buildOwnershipPacket").addEventListener("click",buildOwnershipPacket);
+document.getElementById("downloadOwnershipPacket").addEventListener("click",()=>{
+ if(!latestOwnershipPacket)return;
+ const blob=new Blob([latestOwnershipPacket],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="pro-account-ownership-evidence-packet.txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+document.getElementById("printOwnershipPacket").addEventListener("click",()=>{
+ if(!latestOwnershipPacket)return;
+ const w=window.open("","_blank");if(!w){alert("Allow pop-ups to print or save the ownership evidence packet as PDF.");return}
+ const safe=latestOwnershipPacket.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+ w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Pro Account Ownership Evidence Packet</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Pro Account Ownership Evidence Packet</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\\/script></body></html>");
+ w.document.close();
 });
 </script></body></html>
