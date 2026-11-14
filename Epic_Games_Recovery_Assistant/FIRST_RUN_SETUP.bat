@@ -1,10 +1,15 @@
 @echo off
 setlocal
-title Epic Games Recovery Assistant - First Run Setup
+title Epic Games Recovery Assistant - Native Desktop Setup
 cd /d "%~dp0" || exit /b 1
-echo This launcher checks and installs missing prerequisites, builds the app,
-echo starts the local web server, and opens both project interfaces.
-echo Windows may ask you to approve package installations.
+echo.
+echo ============================================================
+echo   EPIC GAMES RECOVERY ASSISTANT - WINDOWS DESKTOP
+echo ============================================================
+echo This setup builds and opens the native command dashboard.
+echo It does NOT install Node.js, start a web server, or open a browser.
+echo Windows may ask you to approve the C++ compiler installation.
+echo.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0first_run_setup.ps1"
 set "RESULT=%ERRORLEVEL%"
 if not "%RESULT%"=="0" (
