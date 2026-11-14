@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 4.1.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 4.2.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Download the Windows executable
 
@@ -49,6 +49,9 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 ## Features
 
 - Dedicated failed-recovery tracking and an Epic follow-up ticket draft, included in the local evidence packet.
+- Expanded linked-service inventory for Xbox, PlayStation, Nintendo, Steam, Twitch, YouTube, Instagram, TikTok, Facebook, Google/Gmail, LEGO, Roblox, and GTA/Rockstar Games.
+- Password-change planning prompts that never request or store a current or new password; users must change passwords themselves through Epic's official security page.
+- Phone-number ownership status without collecting the full number, plus explicit IP-history consistency notes.
 
 - Organizes Epic Account ID and optional Epic-provided account-number/reference (both exported to PDF, JSON, and text), current/previous display names and emails, account dates, creator code, invoice/order ID, purchase name, optional billing address, payment provider, and card last four digits only.
 - Records each 2FA method (Epic Authenticator, third-party authenticator app, email, SMS/phone), preferred method, and separate access-status notes for each method. It can record which official recovery contact method the user wants to discuss with support. It does not store phone numbers or verification codes.
@@ -60,6 +63,12 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 - Includes an offline guided recovery chat for common questions; it is not a live AI model or Epic agent.
 - Prepares a support-request draft and opens Epic's official contact page; the user reviews and submits it. No automatic ticket submission or direct Epic API connection.
 - Opens official recovery, support, account settings, linked-account and 2FA help pages.
+
+## Version 4.2 additions
+
+- Adds an expanded linked-service inventory for Xbox, PlayStation, Nintendo, Steam, Twitch, YouTube, Instagram, TikTok, Facebook, Google/Gmail, LEGO, Roblox, and GTA/Rockstar Games. It records public profile identifiers and link-status notes only.
+- Adds password-change planning and phone-number-control status without collecting passwords, full phone numbers, or verification codes.
+- Adds historical IP consistency notes, including the source/date of a remembered IP. The app cannot obtain Epic's internal IP records, compare addresses against them, or verify account creation/ownership. Epic must perform any account-side verification through its official process.
 
 ## Version 4.1 additions
 
@@ -99,7 +108,7 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 - The guided chat is an offline rule-based helper, not a live AI service or Epic agent. It does not provide live agent chat or pretend to be an agent.
 - The support-request draft is not sent automatically. The user must review it and submit it through Epic's official contact process.
 - It does not spoof IP addresses, rotate proxies, bypass 2FA, impersonate a previous network/location, or access databases through PuTTY, C2, or VPS infrastructure.
-- A remembered IP is optional context, not proof of ownership and not required by this app.
+- A remembered IP is optional context, not proof of ownership and not required by this app. The app cannot perform a live IP check or compare a user's IP with Epic's private account records; do not treat an apparent match as verification.
 - Never enter passwords, account PINs, CVV, full card numbers, 2FA codes, backup codes, authenticator secrets, session cookies, or access tokens.
 - Billing details and card last four digits are optional. Provide them only through an official secure form if the platform specifically requests them.
 - Keep exported files private because they may contain personal information.
