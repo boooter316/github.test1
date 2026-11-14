@@ -114,6 +114,15 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div class="notice" role="note" aria-label="Legal and authorized-use notice"><strong>Legal and authorized-use notice:</strong> Use this scanner only on files and accounts you own or are expressly authorized to assess, and comply with applicable laws, platform terms, and workplace policies. The scanner performs local pattern matching on selected files; it does not grab accounts, establish ownership, validate credentials, or determine whether an account is compromised. Do not use findings to access another person's account, impersonate anyone, bypass security controls, or disclose private information. You are responsible for reviewing files before sharing reports and for promptly revoking or rotating exposed credentials. This independent tool is provided “as is,” without warranty; it is not legal advice and does not guarantee account recovery or security.</div>
 <p>Review account logs, text/configuration files, and text-based PDFs that you choose on this device. The scan runs locally in this browser tab. Supported labels include Epic Games, Xbox, PlayStation, Nintendo, Steam, Google, Twitch, YouTube, TikTok, Instagram, WeGo, and Roblox.</p>
 <div class="risk"><strong>Security boundary:</strong> This tool does not access Fortnite or Epic accounts, browser storage, game memory, saved passwords, cookies, or session stores. It cannot validate logins or retrieve tokens. It shows every detected match in a numbered findings list with source filename, line number, category, confidence label, and a safely masked preview. Email addresses, account IDs, and display names are shown in full in this local browser result. Passwords, tokens, cookies, and session secrets are always redacted.</div>
+<section class="panel" id="ipAccountConsistency">
+<h3>Local IP &amp; Account Consistency Checker</h3>
+<p>Compare a reference IP and account ID against logs you select. Results show exact text matches, other IP/account-ID lines, and lines where both identifiers appear together. This is evidence comparison, not proof of ownership.</p>
+<div class="grid"><div><label for="referenceIp">Reference IP address (optional)</label><input id="referenceIp" placeholder="Known IPv4 or IPv6 address" autocomplete="off"></div><div><label for="referenceAccountId">Reference account ID (optional)</label><input id="referenceAccountId" placeholder="Known account ID" autocomplete="off"></div></div>
+<p><label for="identityEvidenceFiles">Choose evidence files</label><input id="identityEvidenceFiles" type="file" multiple accept=".txt,.log,.json,.csv,.ini,.cfg,.conf,.yaml,.yml,.md"></p>
+<p><label for="identityEvidenceText">Or paste relevant log text</label><textarea id="identityEvidenceText" placeholder="Paste authorized logs only. Remove passwords, tokens, cookies, and other secrets first."></textarea></p>
+<div class="actions"><button type="button" id="runIdentityCheck">Compare IP and account identifiers</button><button type="button" class="secondary" id="clearIdentityCheck">Clear checker</button></div>
+<pre id="identityCheckResult" class="scanner-result" role="status" aria-live="polite">No comparison run. Results stay in this browser tab.</pre>
+</section>
 <p><label for="fortniteFiles">Choose account logs, text/config files, or PDFs (PDF text only)</label><input id="fortniteFiles" type="file" accept=".txt,.log,.ini,.cfg,.json,.xml,.csv,.md,.conf,.yaml,.yml,.pdf" multiple></p>
 <p><label for="fortniteText">Or paste text to inspect (optional)</label><textarea id="fortniteText" placeholder="Paste a Fortnite log/config excerpt. Do not paste passwords, active tokens, or 2FA codes."></textarea></p>
 <div class="actions no-print"><button type="button" id="runFortniteScan">Scan selected files</button><button type="button" class="secondary" id="clearFortniteScan">Clear</button><button type="button" class="secondary" id="downloadFortniteReport" disabled>Download findings .txt</button><button type="button" class="secondary" id="printFortniteReport" disabled>Print / Save report as PDF</button></div>
@@ -391,5 +400,35 @@ document.getElementById("printFortniteReport").addEventListener("click",()=>{
   w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Fortnite Epic Scan Report</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Fortnite / Epic Local Security Scan Report</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\/script></body></html>");
   w.document.close();
 });
+function validV4(ip){const p=ip.split(".");return p.length===4&&p.every(x=>/^\d{1,3}$/.test(x)&&+x>=0&&+x<=255)}
+function ipsOnLine(line){
+ const re=/(?<![\w:])(?:\d{1,3}\.){3}\d{1,3}(?![\w:])|(?<![\w:])(?:[0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}(?![\w:])/g;
+ return [...new Set([...line.matchAll(re)].map(m=>m[0]).filter(ip=>ip.includes(".")?validV4(ip):ip.includes(":")&&ip.length<=39).map(ip=>ip.toLowerCase()))];
+}
+async function runIdentityCheck(){
+ const refIp=document.getElementById("referenceIp").value.trim().toLowerCase(),refId=document.getElementById("referenceAccountId").value.trim();
+ const out=document.getElementById("identityCheckResult");
+ if(!refIp&&!refId){out.textContent="Enter at least one reference IP or account ID.";return}
+ if(refIp&&!validV4(refIp)&&!(refIp.includes(":")&&/^[0-9a-f:]+$/i.test(refIp)&&refIp.length<=39)){out.textContent="Reference IP format not recognized. Enter a valid IPv4 or basic IPv6 literal.";return}
+ const files=[...document.getElementById("identityEvidenceFiles").files],paste=document.getElementById("identityEvidenceText").value;
+ if(files.some(f=>f.size>5*1024*1024)||files.reduce((n,f)=>n+f.size,0)+new Blob([paste]).size>20*1024*1024){out.textContent="File limit: 5 MB each and 20 MB combined.";return}
+ try{
+  const sources=[];if(paste.trim())sources.push({name:"Pasted text",text:paste});
+  for(const file of files)sources.push({name:file.name,text:await file.text()});
+  let ipHit=0,ipOther=0,idHit=0,idOther=0,both=0,lines=0;const findings=[];
+  for(const source of sources)source.text.split(/\r?\n/).forEach((line,i)=>{
+   lines++;const ips=ipsOnLine(line),idMatches=[...line.matchAll(/(?:account[_ -]?id|user[_ -]?id|epic[_ -]?id|profile[_ -]?id)\s*["']?\s*[:=]\s*["']?([A-Za-z0-9_-]{5,80})/ig)].map(m=>m[1]);
+   const ih=!!refIp&&ips.includes(refIp),dh=!!refId&&idMatches.includes(refId);
+   if(refIp&&ips.length){if(ih)ipHit++;else ipOther++}
+   if(refId&&idMatches.length){if(dh)idHit++;else idOther++}
+   if(ih&&dh)both++;
+   if((ih||dh||(refIp&&ips.length)||(refId&&idMatches.length))&&findings.length<100)findings.push(source.name+":"+(i+1)+" — "+[ih?"reference IP match":refIp&&ips.length?"other IP present":"",dh?"reference account ID match":refId&&idMatches.length?"other labelled account ID present":""].filter(Boolean).join("; "));
+  });
+  out.textContent=["LOCAL IP & ACCOUNT CONSISTENCY REPORT","Sources: "+sources.length+" | Lines examined: "+lines,"Reference IP: "+(refIp||"not supplied"),"Exact IP-match lines: "+ipHit,"Other IP-bearing lines: "+ipOther,"Reference account ID: "+(refId?"provided (not repeated)":"not supplied"),"Exact labelled account-ID lines: "+idHit,"Other labelled account-ID lines: "+idOther,"Lines containing both reference values: "+both,"","Findings:",...(findings.length?findings:["No relevant identifier lines found."]),"","An exact match means only that text appears in the selected evidence. It does not prove account ownership, physical location, or who used an IP. VPNs, proxies, carrier NAT, shared/dynamic IPs, copied logs, and timestamps can mislead. No IP lookup or network request was performed; evidence stays in this browser tab."].join("\n");
+ }catch(e){out.textContent="Could not read evidence: "+e.message}
+}
+document.getElementById("runIdentityCheck").addEventListener("click",runIdentityCheck);
+document.getElementById("clearIdentityCheck").addEventListener("click",()=>{["referenceIp","referenceAccountId","identityEvidenceText"].forEach(id=>document.getElementById(id).value="");document.getElementById("identityEvidenceFiles").value="";document.getElementById("identityCheckResult").textContent="Cleared. No comparison run."});
+
 
 </script></body></html>
