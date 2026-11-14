@@ -1,12 +1,15 @@
 import http from "node:http";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { timingSafeEqual } from "node:crypto";
+import { timingSafeEqual, createHash, createHmac } from "node:crypto";
 
 const ROOT = process.env.WEB_ROOT || process.cwd();
 const PORT = Number(process.env.PORT || 8080);
 const API_KEY = process.env.DEEPSEEK_API_KEY || "";
 const CHAT_PASSWORD = process.env.CHAT_ACCESS_PASSWORD || "";
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
+const TELEGRAM_BOT_USERNAME = (process.env.TELEGRAM_BOT_USERNAME || "").replace(/^@/, "");
+const TELEGRAM_CONFIGURED = Boolean(TELEGRAM_BOT_TOKEN && /^[A-Za-z0-9_]{5,32}$/.test(TELEGRAM_BOT_USERNAME));
 const files = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
   ["/index.html", ["index.html", "text/html; charset=utf-8"]],
@@ -14,7 +17,8 @@ const files = new Map([
   ["/network-tools.html", ["network-tools.html", "text/html; charset=utf-8"]],
   ["/network_tools.ps1", ["network_tools.ps1", "text/plain; charset=utf-8"]],
   ["/SETUP_AND_USAGE.txt", ["SETUP_AND_USAGE.txt", "text/plain; charset=utf-8"]],
-  ["/FAZE_JARVIS_SETUP.md", ["FAZE_JARVIS_SETUP.md", "text/markdown; charset=utf-8"]]
+  ["/FAZE_JARVIS_SETUP.md", ["FAZE_JARVIS_SETUP.md", "text/markdown; charset=utf-8"]],
+  ["/TELEGRAM_FORTNITE_SETUP.md", ["TELEGRAM_FORTNITE_SETUP.md", "text/markdown; charset=utf-8"]]
 ]);
 const limits = new Map();
 const json = (res, status, body) => {
@@ -55,6 +59,47 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "GET" && url.pathname === "/healthz") {
     res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" });
     return res.end("ok\n");
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/integrations/status") {
+    return json(res, 200, {
+      telegramConfigured: TELEGRAM_CONFIGURED,
+      telegramBotUsername: TELEGRAM_CONFIGURED ? TELEGRAM_BOT_USERNAME : null
+    });
+  }
+  if (req.method === "POST" && url.pathname === "/api/telegram/verify") {
+    if (!TELEGRAM_CONFIGURED) return json(res, 503, { error: "Telegram login is not configured. Set TELEGRAM_BOT_USERNAME and TELEGRAM_BOT_TOKEN on the server." });
+    if (!allowedRate(req.socket.remoteAddress || "unknown")) return json(res, 429, { error: "Too many Telegram verification attempts. Wait a minute and try again." });
+    let input;
+    try { input = await readBody(req); }
+    catch { return json(res, 400, { error: "Invalid Telegram login response." }); }
+    const allowed = ["id", "first_name", "last_name", "username", "photo_url", "auth_date", "hash"];
+    if (!input || typeof input !== "object" || Array.isArray(input) || Object.keys(input).some(key => !allowed.includes(key))) {
+      return json(res, 400, { error: "Telegram login response contains unexpected fields." });
+    }
+    if (!/^\d+$/.test(String(input.id || "")) || typeof input.first_name !== "string" || typeof input.hash !== "string" || !/^[a-f0-9]{64}$/i.test(input.hash) || !/^\d+$/.test(String(input.auth_date || ""))) {
+      return json(res, 400, { error: "Telegram login response is missing required signed fields." });
+    }
+    const authDate = Number(input.auth_date), now = Math.floor(Date.now() / 1000);
+    if (!Number.isSafeInteger(authDate) || authDate > now + 60 || now - authDate > 86400) {
+      return json(res, 401, { error: "Telegram login response has expired. Sign in again using Telegram." });
+    }
+    const checkString = Object.keys(input).filter(key => key !== "hash").sort().map(key => key + "=" + String(input[key])).join("\n");
+    const secret = createHash("sha256").update(TELEGRAM_BOT_TOKEN).digest();
+    const expected = createHmac("sha256", secret).update(checkString).digest();
+    const received = Buffer.from(input.hash, "hex");
+    if (received.length !== expected.length || !timingSafeEqual(received, expected)) {
+      return json(res, 401, { error: "Telegram signature verification failed. Check the bot token and configured domain." });
+    }
+    return json(res, 200, {
+      verified: true,
+      user: {
+        id: String(input.id),
+        username: typeof input.username === "string" ? input.username.slice(0, 64) : "",
+        firstName: input.first_name.slice(0, 128),
+        lastName: typeof input.last_name === "string" ? input.last_name.slice(0, 128) : ""
+      }
+    });
   }
   if (req.method === "GET" && url.pathname === "/api/health") {
     return json(res, 200, { provider: "DeepSeek", apiKeyConfigured: Boolean(API_KEY), accessPasswordConfigured: Boolean(CHAT_PASSWORD), configured: Boolean(API_KEY && CHAT_PASSWORD) });
@@ -122,7 +167,7 @@ const server = http.createServer(async (req, res) => {
       "Cache-Control": "no-store",
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "no-referrer",
-      "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+      "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://telegram.org; frame-src https://oauth.telegram.org; worker-src 'self' blob: https://cdnjs.cloudflare.com; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
       "X-Frame-Options": "DENY"
     });
     res.end(body);
@@ -131,4 +176,5 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, "0.0.0.0", () => {
   console.log("Recovery Assistant web server listening on " + PORT);
   console.log("DeepSeek chat configured: " + Boolean(API_KEY && CHAT_PASSWORD));
+  console.log("Telegram login configured: " + TELEGRAM_CONFIGURED);
 });

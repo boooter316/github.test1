@@ -206,3 +206,25 @@ Quick summary:
 5. In Faze Jarvis, enter only the app access password. Never paste the DeepSeek API key into the browser.
 6. Check http://localhost:8080/api/health for configuration presence, then send a test chat message.
 API usage may incur charges. Do not expose the plain-HTTP service directly to the public internet.
+
+
+L. TELEGRAM ACCOUNT CONNECTION AND FORTNITE SKIN CHECK
+-------------------------------------------------------
+The Telegram Connect tab uses Telegram's official Login Widget. To enable it:
+1. Create a bot with official @BotFather and set the website domain.
+2. Configure TELEGRAM_BOT_USERNAME and TELEGRAM_BOT_TOKEN privately on the
+   Docker host. Never put the bot token in browser code or GitHub.
+3. Rebuild/recreate the container and check /api/integrations/status.
+4. Select Telegram Connect and approve sign-in through Telegram.
+The server verifies Telegram's signed response. The app does not collect a
+Telegram password, SMS code, or session token. The verified identity is shown
+only in the current page session and is not stored by this app.
+
+The Fortnite Skin Check tab is a local Locker inventory organizer. Enter your
+Epic display name as an optional label and manually enter cosmetic names from
+your own Fortnite Locker. It counts unique names, detects duplicates, filters,
+and exports a TXT report. It does not sign in to Epic, test account credentials,
+validate passwords/tokens, or automatically fetch private locker contents.
+Epic does not provide this app with a public locker-inventory endpoint. Do
+not paste passwords, cookies, session tokens, 2FA codes, or recovery codes.
+See web/TELEGRAM_FORTNITE_SETUP.md for complete setup and troubleshooting.

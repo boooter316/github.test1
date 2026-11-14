@@ -37,6 +37,8 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <button type="button" class="tab secondary" id="accountConnectionsTabButton" aria-selected="false">Account Connections</button>
 <button type="button" class="tab secondary" id="packetDiagnosticsTabButton" aria-selected="false">Wireshark &amp; Ports</button>
 <button type="button" class="tab secondary" id="accountStatusTabButton" aria-selected="false">Account Status &amp; Details</button>
+<button type="button" class="tab secondary" id="telegramConnectTabButton" aria-selected="false">Telegram Connect</button>
+<button type="button" class="tab secondary" id="fortniteSkinCheckTabButton" aria-selected="false">Fortnite Skin Check</button>
 </nav><div id="globalTaskControls" class="panel no-print" style="position:sticky;top:8px;z-index:20;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px">
 <strong>Task controls</strong><button type="button" id="globalStopButton" class="secondary">Stop current task</button><span id="globalStopStatus" class="hint" role="status">No stop request active.</span>
 </div>
@@ -339,6 +341,29 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 </ol>
 <p class="hint">Real automatic linking would require separate approved OAuth/API integrations, registered callback URLs, server-side secrets, provider review, and explicit consent for each service. Payment integrations additionally require provider-approved payment APIs and compliance controls. None of those credentials or integrations are configured in this static project.</p>
 </section>
+
+<section class="panel hidden" id="telegramConnectTab">
+<h2>Telegram Account Connection</h2>
+<p class="hint">Verify your Telegram identity with Telegram's official Login Widget. This never asks for your Telegram password, SMS code, or session token. Verification is temporary in this browser page and is not stored by this app.</p>
+<div class="notice"><strong>Setup required:</strong> Create a bot with official BotFather, configure its website domain, and set the bot username and token privately on the server. Never put the bot token in browser code or GitHub.</div>
+<p id="telegramConnectionStatus" class="scanner-result" role="status" aria-live="polite">Checking Telegram setup…</p>
+<div id="telegramWidget" class="actions no-print"></div>
+<p id="telegramVerifiedUser" class="hint" aria-live="polite">No Telegram account verified in this page session.</p>
+<div class="actions no-print"><button type="button" class="secondary" id="telegramRefreshStatus">Refresh connection status</button><a class="account-link" href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer"><strong>Official BotFather</strong><span>Create and configure your Telegram bot</span></a></div>
+<p class="hint">Read <a href="/TELEGRAM_FORTNITE_SETUP.md" target="_blank" rel="noopener noreferrer">Telegram &amp; Fortnite Skin Check setup guide</a> for the full setup and troubleshooting steps.</p>
+</section>
+<section class="panel hidden" id="fortniteSkinCheckTab">
+<h2>Fortnite Skin Check</h2>
+<p class="hint">A local inventory organizer for your own Fortnite Locker. Enter cosmetic names you can see in your own account; this tool counts unique entries, detects duplicates, filters, and exports your list in this browser.</p>
+<div class="notice"><strong>Important:</strong> This is not a Raika-style credential checker. It cannot test accounts, passwords, tokens, or log into Epic. Epic does not provide this app with a public locker-inventory endpoint. Never enter passwords, cookies, session tokens, recovery codes, or 2FA codes.</div>
+<div class="grid"><div><label for="skinEpicDisplayName">Your Epic display name (optional label)</label><input id="skinEpicDisplayName" maxlength="64" autocomplete="off"></div><div><label for="skinSearch">Search your entered skin list</label><input id="skinSearch" maxlength="80" autocomplete="off" placeholder="Search cosmetic names"></div></div>
+<p><label for="skinInventoryInput">Your owned skin names (one per line or separated by commas)</label><textarea id="skinInventoryInput" rows="8" placeholder="Enter names you can see in your own Locker"></textarea></p>
+<div class="actions no-print"><button type="button" id="skinInventoryCheck">Check my skin list</button><button type="button" class="secondary" id="skinInventoryExport">Download inventory report</button><button type="button" class="secondary" id="skinInventoryClear">Clear list</button></div>
+<div id="skinInventoryStatus" class="scanner-result" role="status" aria-live="polite">No skin list checked yet. Your entries stay in this browser page and are not uploaded.</div>
+<ul id="skinInventoryResults" aria-label="Skin inventory results"></ul>
+<p class="hint">Open Fortnite, view your own Locker, enter the cosmetic names you want to track, then select Check my skin list. The report records your entries; it does not verify ownership or estimate account value.</p>
+<p class="hint">Read the <a href="/TELEGRAM_FORTNITE_SETUP.md" target="_blank" rel="noopener noreferrer">setup guide</a> for complete instructions.</p>
+</section>
 <section class="panel hidden" id="packetDiagnosticsTab">
 <h2>Wireshark Packet &amp; Port Diagnostics</h2>
 <p class="hint">Use Wireshark only on your own device/network or where you have explicit authorization. This page provides filters and setup guidance; it does not capture packets, sniff remote networks, scan public IP ranges, or transmit traffic.</p>
@@ -436,7 +461,9 @@ const pageTabs={
  accountLinks:{button:document.getElementById("accountLinksTabButton"),panel:document.getElementById("accountLinksTab")},
  accountConnections:{button:document.getElementById("accountConnectionsTabButton"),panel:document.getElementById("accountConnectionsTab")},
  packetDiagnostics:{button:document.getElementById("packetDiagnosticsTabButton"),panel:document.getElementById("packetDiagnosticsTab")},
- accountStatus:{button:document.getElementById("accountStatusTabButton"),panel:document.getElementById("accountStatusTab")}
+ accountStatus:{button:document.getElementById("accountStatusTabButton"),panel:document.getElementById("accountStatusTab")},
+ telegramConnect:{button:document.getElementById("telegramConnectTabButton"),panel:document.getElementById("telegramConnectTab")},
+ fortniteSkinCheck:{button:document.getElementById("fortniteSkinCheckTabButton"),panel:document.getElementById("fortniteSkinCheckTab")}
 };
 function showTab(which){
  for(const [key,item] of Object.entries(pageTabs)){
@@ -1092,5 +1119,59 @@ document.getElementById("clearAccountDetails").addEventListener("click",()=>{
  const result=document.querySelector("#accountProviderPanel"+index+" .scanner-result");
  if(result)result.textContent="Cleared. No details recorded for this service in this tab.";
 });
+
+
+let latestSkinInventoryReport="";
+function checkSkinInventory(){
+ const displayName=document.getElementById("skinEpicDisplayName").value.trim();
+ const raw=document.getElementById("skinInventoryInput").value;
+ const entries=raw.split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
+ const seen=new Set(),unique=[],duplicates=[];
+ for(const name of entries){const key=name.toLowerCase();if(seen.has(key))duplicates.push(name);else{seen.add(key);unique.push(name);}}
+ const query=document.getElementById("skinSearch").value.trim().toLowerCase();
+ const visible=unique.filter(name=>name.toLowerCase().includes(query));
+ latestSkinInventoryReport=["FORTNITE SKIN INVENTORY — USER-ENTERED LIST","Generated: "+new Date().toISOString(),"Epic display name label: "+(displayName||"Not supplied"),"Names entered: "+entries.length,"Unique cosmetic names: "+unique.length,"Duplicate entries: "+duplicates.length,"","Cosmetic names:",...(unique.length?unique.map((name,i)=>(i+1)+". "+name):["No cosmetic names entered."]),"","Verification: NOT VERIFIED. Names were entered by the user and were not checked with Epic Games.","Privacy: This report was generated locally. No Epic password, token, cookie, or account session was requested or transmitted."].join("\n");
+ document.getElementById("skinInventoryStatus").textContent="List processed locally: "+unique.length+" unique name(s), "+duplicates.length+" duplicate entr(y/ies). Ownership is not verified; no Epic account was contacted.";
+ const list=document.getElementById("skinInventoryResults");list.replaceChildren();
+ for(const name of visible){const li=document.createElement("li");li.textContent=name;list.appendChild(li);}
+ if(!visible.length){const li=document.createElement("li");li.textContent=query?"No matching skin names.":"No skin names entered.";list.appendChild(li);}
+}
+document.getElementById("skinInventoryCheck").addEventListener("click",checkSkinInventory);
+document.getElementById("skinSearch").addEventListener("input",()=>{if(latestSkinInventoryReport)checkSkinInventory();});
+document.getElementById("skinInventoryExport").addEventListener("click",()=>{
+ if(!latestSkinInventoryReport)checkSkinInventory();
+ const blob=new Blob([latestSkinInventoryReport],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="fortnite-skin-inventory-report.txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+document.getElementById("skinInventoryClear").addEventListener("click",()=>{
+ ["skinEpicDisplayName","skinSearch","skinInventoryInput"].forEach(id=>document.getElementById(id).value="");
+ document.getElementById("skinInventoryResults").replaceChildren();
+ document.getElementById("skinInventoryStatus").textContent="Cleared. No skin inventory is stored by this page.";
+ latestSkinInventoryReport="";
+});
+async function refreshTelegramConnectionStatus(){
+ const status=document.getElementById("telegramConnectionStatus"),widget=document.getElementById("telegramWidget");
+ status.textContent="Checking Telegram setup…";widget.replaceChildren();
+ try{
+  const response=await fetch("/api/integrations/status",{cache:"no-store"}),data=await response.json();
+  if(!response.ok)throw new Error(data.error||"Status request failed.");
+  if(!data.telegramConfigured){status.textContent="Not configured. Set TELEGRAM_BOT_USERNAME and TELEGRAM_BOT_TOKEN on the server, then recreate the container.";return;}
+  status.textContent="Telegram Login Widget configured for @"+data.telegramBotUsername+". Select the button and approve sign-in in Telegram.";
+  const script=document.createElement("script");script.async=true;script.src="https://telegram.org/js/telegram-widget.js?22";
+  script.setAttribute("data-telegram-login",data.telegramBotUsername);script.setAttribute("data-size","large");script.setAttribute("data-userpic","false");script.setAttribute("data-onauth","onTelegramAuth(user)");widget.appendChild(script);
+ }catch(error){status.textContent="Telegram status unavailable: "+error.message;}
+}
+window.onTelegramAuth=async function(user){
+ const status=document.getElementById("telegramConnectionStatus"),identity=document.getElementById("telegramVerifiedUser");
+ status.textContent="Verifying Telegram's signed response with the server…";
+ try{
+  const response=await fetch("/api/telegram/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(user),cache:"no-store"}),data=await response.json();
+  if(!response.ok||!data.verified)throw new Error(data.error||"Verification failed.");
+  const person=data.user||{};identity.textContent="Verified this page session: "+(person.username?"@"+person.username:"Telegram user "+person.id)+". No Telegram password or bot token was collected by the browser.";
+  status.textContent="Connected for this page session. Telegram identity signature verified; no other Telegram settings were changed.";
+ }catch(error){identity.textContent="No Telegram account verified in this page session.";status.textContent="Telegram verification failed: "+error.message;}
+};
+document.getElementById("telegramRefreshStatus").addEventListener("click",refreshTelegramConnectionStatus);
+refreshTelegramConnectionStatus();
 
 </script><script src="./network_security.js"></script></body></html>
