@@ -27,16 +27,19 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 #accountServiceTabs{max-height:190px;overflow:auto}#accountServiceTabs button{flex:0 1 auto;font-size:.88rem;padding:9px 12px}#accountProviderPanels .panel{margin-top:12px}#accountProviderPanel0 .account-link{max-width:360px;margin-bottom:12px}
 </style></head><body><main class="wrap">
 <header><h1>Account Recovery Request Assistant</h1><p>Prepare a factual support request for Epic Games or another platform. This is an independent organizer, not an official support tool.</p>
-<div class="notice"><strong>Privacy:</strong> Your entries stay in this browser tab. This site does not send them to or save them on the hosting server. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, or API keys.</div></header>
+<div class="notice"><strong>Privacy:</strong> Recovery-form entries and local scanner results stay in this browser tab. If you use Faze Jarvis, your chat messages are sent to DeepSeek through this server’s API proxy. The DeepSeek API key remains server-side. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, tokens, or private keys.</div></header>
 <nav class="tabs no-print" aria-label="Application pages">
 <button type="button" class="tab active" id="recoveryTabButton" aria-selected="true">Recovery Assistant</button>
+<button type="button" class="tab secondary" id="fazeJarvisTabButton" aria-selected="false">Faze Jarvis AI</button>
 <button type="button" class="tab secondary" id="securityTabButton" aria-selected="false">Discord Security Scanner</button>
 <button type="button" class="tab secondary" id="fortniteTabButton" aria-selected="false">Pro Multi-Platform Scanner</button>
 <button type="button" class="tab secondary" id="accountLinksTabButton" aria-selected="false">Account Links</button>
 <button type="button" class="tab secondary" id="accountConnectionsTabButton" aria-selected="false">Account Connections</button>
 <button type="button" class="tab secondary" id="packetDiagnosticsTabButton" aria-selected="false">Wireshark &amp; Ports</button>
 <button type="button" class="tab secondary" id="accountStatusTabButton" aria-selected="false">Account Status &amp; Details</button>
-</nav>
+</nav><div id="globalTaskControls" class="panel no-print" style="position:sticky;top:8px;z-index:20;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px">
+<strong>Task controls</strong><button type="button" id="globalStopButton" class="secondary">Stop current task</button><span id="globalStopStatus" class="hint" role="status">No stop request active.</span>
+</div>
 <div id="recoveryTab">
 <form id="packet">
 <section class="panel"><h2>Account and contact details</h2><div class="grid">
@@ -101,6 +104,24 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <p>It can organize information you provide yourself, such as Epic display name and email, Account ID, purchase references, optional card last four digits, and truthful historical VPN/proxy or IP context. Never enter passwords, 2FA codes, backup codes, tokens, cookies, full card numbers, or CVV.</p>
 <p>For Epic, PlayStation, Xbox, Nintendo, Steam, GeForce NOW, Roblox, Minecraft, GTA, Disney, Twitch, YouTube, and TikTok, use the form to document the issue and prepare an appeal where the platform offers one. Only the relevant service can review account access or restrictions.</p>
 <p class="foot"><strong>Notice:</strong> This is an independent, local-first organizer. It does not access platform databases, verify ownership, guarantee account recovery, or perform account changes. Use each platform's official support and appeal process.</p>
+</section>
+</div>
+<div class="hidden" id="fazeJarvisTab">
+<h2>Faze Jarvis — Safe Coding Assistant</h2>
+<p class="hint">Hello! This is Faze Jarvis, your AI coding assistant powered by DeepSeek. Chat requests are sent to the server-side DeepSeek proxy. Your DeepSeek API key stays on the server and must never be pasted here.</p>
+<label for="fazeJarvisAccessPassword">App access password (not your DeepSeek API key)</label><input id="fazeJarvisAccessPassword" type="password" autocomplete="off" placeholder="Enter the app access password configured by the server"><p id="fazeJarvisApiStatus" class="hint" role="status">Checking DeepSeek connection…</p>
+<div id="fazeJarvisChat" class="scanner-result" role="log" aria-live="polite">Faze Jarvis: Hello! This is Faze Jarvis. What are we building today?</div>
+<label for="fazeJarvisPrompt">Message Faze Jarvis</label><textarea id="fazeJarvisPrompt" placeholder="Describe a project or paste a non-secret error message."></textarea>
+<div class="actions no-print"><button type="button" id="fazeJarvisSend">Send message</button><button type="button" class="secondary" id="fazeJarvisClear">Clear chat</button></div>
+<p class="hint">Safety boundary: I can assist with authorized defensive testing and ordinary software development, but not malware, credential theft, unauthorized access, exploit deployment, stealth, or evasion.</p>
+</section>
+<section class="panel" id="projectBuilderPanel">
+<h2>Build a Starter Project</h2>
+<p class="hint">Create a downloadable starter source file locally. This does not compile or execute code in your browser.</p>
+<div class="grid"><div><label for="builderProjectName">Project name</label><input id="builderProjectName" value="my-project"></div><div><label for="builderLanguage">Starter type</label><select id="builderLanguage"><option value="html">HTML / JavaScript</option><option value="python">Python</option><option value="powershell">PowerShell</option><option value="cpp">C++17</option></select></div></div>
+<label for="builderDescription">What should the project do?</label><textarea id="builderDescription" placeholder="Describe the safe functionality you want to build."></textarea>
+<div class="actions no-print"><button type="button" id="builderGenerate">Build and download starter source</button></div>
+<p id="builderStatus" class="hint" role="status">Choose a starter type and describe your project.</p>
 </section>
 </div>
 <section class="panel hidden" id="securityTab">
@@ -398,6 +419,7 @@ updateTicketLimitStatus();
 // Page navigation
 const pageTabs={
  recovery:{button:document.getElementById("recoveryTabButton"),panel:document.getElementById("recoveryTab")},
+ fazeJarvis:{button:document.getElementById("fazeJarvisTabButton"),panel:document.getElementById("fazeJarvisTab")},
  security:{button:document.getElementById("securityTabButton"),panel:document.getElementById("securityTab")},
  fortnite:{button:document.getElementById("fortniteTabButton"),panel:document.getElementById("fortniteTab")},
  accountLinks:{button:document.getElementById("accountLinksTabButton"),panel:document.getElementById("accountLinksTab")},
@@ -422,6 +444,96 @@ document.getElementById("buildWiresharkFilter").addEventListener("click",()=>{
  if(!/^[0-9]{1,5}$/.test(raw)||!Number.isInteger(port)||port<1||port>65535){out.value="Enter a valid port from 1 to 65535.";return;}
  out.value=protocol==="both"?"tcp.port == "+port+" || udp.port == "+port:protocol+".port == "+port;
 });
+
+// Global cooperative stop control. Tasks must check window.recoveryStopRequested
+// between steps; active fetches are aborted where the browser supports it.
+window.recoveryStopRequested=false;
+window.recoveryTaskController=null;
+window.beginRecoveryTask=function(){window.recoveryStopRequested=false;window.recoveryTaskController=new AbortController();document.getElementById("globalStopStatus").textContent="Task running. Stop is available.";return window.recoveryTaskController.signal;};
+window.checkRecoveryStop=function(){if(window.recoveryStopRequested)throw new DOMException("Task stopped by user","AbortError");};
+document.getElementById("globalStopButton").addEventListener("click",()=>{
+ window.recoveryStopRequested=true;
+ if(window.recoveryTaskController)window.recoveryTaskController.abort();
+ document.querySelectorAll("input[type=file]").forEach(el=>{try{el.value="";}catch(_){}});
+ document.getElementById("globalStopStatus").textContent="Stop requested. Cooperative tasks will stop at their next checkpoint; reload to reset.";
+});
+document.querySelectorAll("form").forEach(form=>form.addEventListener("submit",e=>{if(window.recoveryStopRequested){e.preventDefault();e.stopImmediatePropagation();}}));
+// PDF export buttons use the browser's print dialog; choose "Save as PDF".
+const pdfButton=document.createElement("button");pdfButton.type="button";pdfButton.id="downloadRecoveryPdf";pdfButton.className="secondary";pdfButton.textContent="Download recovery details as PDF";
+const recoveryActions=document.querySelector("#recoveryTab .actions");
+if(recoveryActions)recoveryActions.insertBefore(pdfButton,recoveryActions.children[1]||null);
+pdfButton.addEventListener("click",()=>{document.getElementById("draftText").value=document.getElementById("draftText").value||"Review the recovery form and use Print / Save as PDF.";window.print();});
+const accountPdf=document.createElement("button");accountPdf.type="button";accountPdf.className="secondary";accountPdf.id="accountDetailsPdf";accountPdf.textContent="Print / Save selected account details as PDF";
+document.getElementById("exportAccountDetails").parentElement.appendChild(accountPdf);
+accountPdf.addEventListener("click",()=>{
+ const report=accountDetailDrafts[activeAccountProvider]?makeAccountDetailReport(activeAccountProvider,accountDetailDrafts[activeAccountProvider]):"No details recorded for "+accountProviders[activeAccountProvider][0]+".";
+ const w=window.open("","_blank");if(!w){alert("Allow pop-ups to create the PDF print view.");return;}
+ const pre=w.document.createElement("pre");pre.textContent=report;pre.style.cssText="white-space:pre-wrap;font:12pt Arial;max-width:800px;margin:32px auto";
+ w.document.body.appendChild(pre);w.document.title="Account details";w.focus();w.print();
+});
+// Faze Jarvis connects to the same-origin server proxy. The DeepSeek key never enters the browser.
+const jarvisLog=document.getElementById("fazeJarvisChat");
+const jarvisStatus=document.getElementById("fazeJarvisApiStatus");
+const jarvisHistory=[];
+let jarvisBusy=false;
+async function checkJarvisStatus(){
+ try{
+  const response=await fetch("/api/health",{cache:"no-store"});
+  const state=await response.json();
+  jarvisStatus.textContent=state.configured?"DeepSeek is configured on the server. Enter the app access password to chat.":"DeepSeek chat is not configured. The server administrator must set DEEPSEEK_API_KEY and CHAT_ACCESS_PASSWORD.";
+ }catch(_){jarvisStatus.textContent="DeepSeek server is unavailable. Run the Docker web service with the server-side configuration.";}
+}
+function appendJarvis(role,text){
+ jarvisLog.textContent+="\n"+(role==="user"?"You: ":"Faze Jarvis: ")+text;
+ jarvisLog.scrollTop=jarvisLog.scrollHeight;
+}
+checkJarvisStatus();
+document.getElementById("fazeJarvisSend").addEventListener("click",async()=>{
+ const box=document.getElementById("fazeJarvisPrompt");
+ const password=document.getElementById("fazeJarvisAccessPassword").value;
+ const button=document.getElementById("fazeJarvisSend");
+ const msg=box.value.trim();
+ if(!msg||jarvisBusy)return;
+ if(!password){jarvisStatus.textContent="Enter the app access password. Do not enter your DeepSeek API key.";return;}
+ if(/(?:sk-[a-z0-9_-]{12,}|deepseek[_-]?api[_-]?key\s*[:=])/i.test(msg)){
+  jarvisStatus.textContent="Please remove API keys or secrets from the message before sending.";
+  return;
+ }
+ jarvisBusy=true;button.disabled=true;box.value="";jarvisHistory.push({role:"user",content:msg});appendJarvis("user",msg);
+ try{
+  const signal=window.beginRecoveryTask();
+  const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json","X-Chat-Access":password},body:JSON.stringify({messages:jarvisHistory.slice(-20)}),signal});
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.error||"Chat request failed.");
+  jarvisHistory.push({role:"assistant",content:result.reply});
+  appendJarvis("assistant",result.reply);
+  jarvisStatus.textContent="Connected to "+(result.model||"DeepSeek")+".";
+ }catch(error){
+  if(error.name==="AbortError"){jarvisStatus.textContent="Chat request stopped.";}
+  else{jarvisStatus.textContent=error.message||"DeepSeek request failed.";appendJarvis("assistant","I couldn't complete that request. Check the server configuration and try again.");}
+ }finally{jarvisBusy=false;button.disabled=false;}
+});
+document.getElementById("fazeJarvisPrompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();document.getElementById("fazeJarvisSend").click();}});
+document.getElementById("fazeJarvisClear").addEventListener("click",()=>{
+ jarvisHistory.length=0;
+ jarvisLog.textContent="Faze Jarvis: Hello! This is Faze Jarvis. What are we building today?";
+});
+// Local starter-source generator. Generated code is downloaded, never run in this page.
+document.getElementById("builderGenerate").addEventListener("click",()=>{
+ const name=(document.getElementById("builderProjectName").value.trim()||"my-project").replace(/[^a-zA-Z0-9_-]/g,"-");
+ const kind=document.getElementById("builderLanguage").value,desc=document.getElementById("builderDescription").value.trim();
+ const safeDesc=desc.replace(/[<>]/g,"").slice(0,1000);
+ const templates={
+ html:"<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><title>"+name+"</title><body><h1>"+name+"</h1><p>"+safeDesc.replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</p><script>console.log('Project ready');<\/script></body></html>\n",
+ python:'"""'+name+' — starter project. '+safeDesc.replace(/"""/g,"")+"\n"+'"""\n\ndef main():\n    print("'+name+' is ready")\n\nif __name__ == "__main__":\n    main()\n',
+ powershell:'# '+name+' — starter script\n# '+safeDesc.replace(/\r?\n/g," ")+'\n[CmdletBinding(SupportsShouldProcess=$true)]\nparam()\nWrite-Output "'+name+' is ready"\n',
+ cpp:'#include <iostream>\n\nint main() {\n    std::cout << "'+name+' is ready\\n";\n    return 0;\n}\n// Goal: '+safeDesc.replace(/\r?\n/g," ")+'\n'
+ };
+ const ext={html:"html",python:"py",powershell:"ps1",cpp:"cpp"}[kind],blob=new Blob([templates[kind]],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=name+"."+ext;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ document.getElementById("builderStatus").textContent="Starter source downloaded. Review it before running; compile or execute it manually in your development environment.";
+});
+
 // Local-only, redacted pattern scan. Never render or retain matched secret values.
 function inspectText(s){const patterns=[
 {name:"JWT-shaped string",re:/\beyJ[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\b/g},

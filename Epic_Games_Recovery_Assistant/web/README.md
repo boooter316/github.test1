@@ -1,6 +1,6 @@
 # Browser-based Recovery Assistant (C++17) — updated companion form
 
-This folder contains a C++17 web server and a browser-based recovery-request builder.
+This folder contains the browser-based recovery-request builder, a Node.js web/API server for the optional DeepSeek chat, and the original C++17 static server source.
 
 ## Hosting and SellHub decision
 
@@ -14,7 +14,7 @@ Until SellHub confirms its supported integration and hosting capabilities, treat
 
 The GitHub Actions Linux build confirms only that the C++ server compiles. It does not create a public website or deploy a running service.
 
-The container expects HTTP port `8080` (or the `PORT` environment variable). It serves both `index.html` and the local `network_security.js` analyzer asset, plus `/healthz`. Its Content Security Policy allows the pinned PDF.js CDN script and its worker while keeping network connections disabled for the browser app. Put it behind a provider-managed HTTPS ingress or a correctly configured reverse proxy with TLS. Do not expose the plain-HTTP container directly to the public internet.
+The Docker container runs the Node.js server on HTTP port `8080` (or the `PORT` environment variable). It serves `index.html`, the local analyzer assets, `/healthz`, and a same-origin `/api/chat` endpoint. The chat endpoint forwards requests to DeepSeek using a server-only API key. Browser connections are limited to the same origin. The original `server.cpp` remains available as a static-only C++ server; it does not provide the DeepSeek API proxy. Put it behind a provider-managed HTTPS ingress or a correctly configured reverse proxy with TLS. Do not expose the plain-HTTP container directly to the public internet.
 
 ## Updated recovery and appeal form
 
@@ -55,7 +55,20 @@ Do not enter payment details or create a paid hosting resource until the provide
 
 ## API keys and sign-in
 
-No API key is required for the current static form. If a future server-side integration needs a secret, store it only as a private environment variable on the selected host or in an appropriate CI secret; never put it in source code, HTML, JavaScript, GitHub commits, or PDFs. Use a proper identity provider for any future administrator or paid-user login; do not hardcode credentials in the application.
+The recovery-request form itself does not require an API key. Faze Jarvis does use a DeepSeek API key on the server; configure it only as a private host environment variable. Never put API secrets in source code, HTML, JavaScript, GitHub commits, or PDFs. Do not hardcode credentials in the application.
+
+
+## Faze Jarvis / DeepSeek chat
+
+The Faze Jarvis tab uses the official DeepSeek Chat Completions endpoint through `server.mjs`. The default model is `deepseek-flash`, with thinking enabled and DeepSeek's high safety-check option. The browser sends chat messages only to the same-origin backend; it never receives the DeepSeek API key.
+
+Configure these private environment variables on the Docker host:
+- `DEEPSEEK_API_KEY`: your DeepSeek API key.
+- `CHAT_ACCESS_PASSWORD`: a separate password that authorizes access to this app's chat endpoint.
+
+Both values are required. Enter only the app access password in the browser chat form; never paste the DeepSeek API key into the page. The backend validates message roles and lengths, limits requests, applies a timeout, and does not log chat contents. Keep the service behind authenticated/private access and monitor API usage. A public deployment needs proper user authentication and abuse controls before enabling paid API access.
+
+The assistant is intended for ordinary coding and defensive security. It does not bypass provider safety systems, authentication, platform restrictions, or access controls. It is not a substitute for reviewing generated code.
 
 ## Run with Docker locally
 

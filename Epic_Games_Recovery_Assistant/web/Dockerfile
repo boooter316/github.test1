@@ -1,11 +1,6 @@
-FROM debian:bookworm-slim AS build
-RUN apt-get update && apt-get install -y --no-install-recommends g++ && rm -rf /var/lib/apt/lists/*
-WORKDIR /src
-COPY server.cpp .
-RUN g++ -std=c++17 -O2 -Wall -Wextra -pedantic server.cpp -o recovery-web
-FROM debian:bookworm-slim
+FROM node:22-alpine
 WORKDIR /app
-COPY --from=build /src/recovery-web /app/recovery-web
+COPY server.mjs /app/server.mjs
 COPY index.html /app/index.html
 COPY network_security.js /app/network_security.js
 COPY network-tools.html /app/network-tools.html
@@ -13,5 +8,5 @@ COPY network_tools.ps1 /app/network_tools.ps1
 COPY SETUP_AND_USAGE.txt /app/SETUP_AND_USAGE.txt
 ENV PORT=8080
 EXPOSE 8080
-USER 10001:10001
-CMD ["/app/recovery-web"]
+USER node
+CMD ["node", "/app/server.mjs"]
