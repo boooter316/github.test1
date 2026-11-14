@@ -40,7 +40,7 @@ jobs:
         shell: pwsh
         run: |
           $updater = Get-Content 'Epic_Games_Recovery_Assistant/update_project.ps1' -Raw
-          foreach ($required in @("'paf_evidence_scanner.c++'", "'PDF_EVIDENCE_SCANNER.bat'", "'web\\\\network_security.js'", "'web\\\\ghostface-bg.jpg'")) {
+          foreach ($required in @("'paf_evidence_scanner.c++'", "'PDF_EVIDENCE_SCANNER.bat'", "'web\\network_security.js'", "'web\\ghostface-bg.jpg'")) {
             if (-not $updater.Contains($required)) { throw "Updater does not validate required project asset: $required" }
           }
           $run = Get-Content 'Epic_Games_Recovery_Assistant/run.bat' -Raw
