@@ -74,3 +74,8 @@ Open http://localhost:8080 for local testing.
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic server.cpp -o recovery-web
 PORT=8080 ./recovery-web
 ```
+
+
+## Legal and authorized-use notice
+
+Use the local scanners only on files and accounts you own or are expressly authorized to assess. Follow applicable laws, platform terms, and workplace policies. Pattern matches are not credential validation, proof of ownership, or proof of compromise. Do not use scan results to access another person's account, impersonate anyone, bypass security controls, or disclose private information. Review reports before sharing and promptly revoke or rotate any exposed credentials. This independent tool is provided “as is,” without warranty; it is not legal advice and does not guarantee account recovery or security.
