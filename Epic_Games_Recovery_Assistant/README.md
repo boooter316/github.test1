@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — C++17 Edition
 
-**Version 3.1.** A Windows C++17 local recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 3.2.** A Windows C++17 local recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Build and run (Windows)
 
@@ -14,13 +14,13 @@ The PDF generator is built into the C++ source; no Python, external PDF package,
 ## Features
 
 - Organizes Epic Account ID, current/previous display names and emails, account dates, creator code, invoice/order ID, purchase name, optional billing address, payment provider, and card last four digits only.
-- Records 2FA method (Epic Authenticator, third-party authenticator app, email, SMS/phone) and whether it is accessible.
-- Optional historical IP and VPN/proxy-use notes for truthful context only.
+- Records each 2FA method (Epic Authenticator, third-party authenticator app, email, SMS/phone), preferred method, and access status separately. Never stores verification codes.
+- Optional historical IP and VPN/proxy provider/region/use notes for truthful context only; the app does not connect to, configure, rotate, or use a VPN/proxy.
 - Platform-specific recovery/restriction appeal notes and official support links for Epic, Xbox, PlayStation, Steam, and Nintendo.
 - Linked-service review fields for Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
 - Planning fields for Epic display-name/email changes; actual changes require official sign-in and verification.
-- Exports a local PDF, JSON file, text details, and support-request draft.
-- Opens official Epic recovery, support, sign-in, account settings, display-name/email help, linked-account, and 2FA/security pages, plus official Xbox, PlayStation, Steam, and Nintendo support pages.
+- Exports a local recovery packet: PDF, JSON data dump, readable text details, and support-request draft. The C++ source itself is the buildable program; no separate Python script is used.
+- Opens the current Epic account-recovery request form, support, sign-in, account settings, display-name/email help, linked-account and 2FA recovery pages, plus official Xbox, PlayStation, Steam, and Nintendo support pages.
 
 ## Security and limitations
 
@@ -36,7 +36,7 @@ The PDF generator is built into the C++ source; no Python, external PDF package,
 
 ## Official Epic resources
 
-- Recovery help: https://www.epicgames.com/help/c-1/a10856556?lang=en-US
+- Recovery help: https://www.epicgames.com/help/c-45487929/a21414514
 - Support/contact: https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US
 - Linked accounts: https://www.epicgames.com/account/connections
 - 2FA/security settings: https://www.epicgames.com/account/password
@@ -44,4 +44,4 @@ The PDF generator is built into the C++ source; no Python, external PDF package,
 
 ## Test status
 
-The source and build scripts are published, but still need compilation and execution on a Windows computer. GitHub publication is not proof of a successful Windows runtime test.
+The source and build scripts are published, but still need compilation and execution on a Windows computer. GitHub publication is not proof of a successful Windows runtime test. The official recovery and 2FA links were checked against Epic's current help pages on November 13, 2026.
