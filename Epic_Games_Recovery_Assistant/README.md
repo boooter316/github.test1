@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — C++17 Edition
 
-**Version 3.2.** A Windows C++17 local recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 3.3.** A Windows C++17 local recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Build and run (Windows)
 
@@ -10,6 +10,14 @@
 4. Run `run.bat` to launch the program.
 
 The PDF generator is built into the C++ source; no Python, external PDF package, or separate PDF installer is needed. `setup.bat` builds the C++ program; it does not install a PDF reader.
+
+## Version 3.3 additions
+
+- Expanded original-account-country and purchase-history context fields.
+- Added clearer payment-method review notes without collecting full card numbers, CVV, or payment credentials.
+- Added a per-service linked-account inventory prompt covering public IDs/profile names, approximate link dates, and current link status.
+- Added separate appeal-note fields for Epic, Xbox, PlayStation, Steam, and Nintendo.
+- Added an official Epic Support Assistant/ticket entry in the page menu. The app still cannot provide live agent chat or submit a ticket itself.
 
 ## Features
 
