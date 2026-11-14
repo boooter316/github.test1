@@ -143,3 +143,36 @@ J. PRIVACY / TROUBLESHOOTING
   removing passwords, tokens, cookies, and personal data.
 - Never treat an IP address, ZIP code, or street address as proof of account
   ownership. Providers must verify account claims using their own records.
+F. GLOBAL STOP, PDF EXPORT, FAZE JARVIS, AND STARTER BUILDER
+------------------------------------------------------------
+- The sticky Task controls bar is available while navigating every main tab.
+  Select Stop current task to request cancellation and abort supported fetches.
+  Some synchronous browser operations cannot be interrupted mid-operation;
+  they finish their current step. Reload the page to reset the stop request.
+- On the Recovery Assistant tab, select Download recovery details as PDF.
+  The browser print dialog opens; choose Save as PDF. Review the preview and
+  keep the resulting document private. This exports the currently displayed
+  recovery page; it does not download scripts or project source files.
+- On Account Status & Details, select a provider, record non-secret details,
+  then select Print / Save selected account details as PDF. Allow the print
+  window if your browser blocks pop-ups, then choose Save as PDF.
+- Open the Faze Jarvis AI tab (second tab). It greets you with
+  “Hello! This is Faze Jarvis.” This repository version is an offline demo
+  with fixed guidance, not a connected generative AI model. Do not paste
+  passwords, tokens, recovery codes, private keys, or other secrets.
+- The Build a Starter Project panel creates a downloadable HTML, Python,
+  PowerShell, or C++ starter source file from your project description. It
+  does not compile or execute generated code. Review the source before use.
+  Build the complete Windows application separately with build.bat.
+- The coding assistant supports legitimate development and defensive
+  security work only; it is not an offensive hacking agent.
+
+G. STOP-CONTROL LIMITATIONS
+---------------------------
+The Stop control requests cancellation, aborts browser fetches created through
+its task controller, blocks form submissions after a stop request, and clears
+selected file inputs. It cannot forcibly terminate JavaScript that is already
+running synchronously, stop an external Windows process, cancel a program
+already launched outside the browser, or undo a recovery request already
+submitted to a provider. Recovery requests are drafts only and must be sent
+manually by the user through official support.
