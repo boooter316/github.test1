@@ -9,7 +9,7 @@ import shutil
 import webbrowser
 
 APP_NAME = "Epic Games Recovery Assistant"
-APP_VERSION = "1.2"
+APP_VERSION = "1.3"
 SUPPORT_URL = "https://www.epicgames.com/help/en-US/"
 RECOVERY_URL = "https://www.epicgames.com/id/login"
 TWO_FA_URL = "https://www.epicgames.com/account/password"
@@ -18,6 +18,8 @@ RECOVERY_REQUEST_URL = "https://www.epicgames.com/help/c-45487929/a21414514"
 TWO_FA_METHODS_URL = "https://www.epicgames.com/help/c-45487929/c-38978022/a11272697"
 LOST_2FA_URL = "https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US"
 VPN_TROUBLESHOOTING_URL = "https://www.epicgames.com/help/c-45487929/c-38854402/a20296521?lang=en-US"
+SANCTIONS_URL = "https://safety.epicgames.com/sanctions-and-appeals?mode=game"
+BAN_HELP_URL = "https://www.epicgames.com/help/c-34254770/c-5719350646299/a12390848?lang=en-US"
 TWO_FA_METHODS = ("Epic Authenticator", "Authenticator app", "Email", "SMS / phone")
 
 class EpicRecoveryAssistant:
@@ -44,13 +46,16 @@ class EpicRecoveryAssistant:
         self.security_tab = ttk.Frame(tabs, padding=10)
         self.incident_tab = ttk.Frame(tabs, padding=10)
         self.help_tab = ttk.Frame(tabs, padding=10)
+        self.ban_tab = ttk.Frame(tabs, padding=10)
         tabs.add(self.account_tab, text="Account Recovery")
         tabs.add(self.security_tab, text="2-Step & VPN/Proxy")
         tabs.add(self.incident_tab, text="Incident Details")
+        tabs.add(self.ban_tab, text="Ban & Appeal")
         tabs.add(self.help_tab, text="Official Help")
         self.build_account_tab()
         self.build_security_tab()
         self.build_incident_tab()
+        self.build_ban_tab()
         self.build_help_tab()
         actions = ttk.Frame(main)
         actions.pack(fill="x", pady=(4, 0))
@@ -123,6 +128,26 @@ class EpicRecoveryAssistant:
         self.evidence = tk.Text(self.incident_tab, height=7, wrap="word")
         self.evidence.pack(fill="both", expand=True)
 
+    def build_ban_tab(self):
+        ttk.Label(self.ban_tab, text="Account ban / sanction information", font=("Segoe UI", 12, "bold")).pack(anchor="w", pady=(0, 6))
+        ttk.Label(self.ban_tab, text="Record the notice details so you can review the case through Epic's official Sanctions and Appeals portal. Do not enter passwords or verification codes.", wraplength=850).pack(anchor="w", pady=4)
+        fields = [
+            ("sanction_id", "Sanction ID from Epic's notice"),
+            ("sanction_type", "Sanction type (temporary/permanent/social/other)"),
+            ("sanction_date", "Date notice received / sanction applied"),
+            ("sanction_duration", "Duration shown in Epic's notice"),
+            ("sanction_rule", "Rule or reason stated in the notice"),
+            ("appeal_status", "Appeal status (not submitted/pending/decided)"),
+        ]
+        for key, label in fields:
+            self.add_field(self.ban_tab, key, label)
+        ttk.Label(self.ban_tab, text="Your factual appeal explanation / notes:").pack(anchor="w", pady=(8, 3))
+        self.appeal_notes = tk.Text(self.ban_tab, height=7, wrap="word")
+        self.appeal_notes.pack(fill="both", expand=True)
+        ttk.Label(self.ban_tab, text="Epic decides whether a sanction is eligible for appeal and whether it should be changed. This app cannot unlock an account, remove a ban, evade a sanction, or submit an appeal for you.", foreground="red", wraplength=850).pack(anchor="w", pady=8)
+        ttk.Button(self.ban_tab, text="Open Epic Sanctions & Appeals", command=lambda: webbrowser.open(SANCTIONS_URL)).pack(anchor="w", pady=4)
+        ttk.Button(self.ban_tab, text="Read Epic ban and appeal guidance", command=lambda: webbrowser.open(BAN_HELP_URL)).pack(anchor="w", pady=4)
+
     def build_help_tab(self):
         info = (
             "OFFICIAL EPIC RECOVERY PROCESS\n\n"
@@ -134,9 +159,11 @@ class EpicRecoveryAssistant:
             "Epic's help currently lists Epic Authenticator, third-party authenticator apps, email, and SMS. Availability of SMS can vary by region. The app records which methods you used; it does not perform verification.\n\n"
             "VPN / PROXY\n"
             "Record past use honestly for context only. Do not use a VPN or proxy to imitate an old location. For the sign-in error described in Epic's troubleshooting guide, disconnect VPN/hosting/proxy services before trying again.\n\n"
+            "BANS / SANCTIONS\n"
+            "Check the notice email or in-game message for sanction type, duration, rule, and Sanction ID. Review eligible sanctions and appeal through Epic's Sanctions and Appeals portal. Epic allows one appeal per eligible sanction; this app only organizes notes and cannot remove a ban.\n\n"
             "LOCAL PRIVACY\n"
             "The recovery packet is saved only to the folder you choose. It contains personal account information. Store it securely and share it only through Epic's official recovery process. No data is sent by this app.\n\n"
-            "This independent utility is not affiliated with Epic Games. It does not verify ownership, reset passwords, or submit a request automatically."
+            "This independent utility is not affiliated with Epic Games. It does not verify ownership, reset passwords, unlock accounts, remove sanctions, or submit requests automatically."
         )
         ttk.Label(self.help_tab, text=info, justify="left", wraplength=850).pack(anchor="w")
         ttk.Button(self.help_tab, text="Open Epic account recovery guide", command=lambda: webbrowser.open(RECOVERY_GUIDE_URL)).pack(anchor="w", pady=(12, 4))
@@ -144,6 +171,8 @@ class EpicRecoveryAssistant:
         ttk.Button(self.help_tab, text="Open official 2FA methods guide", command=lambda: webbrowser.open(TWO_FA_METHODS_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.help_tab, text="Locked out of authenticator or SMS?", command=lambda: webbrowser.open(LOST_2FA_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.help_tab, text="Epic VPN/proxy sign-in troubleshooting", command=lambda: webbrowser.open(VPN_TROUBLESHOOTING_URL)).pack(anchor="w", pady=4)
+        ttk.Button(self.help_tab, text="Open Epic Sanctions & Appeals", command=lambda: webbrowser.open(SANCTIONS_URL)).pack(anchor="w", pady=4)
+        ttk.Button(self.help_tab, text="Read Epic ban and appeal guidance", command=lambda: webbrowser.open(BAN_HELP_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.help_tab, text="Open Epic Support", command=self.open_support).pack(anchor="w", pady=4)
 
     def collect_data(self):
@@ -155,6 +184,7 @@ class EpicRecoveryAssistant:
             "vpn_used": self.vpn_used.get(),
             "description": self.description.get("1.0", "end").strip(),
             "evidence": self.evidence.get("1.0", "end").strip(),
+            "appeal_notes": self.appeal_notes.get("1.0", "end").strip(),
             "prepared_at_local": datetime.now().astimezone().isoformat(timespec="minutes"),
             "app_name": APP_NAME,
             "app_version": APP_VERSION,
@@ -195,7 +225,12 @@ class EpicRecoveryAssistant:
             ("VPN / PROXY CONTEXT — DOCUMENTATION ONLY", [
                 ("VPN / proxy used", "vpn_used"), ("Provider", "vpn_provider"), ("Region", "vpn_region")]),
             ("INCIDENT", [
-                ("Incident type", "issue"), ("Description", "description"), ("Additional evidence", "evidence")])
+                ("Incident type", "issue"), ("Description", "description"), ("Additional evidence", "evidence")]),
+            ("BAN / SANCTION APPEAL NOTES", [
+                ("Sanction ID", "sanction_id"), ("Sanction type", "sanction_type"),
+                ("Date received / applied", "sanction_date"), ("Duration", "sanction_duration"),
+                ("Rule / reason in notice", "sanction_rule"), ("Appeal status", "appeal_status"),
+                ("Factual appeal explanation / notes", "appeal_notes")])
         ]
         for heading, fields in sections:
             story.append(Paragraph(escape(heading), styles["Heading2"]))
@@ -253,7 +288,8 @@ class EpicRecoveryAssistant:
                 "EPIC GAMES RECOVERY PACKET\n\n"
                 "recovery_request.pdf: readable recovery summary.\n"
                 "account_details.json: structured copy of the form details.\n"
-                "app.py: copy of the running script, when available.\n\n"
+                "app.py: copy of the running script, when available.\n"
+                "Ban and appeal fields: sanction ID, type, date, duration, stated rule, appeal status, and your notes.\n\n"
                 "Keep this folder private. It contains personal account information. Do not add passwords, 2FA codes, backup codes, authenticator keys, session cookies, or full payment-card numbers. Submit information only through Epic's official recovery flow.\n"
                 + SUPPORT_URL + "\n", encoding="utf-8")
             messagebox.showinfo("Recovery packet exported", "Created your local packet:\n" + str(folder))
@@ -274,6 +310,7 @@ class EpicRecoveryAssistant:
         self.vpn_used.set("Not sure")
         self.description.delete("1.0", tk.END)
         self.evidence.delete("1.0", tk.END)
+        self.appeal_notes.delete("1.0", tk.END)
 
     def open_support(self):
         webbrowser.open(SUPPORT_URL)
