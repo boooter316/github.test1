@@ -37,6 +37,9 @@ jobs:
           foreach ($required in @('Test-PrivateIPv4', 'RFC1918', 'Ports.Count -gt 32', 'InstallDailyStatusTask', 'RemoveDailyStatusTask')) {
             if ($script -notmatch [regex]::Escape($required)) { throw "Missing network-helper guard or command: $required" }
           }
+      - name: Validate DeepSeek backend JavaScript syntax
+        shell: pwsh
+        run: node --check Epic_Games_Recovery_Assistant/web/server.mjs
       - name: Validate embedded web JavaScript syntax
         shell: pwsh
         run: |
@@ -135,6 +138,10 @@ jobs:
             sleep 1
           done
           curl --fail --silent http://127.0.0.1:18080/healthz | grep -Fxq ok
+          curl --fail --silent http://127.0.0.1:18080/api/health -o api-health.json
+          grep -Fq '"provider":"DeepSeek","configured":false' api-health.json
+          api_status=$(curl --silent --output api-error.json --write-out '%{http_code}' -X POST http://127.0.0.1:18080/api/chat -H 'Content-Type: application/json' -d '{"messages":[{"role":"user","content":"test"}]}')
+          test "$api_status" = "503"
           curl --fail --silent http://127.0.0.1:18080/ -o root.html
           grep -Fq 'network_security.js' root.html
           grep -Fq 'IP &amp; Network Tools' root.html
