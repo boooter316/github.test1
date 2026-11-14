@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — C++17 Edition
 
-**Version 3.4.** A Windows C++17 local recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 3.5.** A Windows C++17 local recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Build and run (Windows)
 
@@ -13,14 +13,20 @@ A GitHub Actions workflow also builds a Windows `.exe` when the C++ source chang
 
 The PDF generator is built into the C++ source; no Python, external PDF package, or separate PDF installer is needed. `setup.bat` builds the C++ program; it does not install a PDF reader.
 
-## Version 3.4 additions
+## Version 3.5 additions
 
 - Expanded original-account-country and purchase-history context fields.
 - Added clearer payment-method review notes without collecting full card numbers, CVV, or payment credentials.
 - Added a per-service linked-account inventory prompt covering public IDs/profile names, approximate link dates, and current link status.
 - Added separate appeal-note fields for Epic, Xbox, PlayStation, Steam, and Nintendo.
 - Fixed the duplicate final menu selection and added a clearly labeled Epic support-contact/ticket-options shortcut. The app still cannot provide live agent chat or submit a ticket itself.
-- Corrected the PDF/text/JSON packet version labels so all exports identify version 3.4.
+- Corrected the PDF/text/JSON packet version labels so all exports identify version 3.5.
+
+## Version 3.5 additions
+
+- Added separate planning notes for 2FA setup, changing methods, and lost email/phone/authenticator access without collecting codes.
+- Added recovery-error context fields so users can record the exact message and recent-attempt history; the app does not infer that an account was canceled or disabled.
+- Added dedicated menu shortcuts for Epic's 2FA methods guide, lost-2FA help, and account-recovery help.
 
 ## Features
 
