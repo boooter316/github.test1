@@ -143,7 +143,7 @@ int main(){
  if(!pdf(dir/"recovery_request.pdf",lines))std::cerr<<"PDF export failed; other exports attempted.\n";
  std::cout<<"\nSaved packet to: "<<dir.string()<<"\nIncludes PDF, JSON, text details, and support-request draft.\n"
  <<"No account action was taken. If evidence is missing, pause and ask official support about alternatives.\n\n"
- <<"1 Open Epic account recovery request form\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n5 Epic sign-in\n6 Epic display-name help\n7 Epic email-change help\n8 Xbox enforcement/support\n9 PlayStation suspension support\n10 Steam account help\n11 Nintendo support\n12 Epic account settings\n13 Epic lost-2FA help\n14 Epic unlink help\n15 Epic sanctions and appeals\n0 Exit\n";
+ <<"1 Open Epic account recovery request form\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n5 Epic sign-in\n6 Epic display-name help\n7 Epic email-change help\n8 Xbox enforcement/support\n9 PlayStation suspension support\n10 Steam account help\n11 Nintendo support\n12 Epic account settings\n13 Epic lost-2FA help\n14 Epic unlink help\n15 Epic sanctions and appeals\n16 Epic support contact / ticket options\n0 Exit\n";
  std::string choice=ask("Choose an official page");
  if(choice=="1")openLink("https://www.epicgames.com/help/c-45487929/a21414514");
  else if(choice=="2")openLink("https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US");
