@@ -20,7 +20,6 @@
 #include <windows.h>
 #include <bcrypt.h>
 #include <shellapi.h>
-#include <winhttp.h>
 #endif
 namespace fs = std::filesystem;
 struct Field { std::string label, value; };
@@ -65,37 +64,6 @@ bool pdf(const fs::path& path,const std::vector<std::string>& lines){
 }
 
 
-void notifyDiscord(const std::string& event) {
-#ifdef _WIN32
- const char* raw=std::getenv("EPIC_RECOVERY_DISCORD_WEBHOOK");
- if(!raw || !*raw) return;
- std::wstring url; for(const unsigned char* p=(const unsigned char*)raw; *p; ++p) url.push_back((wchar_t)*p);
- URL_COMPONENTS parts{}; parts.dwStructSize=sizeof(parts);
- wchar_t host[256]{}, path[2048]{};
- parts.lpszHostName=host; parts.dwHostNameLength=256;
- parts.lpszUrlPath=path; parts.dwUrlPathLength=2048;
- if(!WinHttpCrackUrl(url.c_str(),0,0,&parts)) return;
- std::wstring hostname(host,parts.dwHostNameLength), requestPath(path,parts.dwUrlPathLength);
- if(parts.nScheme!=INTERNET_SCHEME_HTTPS || hostname!=L"discord.com" || requestPath.rfind(L"/api/webhooks/",0)!=0) return;
- std::string body="{\"content\":\"Epic Games Recovery Assistant 5.0: "+escJson(event)+"\"}";
- HINTERNET session=WinHttpOpen(L"EpicRecoveryAssistant/4.10",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,WINHTTP_NO_PROXY_NAME,WINHTTP_NO_PROXY_BYPASS,0);
- if(!session) return;
- HINTERNET connection=WinHttpConnect(session,hostname.c_str(),parts.nPort,0);
- if(connection){
-  HINTERNET request=WinHttpOpenRequest(connection,L"POST",requestPath.c_str(),nullptr,WINHTTP_NO_REFERER,WINHTTP_DEFAULT_ACCEPT_TYPES,WINHTTP_FLAG_SECURE);
-  if(request){
-   const wchar_t* headers=L"Content-Type: application/json\r\n";
-   if(WinHttpSendRequest(request,headers,(DWORD)-1,(LPVOID)body.data(),(DWORD)body.size(),(DWORD)body.size(),0)) WinHttpReceiveResponse(request,nullptr);
-   WinHttpCloseHandle(request);
-  }
-  WinHttpCloseHandle(connection);
- }
- WinHttpCloseHandle(session);
-#else
- (void)event;
-#endif
-}
-
 std::string csv(const std::string& s) {
  std::string out="\"";
  for(char c:s){ if(c=='\"') out+="\"\""; else if(c=='\r'||c=='\n') out+=' '; else out+=c; }
@@ -109,7 +77,7 @@ void logHistoricalIPs(const fs::path& dir,const std::string& accountId) {
  fs::path logPath=dir/"ip_history_log.csv";
  bool newFile=!fs::exists(logPath);
  std::ofstream log(logPath,std::ios::app);
- if(!log){std::cerr<<"Could not open IP history log.\n";notifyDiscord("general application error");return;}
+ if(!log){std::cerr<<"Could not open IP history log.\n";return;}
  if(newFile) log<<"logged_at_local,epic_account_id,ip_address,ip_used_date,approximate_location,vpn_proxy_history,evidence_reference,record_source,verification_status\n";
  while(choice=="y"||choice=="Y"||choice=="yes"||choice=="YES"){
   std::string ip=ask("Historical IP address from your own records (optional; do not guess)");
@@ -138,7 +106,7 @@ void logLoginActivity(const fs::path& dir,const std::string& accountId) {
  fs::path logPath=dir/"login_activity_log.csv";
  bool newFile=!fs::exists(logPath);
  std::ofstream log(logPath,std::ios::app);
- if(!log){std::cerr<<"Could not open login activity log.\n";notifyDiscord("general application error");return;}
+ if(!log){std::cerr<<"Could not open login activity log.\n";return;}
  if(newFile) log<<"logged_at_local,epic_account_id,username_or_display_name,email_address,activity_type,result_status,error_message,verification_status\n";
  while(choice=="y"||choice=="Y"||choice=="yes"||choice=="YES"){
   std::string username=ask("Username/display name used (optional; do not enter a password)");
@@ -459,7 +427,7 @@ int runRecoveryCase(){
  std::string request=ask("Describe the support request (do not include secrets)");
  fields.push_back({"Support request summary",request});
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
- std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";notifyDiscord("general application error");return 1;}
+ std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
  std::string epicId;
  for(const auto& f:fields) if(f.label=="Epic Account ID (also called account number, if shown by Epic)") { epicId=f.value; break; }
  logHistoricalIPs(dir,epicId);
@@ -672,7 +640,7 @@ void epicOfficialLinksMenu() {
 
 int main() {
  if(!authGate()) return 0;
- notifyDiscord("application started");
+ 
  for(;;) {
   std::cout<<"\n============================================================\n"
    <<"       EPIC GAMES RECOVERY ASSISTANT - WINDOWS DESKTOP\n"
@@ -686,6 +654,7 @@ int main() {
    <<"4. Open local project and recovery files\n"
    <<"5. Local project secret-hygiene scanner\n"
    <<"6. Help, privacy and safety information\n"
+   <<"7. Local PDF evidence scanner\n"
    <<"0. Exit\n";
   std::string choice=ask("Select a dashboard option");
   if(choice=="0") break;
@@ -712,6 +681,18 @@ int main() {
   } else if(choice=="5") {
    runLocalSecretHygieneScanner();
    ask("Press Enter to return to the desktop dashboard");
+  } else if(choice=="7") {
+#ifdef _WIN32
+   fs::path exeDir=fs::current_path(); char exePath[MAX_PATH]={0};
+   DWORD exeLen=GetModuleFileNameA(nullptr,exePath,MAX_PATH);
+   if(exeLen>0 && exeLen<MAX_PATH) exeDir=fs::path(exePath).parent_path();
+   fs::path launcher=exeDir/"PDF_EVIDENCE_SCANNER.bat";
+   if(fs::exists(launcher)) ShellExecuteA(nullptr,"open",launcher.string().c_str(),nullptr,exeDir.string().c_str(),SW_SHOWNORMAL);
+   else std::cout<<"PDF_EVIDENCE_SCANNER.bat was not found beside the executable.\\n";
+#else
+   std::cout<<"The PDF evidence scanner launcher is available on Windows.\\n";
+#endif
+   ask("Press Enter to return to the desktop dashboard");
   } else if(choice=="6") {
    std::cout<<"\nHELP & SAFETY\n"
     <<"- Recovery forms, progress notes and exports are stored locally.\n"
@@ -723,9 +704,9 @@ int main() {
     <<"- Official web pages open only when you choose an item in the official-links menu.\n";
    ask("Press Enter to return to the desktop dashboard");
   } else {
-   std::cout<<"Choose 1, 2, 3, 4, 5, 6, or 0.\n";
+   std::cout<<"Choose 1, 2, 3, 4, 5, 6, 7, or 0.\n";
   }
  }
- notifyDiscord("application closed");
+ 
  return 0;
 }
