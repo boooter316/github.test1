@@ -187,7 +187,3 @@ The panel is a Node.js web application, not a standalone iPhone app or a static 
 - The updater downloads the latest successful `main` build, verifies the ZIP checksum, backs up the current project under `%LOCALAPPDATA%\EpicRecoveryAssistant\UpdateBackups`, then updates project files and scripts. It preserves local history CSVs and the local account database.
 - The updater never executes downloaded scripts or executables. Close the application before updating, then launch the newly built executable yourself. Review the project backup if you need to roll back.
 - Pull requests do not update the automatic update channel; changes must be merged into `main` and pass the Windows build first. Scanner-selected files and secrets are not included in build uploads.
-
-## Automatic Windows 11 first-run setup
-
-After extracting the full ZIP, double-click **OPEN_PROJECT.bat** inside this folder. It checks for Windows Package Manager, installs Node.js LTS and MSYS2/GCC when missing, builds the C++17 desktop executable, starts the local Node.js web app, and opens both interfaces. Windows may ask you to approve package installations; the launcher does not bypass Windows security prompts. If PATH changes require a sign-out/restart, run the launcher again afterward. Docker is not required for local use. See [web/SETUP_AND_USAGE.txt](web/SETUP_AND_USAGE.txt) and the browser app's **Setup & Install** tab for details.

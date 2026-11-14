@@ -2,6 +2,27 @@
 
 This folder contains the browser-based recovery-request builder, a Node.js web/API server for the optional DeepSeek chat, and the original C++17 static server source.
 
+## First-run Windows setup
+
+For Windows 10/11, extract the complete repository ZIP and double-click
+`Epic_Games_Recovery_Assistant/START_HERE.bat`. The launcher runs the
+consent-based dependency checker, builds the existing C++17 application with
+the existing `build.bat`, and starts it with `run.bat`.
+
+If GCC is missing, the checker asks before using Windows Package Manager
+(`winget`) to install MSYS2, then uses the official MSYS2 package manager
+to install the UCRT64 GCC toolchain. It adds the standard compiler folder to
+the current user's PATH. Docker Desktop is optional and is offered separately
+because it may require administrator approval or a restart. Declining an
+installation leaves the project source untouched.
+
+Windows intentionally does not execute arbitrary installers just because a
+folder is opened. The user must double-click the included launcher (or
+`run.bat`); the browser Setup & Install tab explains this security boundary.
+The setup does not install or configure API keys, Telegram bot tokens,
+VPN/proxy settings, or browser extensions. Those remain separate, explicit
+configuration steps.
+
 ## Hosting and SellHub decision
 
 **DigitalOcean is not part of the hosting plan. Do not create or deploy this app on DigitalOcean.**
@@ -216,8 +237,3 @@ These are provider shortcuts and user instructions only. The project does not au
 ## Wireshark packet and port diagnostics
 
 A separate Wireshark & Ports page links to the official Wireshark download and user guide, provides common display-filter examples, and builds a TCP, UDP, or combined display filter for a user-entered port (1–65535). The page does not capture packets itself, sniff other people's traffic, scan public IP ranges, open ports, or transmit packets. Capture only traffic you own or have explicit authorization to inspect. Packet captures can contain personal or authentication data; keep captures minimal and private.
-
-
-## Windows first-run setup
-
-For the complete Windows desktop + browser project, extract the repository ZIP and run `OPEN_PROJECT.bat` from the `Epic_Games_Recovery_Assistant` folder. The PowerShell bootstrap checks for winget, installs Node.js LTS and MSYS2/GCC when missing, builds the desktop app, starts the Node.js server, and opens the local browser page. Docker is optional and not required for local use. Windows package approval prompts may appear; the script never silently elevates or bypasses UAC. Optional DeepSeek and Telegram integrations still require private environment variables supplied by the owner.

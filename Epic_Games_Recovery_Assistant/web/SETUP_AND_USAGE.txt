@@ -242,23 +242,20 @@ not paste passwords, cookies, session tokens, 2FA codes, or recovery codes.
 See web/TELEGRAM_FORTNITE_SETUP.md for complete setup and troubleshooting.
 
 
-M. AUTOMATIC WINDOWS 11 FIRST-RUN SETUP
----------------------------------------
-1. Extract the complete project ZIP; keep the folder structure intact.
-2. Open Epic_Games_Recovery_Assistant and double-click OPEN_PROJECT.bat.
-3. The launcher checks for winget, Node.js LTS, and the MSYS2/GCC C++17 compiler.
-4. If missing, it installs Node.js LTS and MSYS2 using winget, then installs
-   the GCC compiler inside MSYS2. Windows may display package/UAC approval
-   prompts. The script does not bypass Windows security prompts.
-5. It builds Epic_Games_Recovery_Assistant.exe, starts the local Node.js web
-   server, opens http://127.0.0.1:8080, and launches the desktop application.
-6. If PATH changes are not visible yet, sign out/restart Windows and run
-   OPEN_PROJECT.bat again. Later launches reuse installed dependencies.
+M. FIRST-RUN WINDOWS SETUP
+--------------------------
+1. Extract the complete project ZIP and keep the folder structure intact.
+2. Double-click Epic_Games_Recovery_Assistant\\START_HERE.bat.
+3. The wizard checks for g++. If missing, it asks before installing MSYS2
+   through winget and GCC through the official MSYS2 package manager.
+4. The wizard adds the standard UCRT64 compiler folder to your user PATH,
+   builds with the existing build.bat, then starts the existing run.bat.
+5. Docker Desktop is optional; the wizard offers it separately for the web
+   container. It may require administrator approval and a Windows restart.
 
-The Setup & Install tab in the browser app explains this process. A browser
-page cannot install Windows programs itself; run OPEN_PROJECT.bat from the
-extracted project folder. Docker is not required for local use. DeepSeek and
-Telegram integrations remain optional and require private server settings
-provided by the user. Never place API keys, bot tokens, passwords, or webhook
-URLs in source files or browser code. The setup process does not execute
-unknown downloaded code, access browser login storage, or upload local files.
+You can also double-click run.bat later. If the compiler is missing, the
+existing setup.bat now invokes the same consent-based dependency wizard.
+Windows will not run installers merely because a folder is opened; a user
+must launch one of these batch files. Declining an install does not modify
+project source files. API keys, Telegram bot tokens, VPN/proxy settings, and
+browser extensions are not installed or configured by this wizard.
