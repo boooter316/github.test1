@@ -1280,8 +1280,7 @@ document.getElementById("printOwnershipPacket").addEventListener("click",()=>{
  if(!latestOwnershipPacket)return;
  const w=window.open("","_blank");if(!w){alert("Allow pop-ups to print or save the ownership evidence packet as PDF.");return}
  const safe=latestOwnershipPacket.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
- w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Pro Account Ownership Evidence Packet</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}
-</style></head><body><h1>Pro Account Ownership Evidence Packet</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\\/script></body></html>");
+ w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Pro Account Ownership Evidence Packet</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Pro Account Ownership Evidence Packet</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\\/script></body></html>");
  w.document.close();
 });
 
