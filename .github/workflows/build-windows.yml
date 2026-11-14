@@ -60,6 +60,19 @@ jobs:
             if (-not $source.Contains($required)) { throw "Missing native dashboard feature: $required" }
           }
           Write-Host 'Native command dashboard, local secret-hygiene scanner, recovery tracker, and desktop-only launcher checks passed.'
+      - name: Validate local PDF evidence scanner
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check 'pypdf>=5.0,<7'
+          python -m py_compile Epic_Games_Recovery_Assistant/pdf_evidence_scanner.py
+          python Epic_Games_Recovery_Assistant/pdf_evidence_scanner.py --help | Out-Host
+          $source = Get-Content 'Epic_Games_Recovery_Assistant/pdf_evidence_scanner.py' -Raw
+          foreach ($required in @('NO READABLE TEXT', 'OCR is not performed', 'document text not retained', 'Ownership verification: NOT PERFORMED')) {
+            if (-not $source.Contains($required)) { throw "Missing PDF scanner safety/report behavior: $required" }
+          }
+          $native = Get-Content 'Epic_Games_Recovery_Assistant/recovery_assistant.c++' -Raw
+          if ($native -match 'notifyDiscord|WinHttpSendRequest|EPIC_RECOVERY_DISCORD_WEBHOOK') { throw 'Native desktop source still contains an outbound Discord webhook path.' }
+          Write-Host 'PDF scanner syntax and local-only safety checks passed.'
       - name: Build Windows executable through one-click builder
         shell: cmd
         working-directory: Epic_Games_Recovery_Assistant
@@ -75,6 +88,19 @@ jobs:
           path: Epic_Games_Recovery_Assistant/Epic_Games_Recovery_Assistant.exe
           if-no-files-found: error
           retention-days: 30
+      - name: Package Windows desktop bundle
+        shell: pwsh
+        run: |
+          $bundle = "Windows-Desktop-Bundle"
+          New-Item -ItemType Directory -Force $bundle | Out-Null
+          Copy-Item 'Epic_Games_Recovery_Assistant/Epic_Games_Recovery_Assistant.exe' $bundle
+          Copy-Item 'Epic_Games_Recovery_Assistant/pdf_evidence_scanner.py' $bundle
+          Copy-Item 'Epic_Games_Recovery_Assistant/requirements-pdf.txt' $bundle
+          Copy-Item 'Epic_Games_Recovery_Assistant/PDF_EVIDENCE_SCANNER.bat' $bundle
+          Copy-Item 'Epic_Games_Recovery_Assistant/README.md' $bundle
+          $hash = (Get-FileHash -Algorithm SHA256 "$bundle/Epic_Games_Recovery_Assistant.exe").Hash.ToLowerInvariant()
+          "$hash  Epic_Games_Recovery_Assistant.exe" | Set-Content -Encoding ascii "$bundle/SHA256SUMS.txt"
+          Compress-Archive -Path "$bundle/*" -DestinationPath "Epic-Games-Recovery-Assistant-Windows-Bundle.zip" -CompressionLevel Optimal
       - name: Package complete project and checksum
         shell: pwsh
         run: |
@@ -84,6 +110,13 @@ jobs:
           Compress-Archive -Path "$project/*" -DestinationPath $zip -CompressionLevel Optimal
           $hash = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
           "$hash  $zip" | Set-Content -Encoding ascii SHA256SUMS.txt
+      - name: Upload Windows desktop bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: Epic-Games-Recovery-Assistant-Windows-Bundle
+          path: Epic-Games-Recovery-Assistant-Windows-Bundle.zip
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload complete project update package
         uses: actions/upload-artifact@v4
         with:
@@ -93,21 +126,3 @@ jobs:
             SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 30
-      - name: Send generic Discord build notification
-        if: always()
-        shell: pwsh
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          BUILD_RESULT: ${{ job.status }}
-        run: |
-          if (-not $env:DISCORD_WEBHOOK_URL) {
-            Write-Host "Discord webhook secret is not configured; notification skipped."
-            exit 0
-          }
-          $payload = @{ content = "Epic Games Recovery Assistant Windows build: $($env:BUILD_RESULT)." } | ConvertTo-Json -Compress
-          try {
-            Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK_URL -Method Post -ContentType "application/json" -Body $payload | Out-Null
-            Write-Host "Generic Discord build notification sent."
-          } catch {
-            Write-Warning "Discord build notification failed; build result is unchanged."
-          }
