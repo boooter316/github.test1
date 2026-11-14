@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant
 
-Version 1.4. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
+Version 1.5. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
 
 ## Requirements
 - Windows 10 or Windows 11
@@ -17,7 +17,8 @@ Version 1.4. A Windows Python desktop utility for organizing truthful Epic Games
 - Account details: current and previous emails/display names, desired new Epic display name/email (planning fields only), creation country/date, Epic Account ID, invoice ID, phone used for SMS 2FA, linked accounts and approximate linking dates, purchase payment types, and optional remembered original IP.
 - Incident categories and a description/evidence section.
 - Epic ban and sanction organizer: sanction ID, type, date, duration, stated rule, appeal status, and factual appeal notes; includes the official Sanctions and Appeals portal. This does not unlock accounts or remove bans.
-- Xbox / PlayStation restriction organizer: records Gamertag / Online ID, notice reference, restriction type, date, duration, appeal status, and factual notes; links to the platform owners' official enforcement / suspension guidance. It cannot remove restrictions or bypass enforcement.
+- Xbox / PlayStation restriction organizer: records Gamertag / Online ID, notice reference, restriction type, date, duration, appeal status, and factual notes; links to the platform owners' official enforcement / suspension guidance.
+- Steam / Nintendo restriction organizer: records account identifiers, support / notice references, restriction type, date, duration, appeal status, and factual notes; links to official support resources. It cannot remove restrictions, clear VAC/game bans, or bypass enforcement.
 - Multi-select 2FA history: Epic Authenticator, third-party authenticator app, email, and SMS/phone; plus access status.
 - VPN/proxy history fields for provider and region, strictly for truthful documentation; includes Epic's current troubleshooting advice to disconnect VPN/hosting/proxy services for the relevant sign-in error.
 - PDF recovery-request summary, including the new profile-change planning fields and Xbox / PlayStation appeal notes.
@@ -49,6 +50,9 @@ Epic's available 2FA methods and recovery steps can change. Check the live offic
 - [Xbox Enforcement History / Case Review](https://enforcement.xbox.com/)
 - [Xbox Community Standards](https://www.xbox.com/en-US/legal/community-standards)
 - [PlayStation suspensions and appeals](https://www.playstation.com/en-us/support/account/suspensions/)
+- [Steam Support](https://help.steampowered.com/en/wizard/HelpWithAccount)
+- [Steam Community Ban FAQ](https://help.steampowered.com/en/faqs/view/4F62-35F9-F395-5C23)
+- [Nintendo Support](https://en-americas-support.nintendo.com/)
 - [Epic Support](https://www.epicgames.com/help/en-US/)
 
 The app does not guarantee that Epic will accept a recovery request. Epic makes all account ownership and recovery decisions.
