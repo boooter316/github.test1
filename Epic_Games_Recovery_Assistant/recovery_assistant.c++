@@ -709,16 +709,21 @@ int main() {
    std::cout<<"This option is available on Windows.\n";
 #endif
   } else if(choice=="5") {
+   runLocalSecretHygieneScanner();
+   ask("Press Enter to return to the desktop dashboard");
+  } else if(choice=="6") {
    std::cout<<"\nHELP & SAFETY\n"
     <<"- Recovery forms, progress notes and exports are stored locally.\n"
     <<"- Never enter passwords, 2FA codes, backup codes, cookies, tokens, or full payment-card details.\n"
     <<"- Epic account sign-in, ownership checks, recovery decisions and ticket submission happen only through official Epic processes.\n"
     <<"- This application does not bypass verification, change account settings, remove restrictions, or guarantee recovery.\n"
     <<"- The progress tracker records your notes; it does not connect to Epic or verify account status.\n"
+    <<"- The scanner reports only file paths, line numbers and secret categories; matched values are redacted.\n"
     <<"- Official web pages open only when you choose an item in the official-links menu.\n";
    ask("Press Enter to return to the desktop dashboard");
   } else {
-   std::cout<<"Choose 1, 2, 3, 4, 5, or 0.\n";
+   std::cout<<"Choose 1, 2, 3, 4, 5, 6, or 0.\n";
+  }
   }
  }
  notifyDiscord("application closed");
