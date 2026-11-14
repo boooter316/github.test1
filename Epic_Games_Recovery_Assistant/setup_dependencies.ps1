@@ -37,14 +37,4 @@ if (-not $Gcc) { throw 'g++ is still unavailable. Restart the terminal and run S
 Write-Host ('Compiler ready: ' + (& g++ --version | Select-Object -First 1))
 Write-Host 'The Windows desktop build uses the existing project source and build.bat.'
 Write-Host ''
-Write-Host 'Optional browser server: Docker Desktop is only needed to run the Node/Docker web server locally.'
-if (Get-Command winget -ErrorAction SilentlyContinue) {
-    $docker = Read-Host 'Would you also like to install Docker Desktop? This may require administrator approval and a Windows restart. [Y/N]'
-    if ($docker -in @('Y','y','YES','yes')) {
-        & winget install --id Docker.DockerDesktop --exact --accept-package-agreements --accept-source-agreements
-        if ($LASTEXITCODE -ne 0) { Write-Warning 'Docker Desktop was not installed. You can install it later from https://www.docker.com/products/docker-desktop/.' }
-        else { Write-Host 'Docker Desktop installation requested. Follow its first-run prompts and restart Windows if asked.' }
-    }
-}
-Write-Host ''
-Write-Host 'Dependency check complete.'
+Write-Host 'Dependency check complete. Native Windows desktop build only.'
