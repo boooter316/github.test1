@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant
 
-Version 1.2. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
+Version 1.3. A Windows Python desktop utility for organizing truthful Epic Games account-recovery information and creating a local recovery packet.
 
 ## Requirements
 - Windows 10 or Windows 11
@@ -16,10 +16,11 @@ Version 1.2. A Windows Python desktop utility for organizing truthful Epic Games
 ## Features
 - Account details: current and previous emails/display names, creation country/date, Epic Account ID, invoice ID, phone used for SMS 2FA, linked accounts and approximate linking dates, purchase payment types, and optional remembered original IP.
 - Incident categories and a description/evidence section.
+- Ban and sanction organizer: sanction ID, type, date, duration, stated rule, appeal status, and factual appeal notes; includes official Sanctions and Appeals links. This does not unlock accounts or remove bans.
 - Multi-select 2FA history: Epic Authenticator, third-party authenticator app, email, and SMS/phone; plus access status.
 - VPN/proxy history fields for provider and region, strictly for truthful documentation; includes Epic's current troubleshooting advice to disconnect VPN/hosting/proxy services for the relevant sign-in error.
 - PDF recovery-request summary.
-- **Export Full Recovery Packet** creates a local folder containing:
+- **Export Full Recovery Packet** (your local account-recovery export) creates a local folder containing:
   - `recovery_request.pdf`
   - `account_details.json` (structured form export)
   - `app.py` (copy of the running script, when available)
@@ -30,7 +31,7 @@ Version 1.2. A Windows Python desktop utility for organizing truthful Epic Games
 - The packet contains personal account information. Keep it private and share only through Epic's official recovery process.
 - Never enter or store passwords, one-time verification codes, backup codes, authenticator setup keys, session cookies, or full payment-card numbers.
 - VPN/proxy fields document past use only. The app does not connect to a VPN/proxy, spoof or rotate IP addresses, recreate an old IP, or bypass Epic verification.
-- This is an independent organizer. It does not verify ownership, reset passwords, connect to Epic, or submit recovery requests automatically.
+- This is an independent organizer. It does not verify ownership, reset passwords, connect to Epic, unlock accounts, remove bans, evade sanctions, or submit recovery/appeal requests automatically.
 
 ## Official Epic guidance
 Epic's available 2FA methods and recovery steps can change. Check the live official pages before acting:
@@ -39,6 +40,8 @@ Epic's available 2FA methods and recovery steps can change. Check the live offic
 - [Available 2FA methods](https://www.epicgames.com/help/c-45487929/c-38978022/a11272697)
 - [Locked out of authenticator or SMS 2FA](https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US)
 - [VPN/proxy sign-in troubleshooting](https://www.epicgames.com/help/c-45487929/c-38854402/a20296521?lang=en-US)
+- [Epic ban / sanction explanation](https://www.epicgames.com/help/c-34254770/c-5719350646299/a12390848?lang=en-US)
+- [Epic Sanctions and Appeals portal](https://safety.epicgames.com/sanctions-and-appeals?mode=game)
 - [Epic Support](https://www.epicgames.com/help/en-US/)
 
 The app does not guarantee that Epic will accept a recovery request. Epic makes all account ownership and recovery decisions.
