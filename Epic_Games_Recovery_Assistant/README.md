@@ -9,6 +9,8 @@
 3. Run `setup.bat` to compile `recovery_assistant.cpp`.
 4. Run `run.bat` to launch the program.
 
+A GitHub Actions workflow also builds a Windows `.exe` when the C++ source changes (or when manually run from the Actions tab). Download the `Epic-Games-Recovery-Assistant-Windows` artifact from the completed workflow run. The repository is private, so only users with repository access can download it.
+
 The PDF generator is built into the C++ source; no Python, external PDF package, or separate PDF installer is needed. `setup.bat` builds the C++ program; it does not install a PDF reader.
 
 ## Version 3.3 additions
@@ -53,6 +55,7 @@ The PDF generator is built into the C++ source; no Python, external PDF package,
 - Lost authenticator/SMS access: https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US
 - Unlink a console account: https://www.epicgames.com/help/c-Category_EpicAccounts/c-38854402/a17347934?lang=en-US
 - Sign-in: https://www.epicgames.com/id/login
+- Sanctions and appeals: https://safety.epicgames.com/en-US/sanctions-and-appeals
 
 ## Test status
 
