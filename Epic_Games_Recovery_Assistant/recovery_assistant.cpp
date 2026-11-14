@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 3.8 - C++17
+// Epic Games Recovery Assistant 3.9 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <cstdlib>
@@ -61,7 +61,7 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.8 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.9 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -100,7 +100,10 @@ int main(){
  add("Epic Authenticator access status (can access / cannot access / unsure; never enter a code)");
  add("Third-party authenticator app access status (can access / cannot access / unsure; never enter a code)");
  add("2FA method requested for official support guidance (email / SMS-phone / authenticator app / alternative method)");
- add("Phone number associated with SMS 2FA (optional; never enter SMS codes)");
+ add("SMS/phone 2FA: confirm whether you still control the registered number; do not record the full number or any SMS code");
+ add("Preferred official recovery contact to discuss with support (email / SMS-phone / authenticator app / unsure; planning only)");
+ add("Evidence attachments checklist: note filenames of genuine receipts, notices, screenshots, or support emails kept privately on your device; do not paste passwords, codes, cookies, or tokens");
+ add("Evidence source/date: where each document came from and when it was created (truthful notes only)");
  add("Linked services to review (Xbox, PlayStation, Nintendo, Steam, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other Epic-connected apps/services)");
  add("Linked-service actions requested (review only; actual unlinking must be done by the platform owner)");
  add("Xbox linked gamertag and whether currently linked (public details only)");
@@ -122,6 +125,8 @@ int main(){
  add("Steam restriction/support request summary (official review only; no automated restriction changes)");
  add("Nintendo support case/reference ID"); add("Nintendo restriction type (account restriction / online-service restriction / parental-control issue / other)"); add("Nintendo restriction date and end date/duration, if shown"); add("Nintendo support/appeal status (not started / submitted / response received / closed)"); add("Nintendo factual appeal notes (service affected, notice wording, evidence available)");
  add("Nintendo restriction/support request summary (official review only; no automated restriction changes)");
+ add("Restriction review request: state the exact platform notice, policy section if shown, and why you believe a review is warranted; no bypass or removal automation");
+ add("Appeal evidence checklist: notice screenshot, case ID, dates, relevant receipts, and concise factual timeline (store files privately; do not include secrets)");
  add("Evidence bundle description: list only lawful, truthful documents you already possess; do not dump credentials, cookies, tokens, or private account databases");
  add("Epic recovery request status (not started / submitted / waiting / approved / denied / unsure)");
  add("Epic recovery request ID (if provided; never enter a verification code)");
@@ -154,13 +159,13 @@ int main(){
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
  std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.8 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.9 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional context, not proof of ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 3.8\n\n";
- j<<"{\n \"version\":\"3.8\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 3.9\n\n";
+ j<<"{\n \"version\":\"3.9\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
  j<<" ]\n}\n";
