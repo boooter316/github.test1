@@ -216,3 +216,8 @@ These are provider shortcuts and user instructions only. The project does not au
 ## Wireshark packet and port diagnostics
 
 A separate Wireshark & Ports page links to the official Wireshark download and user guide, provides common display-filter examples, and builds a TCP, UDP, or combined display filter for a user-entered port (1–65535). The page does not capture packets itself, sniff other people's traffic, scan public IP ranges, open ports, or transmit packets. Capture only traffic you own or have explicit authorization to inspect. Packet captures can contain personal or authentication data; keep captures minimal and private.
+
+
+## Windows first-run setup
+
+For the complete Windows desktop + browser project, extract the repository ZIP and run `OPEN_PROJECT.bat` from the `Epic_Games_Recovery_Assistant` folder. The PowerShell bootstrap checks for winget, installs Node.js LTS and MSYS2/GCC when missing, builds the desktop app, starts the Node.js server, and opens the local browser page. Docker is optional and not required for local use. Windows package approval prompts may appear; the script never silently elevates or bypasses UAC. Optional DeepSeek and Telegram integrations still require private environment variables supplied by the owner.
