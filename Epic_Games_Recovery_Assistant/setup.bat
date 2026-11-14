@@ -1,5 +1,5 @@
 @echo off
-title Epic Games Recovery Assistant 3.7 - Build
+title Epic Games Recovery Assistant 3.8 - Build
 cd /d "%~dp0"
 where g++ >nul 2>nul
 if errorlevel 1 (
@@ -9,11 +9,11 @@ if errorlevel 1 (
   exit /b 1
 )
 echo Building C++17 application...
-g++ -std=c++17 -O2 -Wall -Wextra recovery_assistant.cpp -o recovery_assistant.exe -lshell32
+g++ -std=c++17 -O2 -Wall -Wextra recovery_assistant.cpp -o Epic_Games_Recovery_Assistant.exe -static -static-libgcc -static-libstdc++ -lshell32
 if errorlevel 1 (
   echo Build failed. Check the compiler and source.
   pause
   exit /b 1
 )
-echo Build complete: recovery_assistant.exe
+echo Build complete: Epic_Games_Recovery_Assistant.exe
 pause
