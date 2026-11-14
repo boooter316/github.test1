@@ -12,6 +12,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <shellapi.h>
+#include <winhttp.h>
 #endif
 namespace fs = std::filesystem;
 struct Field { std::string label, value; };
@@ -55,6 +56,38 @@ bool pdf(const fs::path& path,const std::vector<std::string>& lines){
  f<<"trailer\n<< /Size "<<off.size()<<" /Root 1 0 R >>\nstartxref\n"<<x<<"\n%%EOF\n";return(bool)f;
 }
 
+
+void notifyDiscord(const std::string& event) {
+#ifdef _WIN32
+ const char* raw=std::getenv("EPIC_RECOVERY_DISCORD_WEBHOOK");
+ if(!raw || !*raw) return;
+ std::wstring url; for(const unsigned char* p=(const unsigned char*)raw; *p; ++p) url.push_back((wchar_t)*p);
+ URL_COMPONENTS parts{}; parts.dwStructSize=sizeof(parts);
+ wchar_t host[256]{}, path[2048]{};
+ parts.lpszHostName=host; parts.dwHostNameLength=256;
+ parts.lpszUrlPath=path; parts.dwUrlPathLength=2048;
+ if(!WinHttpCrackUrl(url.c_str(),0,0,&parts)) return;
+ std::wstring hostname(host,parts.dwHostNameLength), requestPath(path,parts.dwUrlPathLength);
+ if(parts.nScheme!=INTERNET_SCHEME_HTTPS || hostname!=L"discord.com" || requestPath.rfind(L"/api/webhooks/",0)!=0) return;
+ std::string body="{\"content\":\"Epic Games Recovery Assistant: "+escJson(event)+"\"}";
+ HINTERNET session=WinHttpOpen(L"EpicRecoveryAssistant/4.5",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,WINHTTP_NO_PROXY_NAME,WINHTTP_NO_PROXY_BYPASS,0);
+ if(!session) return;
+ HINTERNET connection=WinHttpConnect(session,hostname.c_str(),parts.nPort,0);
+ if(connection){
+  HINTERNET request=WinHttpOpenRequest(connection,L"POST",requestPath.c_str(),nullptr,WINHTTP_NO_REFERER,WINHTTP_DEFAULT_ACCEPT_TYPES,WINHTTP_FLAG_SECURE);
+  if(request){
+   const wchar_t* headers=L"Content-Type: application/json\r\n";
+   if(WinHttpSendRequest(request,headers,(DWORD)-1,(LPVOID)body.data(),(DWORD)body.size(),(DWORD)body.size(),0)) WinHttpReceiveResponse(request,nullptr);
+   WinHttpCloseHandle(request);
+  }
+  WinHttpCloseHandle(connection);
+ }
+ WinHttpCloseHandle(session);
+#else
+ (void)event;
+#endif
+}
+
 std::string csv(const std::string& s) {
  std::string out="\"";
  for(char c:s){ if(c=='\"') out+="\"\""; else if(c=='\r'||c=='\n') out+=' '; else out+=c; }
@@ -67,7 +100,7 @@ void logHistoricalIPs(const fs::path& dir,const std::string& accountId) {
  fs::path logPath=dir/"ip_history_log.csv";
  bool newFile=!fs::exists(logPath);
  std::ofstream log(logPath,std::ios::app);
- if(!log){std::cerr<<"Could not open IP history log.\n";return;}
+ if(!log){std::cerr<<"Could not open IP history log.\n";notifyDiscord("general application error");return;}
  if(newFile) log<<"logged_at_local,epic_account_id,ip_address,ip_used_date,source,verification_status\n";
  while(choice=="y"||choice=="Y"||choice=="yes"||choice=="YES"){
   std::string ip=ask("Historical IP address (manual entry only; do not guess)");
@@ -92,7 +125,7 @@ void logLoginActivity(const fs::path& dir,const std::string& accountId) {
  fs::path logPath=dir/"login_activity_log.csv";
  bool newFile=!fs::exists(logPath);
  std::ofstream log(logPath,std::ios::app);
- if(!log){std::cerr<<"Could not open login activity log.\n";return;}
+ if(!log){std::cerr<<"Could not open login activity log.\n";notifyDiscord("general application error");return;}
  if(newFile) log<<"logged_at_local,epic_account_id,username_or_display_name,email_address,activity_type,result_status,error_message,verification_status\n";
  while(choice=="y"||choice=="Y"||choice=="yes"||choice=="YES"){
   std::string username=ask("Username/display name used (optional; do not enter a password)");
@@ -120,11 +153,12 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.4 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.5 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
  <<"IP/VPN history is optional context, never proof of ownership. No spoofing.\n\n";
+ notifyDiscord("application started");
  add("Your first and last name (as used on purchases)");
  add("Epic display name (current)"); add("Previous Epic display names");
  add("Current Epic email (never enter password)"); add("Previous Epic emails");
@@ -233,18 +267,18 @@ int main(){
  std::string request=ask("Describe the support request (do not include secrets)");
  fields.push_back({"Support request summary",request});
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
- std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
+ std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";notifyDiscord("general application error");return 1;}
  std::string epicId;
  for(const auto& f:fields) if(f.label=="Epic Account ID (also called account number, if shown by Epic)") { epicId=f.value; break; }
  logHistoricalIPs(dir,epicId);
  logLoginActivity(dir,epicId);
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.4 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.5 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional user-reported context; this app cannot compare it with Epic records or verify account ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, full phone numbers, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.4\n\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.5\n\n";
  j<<"{\n \"version\":\"4.4\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
@@ -309,5 +343,6 @@ int main(){
   }
   std::cout<<"Official Epic contact: https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US\\n";
  }
+ notifyDiscord("application closed");
  return 0;
 }
