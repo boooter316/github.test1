@@ -8,8 +8,8 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo Building recovery_assistant.cpp with C++17...
-g++ -std=c++17 -O2 -Wall -Wextra recovery_assistant.cpp -o Epic_Games_Recovery_Assistant.exe -static -static-libgcc -static-libstdc++ -lshell32
+echo Building recovery_assistant.c++ with C++17...
+g++ -std=c++17 -O2 -Wall -Wextra recovery_assistant.c++ -o Epic_Games_Recovery_Assistant.exe -static -static-libgcc -static-libstdc++ -lshell32
 if errorlevel 1 (
   echo Build failed. Check the compiler and source.
   pause
