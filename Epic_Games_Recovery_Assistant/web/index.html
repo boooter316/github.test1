@@ -122,8 +122,8 @@ function inspectFortniteText(s,sourceName){
     {name:"Credential-labelled secret",re:/\b(password|passwd|access[_-]?token|refresh[_-]?token|authorization|client[_-]?secret|api[_-]?key|session[_-]?key)\b\s*[:=]\s*["']?([^\s,;"'}]{4,})/gi,secret:true},
     {name:"Epic/Fortnite token-like value",re:/\b(?:eg1~|bearer\s+)[A-Za-z0-9._~\-]{12,}/gi,secret:true},
     {name:"Email/account contact",re:/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,account:true},
-    {name:"Account ID field",re:/\b(account[_ -]?id|epic[_ -]?account[_ -]?id|user[_ -]?id)\b\s*[:=]\s*["']?([A-Za-z0-9_-]{5,})/gi,account:true},
-    {name:"Display name field",re:/\b(display[_ -]?name|username|account[_ -]?name)\b\s*[:=]\s*["']?([^,\r\n;"']{2,40})/gi,account:true},
+    {name:"Account ID field",re:/\b((?:(?:epic|fortnite)[_ -]?)?account[_ -]?id|user[_ -]?id)\b\s*[:=]\s*["']?([A-Za-z0-9_-]{5,})/gi,account:true},
+    {name:"Display name field",re:/\b(?:epic[_ -]?)?(display[_ -]?name|username|account[_ -]?name)\b\s*[:=]\s*["']?([^,\r\n;"']{2,40})/gi,account:true},
     {name:"Fortnite/Epic authentication reference",re:/FortniteGame|EpicOnlineServices|EOS[_-]?(?:Auth|Connect)|OAuth|Authorization/gi,reference:true}
   ];
   const findings=[];
@@ -171,11 +171,11 @@ document.getElementById("runFortniteScan").addEventListener("click",async()=>{
   }
   const out=[];
   const counts=new Map();
-  const maskedAccounts=new Set();
+  const distinctAccountDetails=new Set();
   findings.forEach(item=>{
     counts.set(item.type,(counts.get(item.type)||0)+1);
     if(item.type==="Email/account contact"||item.type==="Account ID field"||item.type==="Display name field"){
-      maskedAccounts.add(item.preview);
+      distinctAccountDetails.add(item.preview);
     }
   });
   out.push("Files selected: "+files.length+" | Total findings: "+findings.length);
@@ -185,7 +185,7 @@ document.getElementById("runFortniteScan").addEventListener("click",async()=>{
   }else{
     out.push("• No matching patterns");
   }
-  out.push("Distinct account details: "+maskedAccounts.size);
+  out.push("Distinct account details: "+distinctAccountDetails.size);
   out.push("Findings are numbered in scan order. Emails, account IDs, and display names are shown in full in this local result. Passwords and tokens remain redacted.");
   out.push("");
   if(findings.length){
