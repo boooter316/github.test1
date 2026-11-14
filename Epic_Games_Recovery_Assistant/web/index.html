@@ -1,71 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Account Recovery Assistant — Pro Local Security Scanner</title><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
-/* Organize existing tools into independent, keyboard-accessible sub-tabs.
-   Existing controls and event handlers remain attached to their original elements. */
-function createToolSubtabs(rootId,prefix,definitions){
-  const root=document.getElementById(rootId);
-  if(!root||root.dataset.subtabsReady==="true")return;
-  const heading=[...root.children].find(node=>/^H[1-3]$/.test(node.tagName));
-  const nav=document.createElement("nav");
-  nav.className="tool-subnav no-print";
-  nav.setAttribute("aria-label",prefix+" tools");
-  nav.setAttribute("role","tablist");
-  const content=document.createElement("div");
-  content.className="tool-subtab-content";
-  const panels=definitions.map((definition,index)=>{
-    const panel=document.createElement("section");
-    panel.className="tool-subpanel"+(index===0?"":" hidden");
-    panel.id=prefix+"Panel"+index;
-    panel.setAttribute("role","tabpanel");
-    panel.setAttribute("aria-label",definition.label);
-    const button=document.createElement("button");
-    button.type="button";
-    button.className="tool-subtab"+(index===0?"":" secondary");
-    button.id=prefix+"Button"+index;
-    button.textContent=definition.label;
-    button.setAttribute("role","tab");
-    button.setAttribute("aria-controls",panel.id);
-    button.setAttribute("aria-selected",String(index===0));
-    button.addEventListener("click",()=>{
-      definitions.forEach((item,i)=>{
-        const active=i===index;
-        panels[i].classList.toggle("hidden",!active);
-        buttons[i].setAttribute("aria-selected",String(active));
-        buttons[i].classList.toggle("secondary",!active);
-      });
-    });
-    nav.appendChild(button);
-    content.appendChild(panel);
-    return panel;
-  });
-  const buttons=[...nav.querySelectorAll("button")];
-  const assignments=new Map();
-  definitions.forEach((definition,index)=>(definition.members||[]).forEach(id=>assignments.set(id,index)));
-  const original=[...root.children].filter(node=>node!==heading);
-  original.forEach(node=>{
-    const target=assignments.has(node.id)?assignments.get(node.id):0;
-    panels[target].appendChild(node);
-  });
-  if(heading)heading.insertAdjacentElement("afterend",nav);else root.prepend(nav);
-  nav.insertAdjacentElement("afterend",content);
-  root.dataset.subtabsReady="true";
-}
-createToolSubtabs("recoveryTab","recoveryTools",[
-  {label:"Recovery Form",members:["packet"]},
-  {label:"Ticket Manager",members:["ticketManager"]},
-  {label:"Setup & Help",members:["setup-guide"]}
-]);
-createToolSubtabs("fortniteTab","proTools",[
-  {label:"Multi-Platform Scanner",members:[]},
-  {label:"VPN & Proxy",members:["networkPrivacyPanel"]},
-  {label:"IP Evidence Checker",members:["ipAccountConsistency"]},
-  {label:"Ownership Packet",members:["ownershipEvidencePacket"]},
-  {label:"Fortnite Diagnostics",members:["fortniteDiagnostics"]}
-]);
-document.getElementById("recoveryTabButton").textContent="Recovery Assistant";
-document.getElementById("securityTabButton").textContent="Discord Scanner";
-document.getElementById("fortniteTabButton").textContent="Pro Multi-Tool";
 </script>
 <style>
 :root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#18212f;background:#f3f5f8}body{margin:0}.wrap{max-width:900px;margin:auto;padding:22px}
@@ -674,4 +609,70 @@ document.getElementById("printOwnershipPacket").addEventListener("click",()=>{
  w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Pro Account Ownership Evidence Packet</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Pro Account Ownership Evidence Packet</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\\/script></body></html>");
  w.document.close();
 });
+
+/* Organize existing tools into independent, keyboard-accessible sub-tabs.
+   Existing controls and event handlers remain attached to their original elements. */
+function createToolSubtabs(rootId,prefix,definitions){
+  const root=document.getElementById(rootId);
+  if(!root||root.dataset.subtabsReady==="true")return;
+  const heading=[...root.children].find(node=>/^H[1-3]$/.test(node.tagName));
+  const nav=document.createElement("nav");
+  nav.className="tool-subnav no-print";
+  nav.setAttribute("aria-label",prefix+" tools");
+  nav.setAttribute("role","tablist");
+  const content=document.createElement("div");
+  content.className="tool-subtab-content";
+  const panels=definitions.map((definition,index)=>{
+    const panel=document.createElement("section");
+    panel.className="tool-subpanel"+(index===0?"":" hidden");
+    panel.id=prefix+"Panel"+index;
+    panel.setAttribute("role","tabpanel");
+    panel.setAttribute("aria-label",definition.label);
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="tool-subtab"+(index===0?"":" secondary");
+    button.id=prefix+"Button"+index;
+    button.textContent=definition.label;
+    button.setAttribute("role","tab");
+    button.setAttribute("aria-controls",panel.id);
+    button.setAttribute("aria-selected",String(index===0));
+    button.addEventListener("click",()=>{
+      definitions.forEach((item,i)=>{
+        const active=i===index;
+        panels[i].classList.toggle("hidden",!active);
+        buttons[i].setAttribute("aria-selected",String(active));
+        buttons[i].classList.toggle("secondary",!active);
+      });
+    });
+    nav.appendChild(button);
+    content.appendChild(panel);
+    return panel;
+  });
+  const buttons=[...nav.querySelectorAll("button")];
+  const assignments=new Map();
+  definitions.forEach((definition,index)=>(definition.members||[]).forEach(id=>assignments.set(id,index)));
+  const original=[...root.children].filter(node=>node!==heading);
+  original.forEach(node=>{
+    const target=assignments.has(node.id)?assignments.get(node.id):0;
+    panels[target].appendChild(node);
+  });
+  if(heading)heading.insertAdjacentElement("afterend",nav);else root.prepend(nav);
+  nav.insertAdjacentElement("afterend",content);
+  root.dataset.subtabsReady="true";
+}
+createToolSubtabs("recoveryTab","recoveryTools",[
+  {label:"Recovery Form",members:["packet"]},
+  {label:"Ticket Manager",members:["ticketManager"]},
+  {label:"Setup & Help",members:["setup-guide"]}
+]);
+createToolSubtabs("fortniteTab","proTools",[
+  {label:"Multi-Platform Scanner",members:[]},
+  {label:"VPN & Proxy",members:["networkPrivacyPanel"]},
+  {label:"IP Evidence Checker",members:["ipAccountConsistency"]},
+  {label:"Ownership Packet",members:["ownershipEvidencePacket"]},
+  {label:"Fortnite Diagnostics",members:["fortniteDiagnostics"]}
+]);
+document.getElementById("recoveryTabButton").textContent="Recovery Assistant";
+document.getElementById("securityTabButton").textContent="Discord Scanner";
+document.getElementById("fortniteTabButton").textContent="Pro Multi-Tool";
 </script></body></html>
