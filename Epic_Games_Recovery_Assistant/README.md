@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 4.8.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 4.9.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Download the Windows executable
 
@@ -11,7 +11,7 @@ The Windows build is produced by GitHub Actions. Open the latest successful **Bu
 
 The repository is private, so downloading the artifact requires access to this repository. GitHub Actions builds the executable; it does not install or run it on your computer. Windows may show a security warning for an unsigned executable. Only run a build you downloaded from this repository and trust.
 
-## Local sign-in and registration (Version 4.8)
+## Local sign-in and registration (Version 4.9)
 
 The Windows desktop app now opens a local account screen before the recovery menu. Choose **Register** to create a local username and password, or **Sign in** on later launches. Password entry is hidden. Passwords are never written to disk: the app stores a random per-account salt and a PBKDF2-HMAC-SHA256 password hash (300,000 iterations) in `%LOCALAPPDATA%\\EpicRecoveryAssistant\\local_users.db`. This is local app authentication only; it is not an Epic Games account login, a website login, or Discord authentication. It does not contact Epic or send authentication details to Discord.
 
@@ -19,7 +19,7 @@ Choose a unique password of at least 12 characters. The app does not provide onl
 
 The account database is stored under the current Windows user's Local AppData folder, not in the repository or recovery export packet. Username and password are never sent to Discord.
 
-## Optional Discord notifications (Version 4.8)
+## Optional Discord notifications (Version 4.9)
 
 Two optional, generic status notifications are supported and remain disabled unless configured:
 
@@ -89,7 +89,7 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 - Prepares a support-request draft and opens Epic's official contact page; the user reviews and submits it. No automatic ticket submission or direct Epic API connection.
 - Opens official recovery, support, account settings, linked-account and 2FA help pages.
 
-## Version 4.8 additions\n\n- Keeps the local Windows sign-in/register gate before the recovery menu. Users create their own local credentials; no fixed credentials are embedded in the source, and authentication is not connected to Epic or Discord.\n- Adds `recovery_details.csv` containing the non-secret form fields manually entered by the user, alongside the existing PDF, JSON, text, and support-draft exports. This is a local export, not a platform/account dumper.\n- Keeps the optional Discord webhook limited to generic application/build status notifications; it does not open the app or authenticate users.\n\n## Version 4.3 additions
+## Version 4.9 additions\n\n- Adds a second console page, **Recovery Progress**, with user-entered checks for account status, linked-account status, account email, username/display name, and email-change progress.\n- Opens the relevant official Epic account, connections, email-change help, and sanctions/appeals pages for the user to review.\n- Calculates an estimated restriction countdown from an end date entered from an official notice. It cannot read, verify, shorten, or remove a restriction.\n- Progress-page entries are included in the local PDF, JSON, text, and CSV exports.\n- Keeps the Windows desktop app, local sign-in, and generic Discord webhook notifications. No website dashboard or Discord login is added. These are not live Epic API checks, and the app never requests passwords or verification codes.\n\n- Keeps the local Windows sign-in/register gate before the recovery menu. Users create their own local credentials; no fixed credentials are embedded in the source, and authentication is not connected to Epic or Discord.\n- Adds `recovery_details.csv` containing the non-secret form fields manually entered by the user, alongside the existing PDF, JSON, text, and support-draft exports. This is a local export, not a platform/account dumper.\n- Keeps the optional Discord webhook limited to generic application/build status notifications; it does not open the app or authenticate users.\n\n## Version 4.3 additions
 
 - Adds `build.bat` as a one-click build launcher; `setup.bat` performs the C++17 compilation of the correctly named `recovery_assistant.c++` into `Epic_Games_Recovery_Assistant.exe`.
 - Adds an optional local `ip_history_log.csv`. It appends IP addresses manually entered by the user, the Epic Account ID label, approximate use date, record source, and a clear `NOT VERIFIED` status.
