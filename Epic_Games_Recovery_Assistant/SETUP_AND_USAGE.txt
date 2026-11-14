@@ -143,3 +143,13 @@ J. PRIVACY / TROUBLESHOOTING
   removing passwords, tokens, cookies, and personal data.
 - Never treat an IP address, ZIP code, or street address as proof of account
   ownership. Providers must verify account claims using their own records.
+
+
+## Project update checklist
+
+- ✅✔️ Main website PDF Evidence Scanner tab and dashboard shortcut included.
+- ✅✔️ Recovery Panel includes separate Recovery Records and PDF Evidence Scanner tabs.
+- ✅✔️ Custom red-and-black Ghostface artwork included as a site background.
+- 😈😈 Visual checklist/theme update included.
+
+These checkmarks describe project files and interface features only. They do not indicate Epic account ownership, verification, or a completed recovery decision.
