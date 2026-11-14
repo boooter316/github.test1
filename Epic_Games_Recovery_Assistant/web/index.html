@@ -1278,7 +1278,9 @@ document.getElementById("printOwnershipPacket").addEventListener("click",()=>{
  if(!latestOwnershipPacket)return;
  const w=window.open("","_blank");if(!w){alert("Allow pop-ups to print or save the ownership evidence packet as PDF.");return}
  const safe=latestOwnershipPacket.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
- w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Pro Account Ownership Evidence Packet</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Pro Account Ownership Evidence Packet</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\\/script></body></html>");
+ w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Pro Account Ownership Evidence Packet</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}
+.project-checklist{margin:24px auto;padding:18px;max-width:920px;border:1px solid #64748b;border-radius:14px;background:rgba(10,15,25,.92);color:#f8fafc}.project-checklist h2{margin:0 0 10px}.project-checklist p{color:#cbd5e1}.project-checklist label{display:flex;gap:10px;align-items:center;margin:10px 0;color:#f8fafc}.project-checklist input{width:auto;min-width:18px;min-height:18px;accent-color:#22c55e}
+</style></head><body><h1>Pro Account Ownership Evidence Packet</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\\/script></body></html>");
  w.document.close();
 });
 
@@ -1533,4 +1535,13 @@ window.onTelegramAuth=async function(user){
 document.getElementById("telegramRefreshStatus").addEventListener("click",refreshTelegramConnectionStatus);
 refreshTelegramConnectionStatus();
 
-</script><script src="./network_security.js"></script></body></html>
+</script><script src="./network_security.js"></script><section class="project-checklist" aria-labelledby="projectChecklistTitle">
+<h2 id="projectChecklistTitle">Project checklist ✅✔️😈</h2>
+<p>Use these checkboxes to track the included project features. Selections are temporary and stay in this page only.</p>
+<label><input type="checkbox"> ✅ Recovery Assistant and existing records</label>
+<label><input type="checkbox"> ✔️ Local PDF Evidence Scanner</label>
+<label><input type="checkbox"> ✅ Website and Recovery Panel tabs</label>
+<label><input type="checkbox"> 😈 Ghostface background artwork</label>
+<label><input type="checkbox"> ✔️ Existing file and folder names preserved</label>
+</section>
+</body></html>
