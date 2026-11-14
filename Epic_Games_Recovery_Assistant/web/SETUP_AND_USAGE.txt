@@ -156,10 +156,26 @@ F. GLOBAL STOP, PDF EXPORT, FAZE JARVIS, AND STARTER BUILDER
 - On Account Status & Details, select a provider, record non-secret details,
   then select Print / Save selected account details as PDF. Allow the print
   window if your browser blocks pop-ups, then choose Save as PDF.
-- Open the Faze Jarvis AI tab (second tab). It greets you with
-  “Hello! This is Faze Jarvis.” This repository version is an offline demo
-  with fixed guidance, not a connected generative AI model. Do not paste
-  passwords, tokens, recovery codes, private keys, or other secrets.
+- Open the Faze Jarvis AI tab (second tab). It uses the DeepSeek
+  chat-completions API through the server-side proxy in server.mjs. The
+  server uses the deepseek-flash model with thinking enabled and DeepSeek's
+  high safety-check setting. The browser never receives the DeepSeek API key.
+- Before starting the container, set DEEPSEEK_API_KEY and CHAT_ACCESS_PASSWORD
+  as private environment variables on the host. Do not put either value in
+  this repository, HTML, JavaScript, a URL, a screenshot, or a chat message.
+  The app access password is entered into the chat page; it is not the
+  DeepSeek API key. If either server variable is missing, chat remains off.
+- Example local Docker run (replace the placeholders locally; never commit
+  real secrets):
+  docker run --rm -p 8080:8080 -e DEEPSEEK_API_KEY=YOUR_SERVER_KEY -e CHAT_ACCESS_PASSWORD=YOUR_PRIVATE_CHAT_PASSWORD recovery-assistant-web
+- The server limits chat requests and message sizes. Keep the service behind
+  authenticated access or a private network; do not expose a paid API proxy
+  publicly without appropriate user authentication, usage limits, and
+  monitoring. API usage may incur charges on your DeepSeek account.
+- The assistant supports coding and defensive security. It does not bypass
+  DeepSeek safety controls, authentication, platform restrictions, or access
+  controls. Never paste passwords, tokens, recovery codes, private keys,
+  payment details, or other secrets into the chat.
 - The Build a Starter Project panel creates a downloadable HTML, Python,
   PowerShell, or C++ starter source file from your project description. It
   does not compile or execute generated code. Review the source before use.
