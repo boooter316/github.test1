@@ -22,7 +22,7 @@ jobs:
       - name: Validate PowerShell scripts
         shell: pwsh
         run: |
-          $files = @('Epic_Games_Recovery_Assistant/update_project.ps1', 'Epic_Games_Recovery_Assistant/install_auto_update.ps1', 'Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1', 'Epic_Games_Recovery_Assistant/web/network_tools.ps1')
+          $files = @('Epic_Games_Recovery_Assistant/update_project.ps1', 'Epic_Games_Recovery_Assistant/install_auto_update.ps1', 'Epic_Games_Recovery_Assistant/setup_dependencies.ps1', 'Epic_Games_Recovery_Assistant/first_run_setup.ps1', 'Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1', 'Epic_Games_Recovery_Assistant/web/network_tools.ps1')
           foreach ($file in $files) {
             $tokens = $null
             $errors = $null
@@ -37,29 +37,10 @@ jobs:
           foreach ($required in @('Test-PrivateIPv4', 'RFC1918', 'Ports.Count -gt 32', 'InstallDailyStatusTask', 'RemoveDailyStatusTask')) {
             if ($script -notmatch [regex]::Escape($required)) { throw "Missing network-helper guard or command: $required" }
           }
-      - name: Validate DeepSeek backend JavaScript syntax
-        shell: pwsh
-        run: node --check Epic_Games_Recovery_Assistant/web/server.mjs
-      - name: Validate embedded web JavaScript syntax
-        shell: pwsh
-        run: |
-          @'
-          const fs = require('fs');
-          const html = fs.readFileSync('Epic_Games_Recovery_Assistant/web/index.html', 'utf8');
-          const network = fs.readFileSync('Epic_Games_Recovery_Assistant/web/network_security.js', 'utf8');
-          const tools = fs.readFileSync('Epic_Games_Recovery_Assistant/web/network-tools.html', 'utf8');
-          new Function(network);
-          const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)];
-          for (const [i, match] of inline.entries()) if (match[1].trim()) new Function(match[1]);
-          const toolScripts = [...tools.matchAll(/<script>([\s\S]*?)<\/script>/gi)];
-          if (!toolScripts.length) throw new Error('Network tools page has no script');
-          for (const match of toolScripts) new Function(match[1]);
-          console.log('Validated main app, network analyzer, and network tools JavaScript.');
-          '@ | node
       - name: Validate Windows batch launchers
         shell: pwsh
         run: |
-          $required = @('build.bat', 'setup.bat', 'run.bat')
+          $required = @('OPEN_PROJECT.bat', 'FIRST_RUN_SETUP.bat', 'START_HERE.bat', 'build.bat', 'setup.bat', 'run.bat')
           foreach ($name in $required) {
             $path = Join-Path $PWD "Epic_Games_Recovery_Assistant/$name"
             if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing launcher: $name" }
@@ -67,6 +48,18 @@ jobs:
             if ($content -notmatch '(?i)@echo off') { throw "Invalid batch launcher: $name" }
           }
           Write-Host 'All three Windows batch launchers are present.'
+      - name: Verify desktop-only launcher and native dashboard
+        shell: pwsh
+        run: |
+          $setup = Get-Content 'Epic_Games_Recovery_Assistant/first_run_setup.ps1' -Raw
+          foreach ($forbidden in @('server.mjs', '127.0.0.1:8080', 'Start-Process ''http', 'Node.js LTS', 'Docker Desktop')) {
+            if ($setup.Contains($forbidden)) { throw "Desktop launcher still contains browser/server startup: $forbidden" }
+          }
+          $source = Get-Content 'Epic_Games_Recovery_Assistant/recovery_assistant.c++' -Raw
+          foreach ($required in @('NATIVE COMMAND DASHBOARD', 'Recovery progress tracker', 'Official Epic account and support links', 'Start / continue an Epic recovery case')) {
+            if (-not $source.Contains($required)) { throw "Missing native dashboard feature: $required" }
+          }
+          Write-Host 'Native command dashboard and desktop-only launcher checks passed.'
       - name: Build Windows executable through one-click builder
         shell: cmd
         working-directory: Epic_Games_Recovery_Assistant
@@ -118,42 +111,3 @@ jobs:
           } catch {
             Write-Warning "Discord build notification failed; build result is unchanged."
           }
-
-  web-container-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out source
-        uses: actions/checkout@v4
-      - name: Build browser app container
-        run: docker build -t recovery-assistant-web:test Epic_Games_Recovery_Assistant/web
-      - name: Start container and verify served assets
-        shell: bash
-        run: |
-          set -euxo pipefail
-          docker run -d --name recovery-assistant-web-test -p 18080:8080 recovery-assistant-web:test
-          cleanup() { docker logs recovery-assistant-web-test || true; docker rm -f recovery-assistant-web-test >/dev/null 2>&1 || true; }
-          trap cleanup EXIT
-          for attempt in $(seq 1 20); do
-            if curl --fail --silent http://127.0.0.1:18080/healthz >/dev/null; then break; fi
-            sleep 1
-          done
-          curl --fail --silent http://127.0.0.1:18080/healthz | grep -Fxq ok
-          curl --fail --silent http://127.0.0.1:18080/api/health -o api-health.json
-          grep -Fq '"provider":"DeepSeek","apiKeyConfigured":false,"accessPasswordConfigured":false,"configured":false' api-health.json
-          api_status=$(curl --silent --output api-error.json --write-out '%{http_code}' -X POST http://127.0.0.1:18080/api/chat -H 'Content-Type: application/json' -d '{"messages":[{"role":"user","content":"test"}]}')
-          test "$api_status" = "503"
-          curl --fail --silent http://127.0.0.1:18080/ -o root.html
-          grep -Fq 'network_security.js' root.html
-          grep -Fq 'IP &amp; Network Tools' root.html
-          curl --fail --silent http://127.0.0.1:18080/network-tools.html -o network-tools.html
-          grep -Fq 'Local IP & Network Tools' network-tools.html
-          curl --fail --silent http://127.0.0.1:18080/network_tools.ps1 -o network_tools.ps1
-          grep -Fq 'Test-PrivateIPv4' network_tools.ps1
-          curl --fail --silent http://127.0.0.1:18080/SETUP_AND_USAGE.txt -o SETUP_AND_USAGE.txt
-          grep -Fq 'SETUP AND USAGE' SETUP_AND_USAGE.txt
-          curl --fail --silent http://127.0.0.1:18080/FAZE_JARVIS_SETUP.md -o FAZE_JARVIS_SETUP.md
-          grep -Fq 'Create your own DeepSeek API key' FAZE_JARVIS_SETUP.md
-          curl --fail --silent -D headers.txt -o /dev/null http://127.0.0.1:18080/
-          grep -qi 'Content-Security-Policy:.*https://cdnjs.cloudflare.com' headers.txt
-          grep -qi 'worker-src.*blob:' headers.txt
-          echo "Container health, existing assets, network tools page/helper, setup guide, and CSP checks passed."
