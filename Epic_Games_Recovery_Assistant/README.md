@@ -56,6 +56,8 @@ Epic's available 2FA methods and recovery steps can change. Check the live offic
 - [Epic Sanctions and Appeals portal](https://safety.epicgames.com/sanctions-and-appeals?mode=game)
 - [How to change Epic display name](https://www.epicgames.com/help/c-45487929/c-35761596/a18323090?lang=en-US)
 - [How to change Epic account email](https://www.epicgames.com/help/c-45487929/c-40721840/a18546270?lang=en-US)
+- [How to unlink a console account from an Epic account](https://www.epicgames.com/help/c-Category_EpicAccounts/c-38854402/a17347934?lang=en-US)
+- [How to unlink Facebook, Google, or Apple from an Epic account](https://www.epicgames.com/help/c-45487929/c-38854402/a21442299)
 - [Xbox Enforcement History / Case Review](https://enforcement.xbox.com/)
 - [Xbox Community Standards](https://www.xbox.com/en-US/legal/community-standards)
 - [PlayStation suspensions and appeals](https://www.playstation.com/en-us/support/account/suspensions/)
