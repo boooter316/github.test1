@@ -95,3 +95,29 @@ jobs:
           } catch {
             Write-Warning "Discord build notification failed; build result is unchanged."
           }
+
+  web-container-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Build browser app container
+        run: docker build -t recovery-assistant-web:test Epic_Games_Recovery_Assistant/web
+      - name: Start container and verify served assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name recovery-assistant-web-test -p 18080:8080 recovery-assistant-web:test
+          cleanup() { docker logs recovery-assistant-web-test || true; docker rm -f recovery-assistant-web-test >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:18080/healthz >/dev/null; then break; fi
+            sleep 1
+          done
+          test "$(curl --fail --silent http://127.0.0.1:18080/healthz)" = "ok"
+          curl --fail --silent http://127.0.0.1:18080/ | grep -q 'network_security.js'
+          curl --fail --silent http://127.0.0.1:18080/network_security.js | grep -q 'analyzeNetworkCapture'
+          curl --fail --silent -D headers.txt -o index.html http://127.0.0.1:18080/
+          grep -qi 'Content-Security-Policy:.*https://cdnjs.cloudflare.com' headers.txt
+          grep -qi 'worker-src.*blob:' headers.txt
+          echo "Container health, HTML, network analyzer asset, and CSP checks passed."
