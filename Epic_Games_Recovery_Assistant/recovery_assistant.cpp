@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 4.3 - C++17
+// Epic Games Recovery Assistant 4.4 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <ctime>
@@ -84,6 +84,34 @@ void logHistoricalIPs(const fs::path& dir,const std::string& accountId) {
  }
 }
 
+
+void logLoginActivity(const fs::path& dir,const std::string& accountId) {
+ std::cout<<"\\nOPTIONAL LOGIN / RECOVERY ACTIVITY LOG\\n"
+  <<"This records only details you manually enter about your own attempts. NEVER enter a password, 2FA code, backup code, cookie, or token.\\n";
+ std::string choice=ask("Record a login or recovery attempt? (y/n)");
+ fs::path logPath=dir/"login_activity_log.csv";
+ bool newFile=!fs::exists(logPath);
+ std::ofstream log(logPath,std::ios::app);
+ if(!log){std::cerr<<"Could not open login activity log.\\n";return;}
+ if(newFile) log<<"logged_at_local,epic_account_id,username_or_display_name,email_address,activity_type,result_status,error_message,verification_status\\n";
+ while(choice=="y"||choice=="Y"||choice=="yes"||choice=="YES"){
+  std::string username=ask("Username/display name used (optional; do not enter a password)");
+  std::string email=ask("Email address used (optional; no password or code)");
+  std::string activity=ask("Activity type (sign-in / password-reset request / account-recovery attempt / other)");
+  std::string status=ask("Result (success / failed / waiting / blocked / other)");
+  std::string error=ask("Exact non-secret error message, if any");
+  std::time_t now=std::time(nullptr); std::tm* local=std::localtime(&now);
+  char stamp[32]="unknown";
+  if(local) std::strftime(stamp,sizeof(stamp),"%Y-%m-%d %H:%M:%S",local);
+  log<<csv(stamp)<<","<<csv(accountId)<<","<<csv(username)<<","<<csv(email)<<","
+     <<csv(activity)<<","<<csv(status)<<","<<csv(error)<<","
+     <<csv("USER-REPORTED - NOT VERIFIED BY EPIC")<<"\\n";
+  log.flush();
+  std::cout<<"Saved a user-reported activity record. No credentials were requested or captured.\\n";
+  choice=ask("Record another login or recovery attempt? (y/n)");
+ }
+}
+
 void openLink(const char* url){
 #ifdef _WIN32
  ShellExecuteA(nullptr,"open",url,nullptr,nullptr,SW_SHOWNORMAL);
@@ -92,7 +120,7 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.3 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.4 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -209,14 +237,15 @@ int main(){
  std::string epicId;
  for(const auto& f:fields) if(f.label=="Epic Account ID (also called account number, if shown by Epic)") { epicId=f.value; break; }
  logHistoricalIPs(dir,epicId);
+ logLoginActivity(dir,epicId);
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.3 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 4.4 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional user-reported context; this app cannot compare it with Epic records or verify account ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, full phone numbers, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.3\n\n";
- j<<"{\n \"version\":\"4.3\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.4\n\n";
+ j<<"{\n \"version\":\"4.4\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
  j<<" ]\n}\n";
