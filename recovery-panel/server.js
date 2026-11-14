@@ -28,9 +28,9 @@ app.use(helmet({
       frameAncestors: ["'none'"],
       imgSrc: ["'self'", "data:"],
       objectSrc: ["'none'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      workerSrc: ["'self'", "blob:", "https://cdnjs.cloudflare.com"],
+      workerSrc: ["'self'", "blob:", "https://cdn.jsdelivr.net"],
       connectSrc: ["'self'"]
     }
   }
