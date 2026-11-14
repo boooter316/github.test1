@@ -111,3 +111,8 @@ The Pro Multi-Platform Scanner tab includes optional controls for selecting a VP
 - File selection, parsing, pattern matching, and reports remain local. The scanner does not upload scanned files or passwords, tokens, cookies, or session secrets through a VPN or proxy.
 
 The browser cannot directly change Windows registry/network settings. Use the downloaded PowerShell helper and your VPN provider's official app to apply or restore settings. Review the script before running it. Windows runtime testing is required on the target PC before relying on it.
+
+
+## Fortnite / Epic diagnostic log checks
+
+The Pro Multi-Platform Scanner page also includes a separate local diagnostic check for common crash/fatal errors, launch or installation failures, network/DNS timeouts, Easy Anti-Cheat, Epic Online Services, update/version mismatches, and graphics/device issues. It reports aggregate counts only, limits each selected file to 5 MB, and does not display, save, or transmit log excerpts or credential values. These are troubleshooting indicators, not proof of account status, enforcement, or compromise.
