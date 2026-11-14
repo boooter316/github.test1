@@ -115,13 +115,21 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <p>Review account logs, text/configuration files, and text-based PDFs that you choose on this device. The scan runs locally in this browser tab. Supported labels include Epic Games, Xbox, PlayStation, Nintendo, Steam, Google, Twitch, YouTube, TikTok, Instagram, WeGo, and Roblox.</p>
 <div class="risk"><strong>Security boundary:</strong> This tool does not access Fortnite or Epic accounts, browser storage, game memory, saved passwords, cookies, or session stores. It cannot validate logins or retrieve tokens. It shows every detected match in a numbered findings list with source filename, line number, category, confidence label, and a safely masked preview. Email addresses, account IDs, and display names are shown in full in this local browser result. Passwords, tokens, cookies, and session secrets are always redacted.</div>
 <section class="panel" id="ipAccountConsistency">
-<h3>Local IP &amp; Account Consistency Checker</h3>
-<p>Compare a reference IP and account ID against logs you select. Results show exact text matches, other IP/account-ID lines, and lines where both identifiers appear together. This is evidence comparison, not proof of ownership.</p>
-<div class="grid"><div><label for="referenceIp">Reference IP address (optional)</label><input id="referenceIp" placeholder="Known IPv4 or IPv6 address" autocomplete="off"></div><div><label for="referenceAccountId">Reference account ID (optional)</label><input id="referenceAccountId" placeholder="Known account ID" autocomplete="off"></div></div>
-<p><label for="identityEvidenceFiles">Choose evidence files</label><input id="identityEvidenceFiles" type="file" multiple accept=".txt,.log,.json,.csv,.ini,.cfg,.conf,.yaml,.yml,.md"></p>
-<p><label for="identityEvidenceText">Or paste relevant log text</label><textarea id="identityEvidenceText" placeholder="Paste authorized logs only. Remove passwords, tokens, cookies, and other secrets first."></textarea></p>
-<div class="actions"><button type="button" id="runIdentityCheck">Compare IP and account identifiers</button><button type="button" class="secondary" id="clearIdentityCheck">Clear checker</button></div>
+<h3>Local IP &amp; Account Evidence Review</h3>
+<p>Compare reference IP, account ID, username, and email against authorized records you select. Optional incident dates help organize timeline evidence. The report distinguishes corroborated records, partial matches, and insufficient evidence—it cannot certify ownership or rule out account compromise.</p>
+<div class="grid">
+<div><label for="referenceIp">Reference IP address (optional)</label><input id="referenceIp" placeholder="Known IPv4 or IPv6 address" autocomplete="off"></div>
+<div><label for="referenceAccountId">Reference account ID (optional)</label><input id="referenceAccountId" placeholder="Known account ID" autocomplete="off"></div>
+<div><label for="referenceUsername">Reference username / display name (optional)</label><input id="referenceUsername" placeholder="Known username or display name" autocomplete="off"></div>
+<div><label for="referenceEmail">Reference account email (optional)</label><input id="referenceEmail" type="email" placeholder="Known account email" autocomplete="off"></div>
+<div><label for="identityWindowStart">Incident window starts (optional)</label><input id="identityWindowStart" type="datetime-local"></div>
+<div><label for="identityWindowEnd">Incident window ends (optional)</label><input id="identityWindowEnd" type="datetime-local"></div>
+</div>
+<p><label for="identityEvidenceFiles">Choose evidence files (5 MB each; 20 MB combined)</label><input id="identityEvidenceFiles" type="file" multiple accept=".txt,.log,.json,.csv,.ini,.cfg,.conf,.yaml,.yml,.md"></p>
+<p><label for="identityEvidenceText">Or paste relevant log text</label><textarea id="identityEvidenceText" placeholder="Paste authorized records only. Remove passwords, tokens, cookies, 2FA codes, and other secrets first."></textarea></p>
+<div class="actions no-print"><button type="button" id="runIdentityCheck">Review evidence consistency</button><button type="button" class="secondary" id="clearIdentityCheck">Clear checker</button><button type="button" class="secondary" id="printIdentityReport" disabled>Print / Save evidence report as PDF</button><button type="button" class="secondary" id="downloadIdentityReport" disabled>Download evidence report .txt</button></div>
 <pre id="identityCheckResult" class="scanner-result" role="status" aria-live="polite">No comparison run. Results stay in this browser tab.</pre>
+<p class="hint">A matching IP only shows that the address appears in a record; it does not identify the person using it. Stronger account-recovery evidence should come from platform-issued records and original purchase receipts submitted through official support. This report is an organizer, not a forensic examination, ownership certificate, or guarantee that nobody accessed the account.</p>
 </section>
 <p><label for="fortniteFiles">Choose account logs, text/config files, or PDFs (PDF text only)</label><input id="fortniteFiles" type="file" accept=".txt,.log,.ini,.cfg,.json,.xml,.csv,.md,.conf,.yaml,.yml,.pdf" multiple></p>
 <p><label for="fortniteText">Or paste text to inspect (optional)</label><textarea id="fortniteText" placeholder="Paste a Fortnite log/config excerpt. Do not paste passwords, active tokens, or 2FA codes."></textarea></p>
@@ -405,30 +413,103 @@ function ipsOnLine(line){
  const re=/(?<![\w:])(?:\d{1,3}\.){3}\d{1,3}(?![\w:])|(?<![\w:])(?:[0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}(?![\w:])/g;
  return [...new Set([...line.matchAll(re)].map(m=>m[0]).filter(ip=>ip.includes(".")?validV4(ip):ip.includes(":")&&ip.length<=39).map(ip=>ip.toLowerCase()))];
 }
+function identityTimestamp(line){
+ const iso=line.match(/\b(20\d{2}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)\b/);
+ if(iso){const d=new Date(iso[1]);if(!Number.isNaN(d.getTime()))return d}
+ const us=line.match(/\b(\d{1,2}\/\d{1,2}\/20\d{2}\s+\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?)\b/i);
+ if(us){const d=new Date(us[1]);if(!Number.isNaN(d.getTime()))return d}
+ return null;
+}
+let latestIdentityReport="";
 async function runIdentityCheck(){
- const refIp=document.getElementById("referenceIp").value.trim().toLowerCase(),refId=document.getElementById("referenceAccountId").value.trim();
+ const refIp=document.getElementById("referenceIp").value.trim().toLowerCase();
+ const refId=document.getElementById("referenceAccountId").value.trim();
+ const refUser=document.getElementById("referenceUsername").value.trim().toLowerCase();
+ const refEmail=document.getElementById("referenceEmail").value.trim().toLowerCase();
  const out=document.getElementById("identityCheckResult");
- if(!refIp&&!refId){out.textContent="Enter at least one reference IP or account ID.";return}
+ const startValue=document.getElementById("identityWindowStart").value,endValue=document.getElementById("identityWindowEnd").value;
+ const windowStart=startValue?new Date(startValue):null,windowEnd=endValue?new Date(endValue):null;
+ if(!refIp&&!refId&&!refUser&&!refEmail){out.textContent="Enter at least one reference IP, account ID, username, or email.";return}
  if(refIp&&!validV4(refIp)&&!(refIp.includes(":")&&/^[0-9a-f:]+$/i.test(refIp)&&refIp.length<=39)){out.textContent="Reference IP format not recognized. Enter a valid IPv4 or basic IPv6 literal.";return}
+ if(windowStart&&windowEnd&&windowStart>windowEnd){out.textContent="Incident window start must be before its end.";return}
  const files=[...document.getElementById("identityEvidenceFiles").files],paste=document.getElementById("identityEvidenceText").value;
  if(files.some(f=>f.size>5*1024*1024)||files.reduce((n,f)=>n+f.size,0)+new Blob([paste]).size>20*1024*1024){out.textContent="File limit: 5 MB each and 20 MB combined.";return}
  try{
   const sources=[];if(paste.trim())sources.push({name:"Pasted text",text:paste});
   for(const file of files)sources.push({name:file.name,text:await file.text()});
-  let ipHit=0,ipOther=0,idHit=0,idOther=0,both=0,lines=0;const findings=[];
+  let ipHit=0,ipOther=0,idHit=0,idOther=0,userHit=0,emailHit=0,both=0,dated=0,inWindow=0,outsideWindow=0,lines=0;
+  const findings=[],matchedTypes=new Set(),sourceNames=new Set();
   for(const source of sources)source.text.split(/\r?\n/).forEach((line,i)=>{
-   lines++;const ips=ipsOnLine(line),idMatches=[...line.matchAll(/(?:account[_ -]?id|user[_ -]?id|epic[_ -]?id|profile[_ -]?id)\s*["']?\s*[:=]\s*["']?([A-Za-z0-9_-]{5,80})/ig)].map(m=>m[1]);
-   const ih=!!refIp&&ips.includes(refIp),dh=!!refId&&idMatches.includes(refId);
+   lines++;
+   const ips=ipsOnLine(line);
+   const ids=[...line.matchAll(/(?:account[_ -]?id|user[_ -]?id|epic[_ -]?id|profile[_ -]?id)\s*["']?\s*[:=]\s*["']?([A-Za-z0-9_-]{5,80})/ig)].map(m=>m[1]);
+   const users=[...line.matchAll(/(?:username|user[_ -]?name|display[_ -]?name|gamertag|screen[_ -]?name)\s*["']?\s*[:=]\s*["']?([^,"'\s}]{2,80})/ig)].map(m=>m[1].toLowerCase());
+   const emails=[...line.matchAll(/(?:email|email[_ -]?address)\s*["']?\s*[:=]\s*["']?([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/ig)].map(m=>m[1].toLowerCase());
+   const ih=!!refIp&&ips.includes(refIp),dh=!!refId&&ids.includes(refId),uh=!!refUser&&users.includes(refUser),eh=!!refEmail&&emails.includes(refEmail);
    if(refIp&&ips.length){if(ih)ipHit++;else ipOther++}
-   if(refId&&idMatches.length){if(dh)idHit++;else idOther++}
+   if(refId&&ids.length){if(dh)idHit++;else idOther++}
+   if(uh)userHit++;if(eh)emailHit++;
    if(ih&&dh)both++;
-   if((ih||dh||(refIp&&ips.length)||(refId&&idMatches.length))&&findings.length<100)findings.push(source.name+":"+(i+1)+" — "+[ih?"reference IP match":refIp&&ips.length?"other IP present":"",dh?"reference account ID match":refId&&idMatches.length?"other labelled account ID present":""].filter(Boolean).join("; "));
+   const dt=identityTimestamp(line);
+   let timeLabel="";
+   if(dt){dated++;if(windowStart||windowEnd){const inRange=(!windowStart||dt>=windowStart)&&(!windowEnd||dt<=windowEnd);if(inRange)inWindow++;else outsideWindow++;timeLabel=inRange?"timestamp within incident window":"timestamp outside incident window";}}
+   const types=[ih?"reference IP": "",dh?"reference account ID":"",uh?"reference username":"",eh?"reference email":""].filter(Boolean);
+   if(types.length){types.forEach(t=>matchedTypes.add(t));sourceNames.add(source.name);}
+   if((types.length||((refIp&&ips.length)||(refId&&ids.length)))&&findings.length<150)findings.push(source.name+":"+(i+1)+" — "+[...types,...(refIp&&ips.length&&!ih?["different IP present"]:[]),...(refId&&ids.length&&!dh?["different labelled account ID present"]:[]),timeLabel].filter(Boolean).join("; "));
   });
-  out.textContent=["LOCAL IP & ACCOUNT CONSISTENCY REPORT","Sources: "+sources.length+" | Lines examined: "+lines,"Reference IP: "+(refIp||"not supplied"),"Exact IP-match lines: "+ipHit,"Other IP-bearing lines: "+ipOther,"Reference account ID: "+(refId?"provided (not repeated)":"not supplied"),"Exact labelled account-ID lines: "+idHit,"Other labelled account-ID lines: "+idOther,"Lines containing both reference values: "+both,"","Findings:",...(findings.length?findings:["No relevant identifier lines found."]),"","An exact match means only that text appears in the selected evidence. It does not prove account ownership, physical location, or who used an IP. VPNs, proxies, carrier NAT, shared/dynamic IPs, copied logs, and timestamps can mislead. No IP lookup or network request was performed; evidence stays in this browser tab."].join("\n");
+  const distinctReferenceTypes=[refIp,refId,refUser,refEmail].filter(Boolean).length;
+  const matchedReferenceTypes=matchedTypes.size;
+  let assessment="INSUFFICIENT EVIDENCE";
+  if(matchedReferenceTypes>=2&&sources.length>0)assessment="CORROBORATED RECORDS — MULTIPLE IDENTIFIERS MATCH";
+  else if(matchedReferenceTypes===1)assessment="PARTIAL MATCH — ONE IDENTIFIER TYPE MATCHED";
+  const report=[
+   "ACCOUNT & IP EVIDENCE CONSISTENCY REPORT",
+   "Generated: "+new Date().toISOString(),
+   "Assessment: "+assessment,
+   "Reference identifiers supplied: "+distinctReferenceTypes,
+   "Identifier types matched in records: "+(matchedReferenceTypes?Array.from(matchedTypes).join(", "):"none"),
+   "Evidence sources examined: "+sources.length+" ("+(sourceNames.size)+" source(s) contained a reference-identifier match)",
+   "Lines examined: "+lines,
+   "Reference IP exact-match lines: "+ipHit,
+   "Other IP-bearing lines: "+ipOther,
+   "Reference account-ID exact-match lines: "+idHit,
+   "Other labelled account-ID lines: "+idOther,
+   "Reference username exact-match lines: "+userHit,
+   "Reference email exact-match lines: "+emailHit,
+   "Lines containing both reference IP and account ID: "+both,
+   "Timestamped lines found: "+dated,
+   "Timestamped lines inside supplied incident window: "+(windowStart||windowEnd?inWindow:"not assessed"),
+   "Timestamped lines outside supplied incident window: "+(windowStart||windowEnd?outsideWindow:"not assessed"),
+   "Incident window: "+(startValue||"not set")+" through "+(endValue||"not set"),
+   "",
+   "FINDINGS (maximum 150 shown):",
+   ...(findings.length?findings:["No matching reference identifiers were found in the selected evidence."]),
+   "",
+   "INTERPRETATION:",
+   "This is a text-pattern comparison of user-selected records. Multiple matching identifiers may corroborate that records refer to the same account, but they do NOT establish the legal or actual owner, identify the person behind an IP address, or prove that no unauthorized access occurred.",
+   "IP addresses can be shared or reassigned and can reflect VPNs, proxies, mobile carrier NAT, schools, workplaces, or household networks. Usernames and emails can change or be copied. Timestamps may be missing, inaccurate, or use different time zones. Selected files may be incomplete or altered.",
+   "A PDF export is a convenient copy of this report, not independent verification or proof. For ownership review, submit original platform-issued account records and original purchase receipts through the platform's official secure support process. Only the platform can make an ownership decision.",
+   "No IP lookup, geolocation, account login, Epic API call, external upload, or credential validation was performed. Selected evidence remains in this browser tab."
+  ].join("\n");
+  latestIdentityReport=report;out.textContent=report;
+  document.getElementById("printIdentityReport").disabled=false;
+  document.getElementById("downloadIdentityReport").disabled=false;
  }catch(e){out.textContent="Could not read evidence: "+e.message}
 }
 document.getElementById("runIdentityCheck").addEventListener("click",runIdentityCheck);
-document.getElementById("clearIdentityCheck").addEventListener("click",()=>{["referenceIp","referenceAccountId","identityEvidenceText"].forEach(id=>document.getElementById(id).value="");document.getElementById("identityEvidenceFiles").value="";document.getElementById("identityCheckResult").textContent="Cleared. No comparison run."});
-
-
+document.getElementById("downloadIdentityReport").addEventListener("click",()=>{
+ const blob=new Blob([latestIdentityReport],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="account-ip-evidence-consistency-report.txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+document.getElementById("printIdentityReport").addEventListener("click",()=>{
+ if(!latestIdentityReport)return;
+ const w=window.open("","_blank");if(!w){alert("Allow pop-ups to print or save the evidence report as PDF.");return}
+ const safe=latestIdentityReport.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+ w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Account and IP Evidence Report</title><style>body{font:14px system-ui,sans-serif;margin:32px;color:#18212f}h1{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px ui-monospace,monospace}</style></head><body><h1>Account &amp; IP Evidence Consistency Report</h1><pre>"+safe+"</pre><script>window.onload=()=>window.print()<\/script></body></html>");w.document.close();
+});
+document.getElementById("clearIdentityCheck").addEventListener("click",()=>{
+ ["referenceIp","referenceAccountId","referenceUsername","referenceEmail","identityWindowStart","identityWindowEnd","identityEvidenceText"].forEach(id=>document.getElementById(id).value="");
+ document.getElementById("identityEvidenceFiles").value="";document.getElementById("identityCheckResult").textContent="Cleared. No comparison run.";
+ latestIdentityReport="";document.getElementById("printIdentityReport").disabled=true;document.getElementById("downloadIdentityReport").disabled=true;
+});
 </script></body></html>

@@ -131,11 +131,13 @@ The Recovery Assistant includes a local ticket-drafting aid for preparing a cons
 These limits are client-side safeguards and can be cleared by clearing browser site data; they are not enforceable platform-wide limits and do not represent Epic's own ticket policy. Always use the official support channel and submit only accurate, necessary updates.
 
 
-## Local IP and account consistency checker
+## Local IP and account evidence consistency report
 
-The Pro scanner has an optional local-only comparison for a supplied reference IPv4/IPv6 address and account ID. It scans selected text/log/config files and pasted text for IP literals and labelled account identifiers, then reports exact matches, other identifier-bearing lines, and lines where both reference values appear together.
+The Pro scanner includes a local-only evidence review for reference IPv4/IPv6 addresses, account IDs, usernames/display names, email addresses, and optional incident date/time windows. It scans selected text/log/config files and pasted text, reports exact reference-identifier matches and other identifier-bearing lines, counts timestamps inside/outside the supplied window, and classifies the result as corroborated records, a partial match, or insufficient evidence. It provides TXT export and browser print/save-to-PDF.
 
 - Files are limited to 5 MB each and 20 MB combined for this check.
 - No IP geolocation, reputation lookup, account login, Epic API request, or remote verification is performed.
-- A match does not prove account ownership or identify who used an IP. Shared networks, carrier NAT, VPNs, proxies, and dynamic addresses can make comparisons ambiguous.
-- Evidence is processed in the browser tab and is not uploaded by this feature. Remove secrets from logs before selecting them.
+- “Corroborated records” means multiple identifier types were found in the selected text; it is not a percentage, identity verification, ownership certificate, or proof that no unauthorized access occurred.
+- IP addresses can be shared/reassigned or reflect VPNs, proxies, mobile carrier NAT, schools, workplaces, or household networks. Usernames/emails can change or be copied; timestamps can be incomplete or use different time zones.
+- A PDF is only a formatted copy of the report, not independent verification. For ownership review, provide original platform-issued records and original purchase receipts through official secure support. Only the platform can make an ownership decision.
+- Evidence is processed in the browser tab and is not uploaded by this feature. Remove passwords, tokens, cookies, 2FA codes, and other secrets from logs before selecting them.
