@@ -70,7 +70,8 @@ int main(){
  add("Epic display name (current)"); add("Previous Epic display names");
  add("Current Epic email (never enter password)"); add("Previous Epic emails");
  add("Desired display name (planning only)"); add("Desired email (planning only)");
- add("Epic Account ID"); add("Country/region"); add("Approximate account creation date");
+ add("Epic Account ID (also called account number, if shown by Epic)");
+ add("Epic account number / alternate account reference (only if Epic provided one; do not invent)"); add("Country/region"); add("Approximate account creation date");
  add("Support-A-Creator code (if applicable)"); add("Purchase invoice/order ID");
  add("Country/region used when the Epic account was originally created");
  add("Approximate date of first Epic purchase (if known)");
@@ -184,7 +185,7 @@ int main(){
  if(!pdf(dir/"recovery_request.pdf",lines))std::cerr<<"PDF export failed; other exports attempted.\n";
  std::cout<<"\nSaved packet to: "<<dir.string()<<"\nIncludes PDF evidence report, JSON evidence packet, readable text details, support-request draft, and a copy of recovery_assistant.cpp when the source file is beside the program (otherwise a SOURCE_NOT_COPIED.txt note). This is a user-entered evidence export, not an account/credential dump.\n"
  <<"No account action was taken. If evidence is missing, pause and ask official support about alternatives.\n\n"
- <<"1 Open Epic account recovery request form\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n5 Epic sign-in\n6 Epic display-name help\n7 Epic email-change help\n8 Xbox enforcement/support\n9 PlayStation suspension support\n10 Steam account help\n11 Nintendo support\n12 Epic account settings\n13 Epic lost-2FA help\n14 Epic unlink help\n15 Epic sanctions and appeals\n16 Epic support contact / ticket options\n17 2FA methods and setup guide\n18 Lost access to 2FA help\n19 Epic recovery help\n20 Steam Community Ban FAQ\n21 Xbox enforcement history\n0 Exit\n";
+ <<"1 Open Epic account recovery request form\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n5 Epic sign-in\n6 Epic display-name help\n7 Epic email-change help\n8 Xbox enforcement/support\n9 PlayStation suspension support\n10 Steam account help\n11 Nintendo support\n12 Epic account settings\n13 Epic lost-2FA help\n14 Epic unlink help\n15 Epic sanctions and appeals\n16 Epic support contact / ticket options\n17 2FA methods and setup guide\n18 Lost access to 2FA help\n19 Epic recovery help\n20 Steam Community Ban FAQ\n21 Xbox enforcement history\n22 Guided recovery chat (offline helper)\n0 Exit\n";
  std::string choice=ask("Choose an official page");
  if(choice=="1")openLink("https://www.epicgames.com/help/c-45487929/a21414514");
  else if(choice=="2")openLink("https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US");
@@ -207,5 +208,25 @@ int main(){
  else if(choice=="19")openLink("https://www.epicgames.com/help/c-45487929/a21414514");
  else if(choice=="20")openLink("https://help.steampowered.com/en/faqs/view/4F62-35F9-F395-5C23");
  else if(choice=="21")openLink("https://enforcement.xbox.com/");
+ else if(choice=="22"){
+  std::cout<<"GUIDED RECOVERY CHAT (offline helper; not Epic Support or a live AI agent)\\n";
+  std::cout<<"Never enter passwords, 2FA codes, backup codes, cookies, tokens, or full payment details. Type exit to finish.\\n";
+  for(;;){
+   std::string q=ask("You");std::string low=q;for(char& c:low)c=(char)std::tolower((unsigned char)c);
+   if(low=="exit"||low=="quit")break;
+   if(low.find("ip")!=std::string::npos||low.find("vpn")!=std::string::npos||low.find("proxy")!=std::string::npos)
+    std::cout<<"Helper: Record only an IP genuinely found in your own historical records, with its approximate date and source. Never spoof it or use it to impersonate a device/location; it is not proof of ownership.\\n";
+   else if(low.find("2fa")!=std::string::npos||low.find("authenticator")!=std::string::npos)
+    std::cout<<"Helper: Note which registered 2FA methods you can still access. Never share a verification or backup code. Use Epic's official lost-2FA help page.\\n";
+   else if(low.find("ticket")!=std::string::npos||low.find("support")!=std::string::npos)
+    std::cout<<"Helper: Review support_request_draft.txt, then submit requested details yourself through Epic's official contact page. Save the ticket number locally.\\n";
+   else if(low.find("account")!=std::string::npos||low.find("number")!=std::string::npos||low.find("id")!=std::string::npos)
+    std::cout<<"Helper: Enter the Epic Account ID/account number exactly as Epic shows it, if known. It is included in the PDF, JSON, and text exports. Do not guess.\\n";
+   else if(low.find("evidence")!=std::string::npos||low.find("pdf")!=std::string::npos||low.find("export")!=std::string::npos)
+    std::cout<<"Helper: Export the packet, verify every detail, and keep it private. It contains only information entered here; it cannot retrieve Epic's internal account data.\\n";
+   else std::cout<<"Helper: I can guide you through recovery, account IDs, historical IP notes, 2FA, evidence exports, and ticket preparation. Account-specific decisions must come from Epic Support.\\n";
+  }
+  std::cout<<"Official Epic contact: https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US\\n";
+ }
  return 0;
 }
