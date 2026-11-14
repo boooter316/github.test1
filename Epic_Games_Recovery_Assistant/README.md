@@ -38,7 +38,7 @@ GitHub Actions compiles the C++17 source on Windows and uploads the executable a
 
 ## Existing project scripts and browser assets
 
-The repository retains its existing PowerShell, batch, and `web/` source files so project material is not silently discarded. **They are not launched by the native desktop startup path.** The old browser dashboard and its server are not part of the desktop dashboard workflow. Batch and PowerShell files remain source/maintenance scripts; they are not all independently compiled into EXE files. The supported primary Windows executable is `Epic_Games_Recovery_Assistant.exe`.
+The repository retains its existing PowerShell, batch, and `web/` source files so project material is not silently discarded. The browser website includes a dedicated **PDF Evidence Scanner** navigation tab and dashboard shortcut; the separate `recovery-panel/` app has its own **Recovery Records** and **PDF Evidence Scanner** tabs. Both browser scanners process selected PDFs locally and report page-level indicators only; they do not upload evidence or include extracted text in reports. The browser scanners use PDF.js from its CDN and require internet access to load that library. **They are not launched by the native desktop startup path.** The old browser dashboard and its server are not part of the desktop dashboard workflow. Batch and PowerShell files remain source/maintenance scripts; they are not all independently compiled into EXE files. The supported primary Windows executable is `Epic_Games_Recovery_Assistant.exe`.
 
 ## Epic account and recovery limitations
 
