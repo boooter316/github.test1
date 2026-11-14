@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 4.5 - C++17
+// Epic Games Recovery Assistant 4.8 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <ctime>
@@ -73,8 +73,8 @@ void notifyDiscord(const std::string& event) {
  if(!WinHttpCrackUrl(url.c_str(),0,0,&parts)) return;
  std::wstring hostname(host,parts.dwHostNameLength), requestPath(path,parts.dwUrlPathLength);
  if(parts.nScheme!=INTERNET_SCHEME_HTTPS || hostname!=L"discord.com" || requestPath.rfind(L"/api/webhooks/",0)!=0) return;
- std::string body="{\"content\":\"Epic Games Recovery Assistant 4.6: "+escJson(event)+"\"}";
- HINTERNET session=WinHttpOpen(L"EpicRecoveryAssistant/4.6",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,WINHTTP_NO_PROXY_NAME,WINHTTP_NO_PROXY_BYPASS,0);
+ std::string body="{\"content\":\"Epic Games Recovery Assistant 4.8: "+escJson(event)+"\"}";
+ HINTERNET session=WinHttpOpen(L"EpicRecoveryAssistant/4.8",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,WINHTTP_NO_PROXY_NAME,WINHTTP_NO_PROXY_BYPASS,0);
  if(!session) return;
  HINTERNET connection=WinHttpConnect(session,hostname.c_str(),parts.nPort,0);
  if(connection){
@@ -292,7 +292,7 @@ bool authGate() {
 
 int main(){
  if(!authGate()) return 0;
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.7 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.8 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -419,7 +419,7 @@ int main(){
  "IP and VPN/proxy history are optional user-reported context; this app cannot compare it with Epic records or verify account ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, full phone numbers, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.6\n\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 4.8\n\n";
  j<<"{\n \"version\":\"4.5\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
@@ -428,6 +428,10 @@ int main(){
  for(const auto& field:fields) if(field.label.find("ACCOUNT RECOVERY FAILED:")==0) draft<<field.label.substr(std::string("ACCOUNT RECOVERY FAILED:").size())<<": "<<field.value<<"\n";
  draft<<"\nPlease do not treat an IP address alone as proof of ownership. I will provide any requested information only through Epic's official secure support process.\n\nThank you.\n";
  save(dir/"recovery_details.txt",txt.str());save(dir/"recovery_details.json",j.str());save(dir/"support_request_draft.txt",draft.str());
+ // CSV export contains only the non-secret fields the user entered in this form.
+ std::ostringstream csvOut; csvOut<<"field,value\\n";
+ for(const auto& field:fields) csvOut<<csv(field.label)<<","<<csv(field.value)<<"\\n";
+ save(dir/"recovery_details.csv",csvOut.str());
  // Copy the C++ source into the packet when it is beside the executable/source.
  fs::path appDir=fs::current_path();
 #ifdef _WIN32
@@ -439,7 +443,7 @@ int main(){
  if(fs::exists(sourcePath)){std::error_code copyEc;fs::copy_file(sourcePath,dir/"recovery_assistant.c++",fs::copy_options::overwrite_existing,copyEc);if(copyEc)save(dir/"SOURCE_NOT_COPIED.txt","The C++ source file could not be copied: "+copyEc.message());}
  else save(dir/"SOURCE_NOT_COPIED.txt","recovery_assistant.c++ was not found beside the running executable. Place the source file beside the executable and run again to include it.");
  if(!pdf(dir/"recovery_request.pdf",lines))std::cerr<<"PDF export failed; other exports attempted.\n";
- std::cout<<"\nSaved packet to: "<<dir.string()<<"\nIncludes PDF evidence report, JSON evidence packet, readable text details, support-request draft, and a copy of recovery_assistant.c++ when the source file is beside the program (otherwise a SOURCE_NOT_COPIED.txt note). This is a user-entered evidence export, not an account/credential dump.\n"
+ std::cout<<"\nSaved packet to: "<<dir.string()<<"\nIncludes PDF evidence report, JSON evidence packet, CSV field export, readable text details, support-request draft, and a copy of recovery_assistant.c++ when the source file is beside the program (otherwise a SOURCE_NOT_COPIED.txt note). This is a user-entered evidence export, not an account/credential dump.\n"
  <<"No account action was taken. If evidence is missing, pause and ask official support about alternatives.\n\n"
  <<"1 Open Epic account recovery request form\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n5 Epic sign-in\n6 Epic display-name help\n7 Epic email-change help\n8 Xbox enforcement/support\n9 PlayStation suspension support\n10 Steam account help\n11 Nintendo support\n12 Epic account settings\n13 Epic lost-2FA help\n14 Epic unlink help\n15 Epic sanctions and appeals\n16 Epic support contact / ticket options\n17 2FA methods and setup guide\n18 Lost access to 2FA help\n19 Epic recovery help\n20 Steam Community Ban FAQ\n21 Xbox enforcement history\n22 Guided recovery chat (offline helper)\n0 Exit\n";
  std::string choice=ask("Choose an official page");
