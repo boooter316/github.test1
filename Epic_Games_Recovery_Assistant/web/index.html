@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Account Recovery Request Assistant</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#18212f;background:#f3f5f8}body{margin:0}.wrap{max-width:900px;margin:auto;padding:22px}
+header,.panel{background:#fff;border:1px solid #dce2ea;border-radius:14px;padding:20px;margin:0 0 16px}h1{font-size:1.55rem;margin:0 0 8px}h2{font-size:1.12rem;margin:0 0 14px}
+p,.hint{color:#526174;line-height:1.5}.notice{border-left:4px solid #b7791f;padding:10px 14px;background:#fff8e8;color:#573d13}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}label{display:block;font-weight:600;font-size:.92rem;margin:0 0 5px}
+input,textarea,select{box-sizing:border-box;width:100%;padding:10px;border:1px solid #b9c4d2;border-radius:8px;font:inherit;background:#fff}textarea{min-height:82px;resize:vertical}
+.checks{display:flex;flex-wrap:wrap;gap:12px}.checks label{font-weight:400}.check{display:flex;gap:7px;align-items:center}.check input{width:auto}
+.actions{display:flex;gap:10px;flex-wrap:wrap}button{border:0;border-radius:9px;padding:11px 16px;background:#175cd3;color:white;font-weight:650;font-size:1rem}button.secondary{background:#e8edf4;color:#1c2b40}
+small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wrap{max-width:none;padding:0}header,.panel{border:0;break-inside:avoid;padding:8px;margin:0 0 8px}.actions,.no-print{display:none!important}input,textarea,select{border:0;padding:2px;appearance:none}.notice{background:#fff}}
+</style></head><body><main class="wrap">
+<header><h1>Account Recovery Request Assistant</h1><p>Prepare a factual support request for Epic Games or another platform. This is an independent organizer, not an official support tool.</p>
+<div class="notice"><strong>Privacy:</strong> Your entries stay in this browser tab. This site does not send them to or save them on the hosting server. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, or API keys.</div></header>
+<form id="packet">
+<section class="panel"><h2>Account and contact details</h2><div class="grid">
+<div><label for="name">Name used on purchases (optional)</label><input id="name" autocomplete="name"></div>
+<div><label for="accountId">Epic Account ID</label><input id="accountId"></div>
+<div><label for="display">Current display name</label><input id="display"></div>
+<div><label for="oldDisplay">Previous display name(s)</label><input id="oldDisplay"></div>
+<div><label for="email">Current or original account email</label><input id="email" type="email" autocomplete="email"></div>
+<div><label for="oldEmail">Previous account email(s)</label><input id="oldEmail" type="email"></div>
+<div><label for="country">Country/region on account</label><input id="country"></div>
+<div><label for="creator">Support-A-Creator code (if applicable)</label><input id="creator"></div></div></section>
+<section class="panel"><h2>Recovery incident</h2><div class="grid">
+<div><label for="incident">What happened?</label><select id="incident"><option>Cannot access account</option><option>Account may be compromised</option><option>Lost access to email or phone</option><option>Two-step verification problem</option><option>Account restriction or sanction</option><option>Other</option></select></div>
+<div><label for="error">Exact error message (if any)</label><input id="error"></div>
+<div><label for="date">Approximate date issue began</label><input id="date" type="date"></div>
+<div><label for="firstSeen">Approximate account creation date (if known)</label><input id="firstSeen" type="date"></div></div>
+<p><label for="details">Explain what happened (facts only)</label><textarea id="details"></textarea></p></section>
+<section class="panel"><h2>Two-step authentication access</h2><p class="hint">Select methods used and whether you can still access them. Never type a verification code.</p>
+<div class="checks"><label class="check"><input type="checkbox" name="mfa" value="Email"> Email</label><label class="check"><input type="checkbox" name="mfa" value="SMS/phone"> SMS/phone</label><label class="check"><input type="checkbox" name="mfa" value="Epic Authenticator"> Epic Authenticator</label><label class="check"><input type="checkbox" name="mfa" value="Third-party authenticator app"> Other authenticator app</label></div>
+<p><label for="mfaAccess">Which methods can you still access?</label><textarea id="mfaAccess"></textarea></p></section>
+<section class="panel"><h2>Purchase evidence (optional)</h2><div class="grid">
+<div><label for="invoice">Invoice/order ID (not a password)</label><input id="invoice"></div><div><label for="provider">Payment provider or method type</label><input id="provider" placeholder="For example, PayPal or card issuer"></div>
+<div><label for="last4">Card last four digits only</label><input id="last4" inputmode="numeric" maxlength="4" pattern="[0-9]{4}"></div>
+<div><label for="billingCity">Billing city/region (only if requested by official support)</label><input id="billingCity"></div></div></section>
+<section class="panel"><h2>Network history (optional context only)</h2><div class="grid">
+<div><label for="ip">Remembered historical IP (do not guess)</label><input id="ip" autocomplete="off"></div>
+<div><label for="vpn">VPN/proxy provider and region previously used</label><input id="vpn"></div></div>
+<p class="hint">Do not spoof an IP or use a proxy to impersonate a prior location. An IP address or VPN history is not proof of account ownership.</p></section>
+<section class="panel"><h2>Linked platforms and restrictions</h2><p class="hint">Record which platform is linked and describe the issue. This form cannot unlink accounts or remove restrictions.</p><div class="grid">
+<div><label for="linked">Linked services / public profile IDs</label><textarea id="linked" placeholder="Xbox, PlayStation, Nintendo, Steam, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other"></textarea></div>
+<div><label for="appeal">Restriction or appeal details</label><textarea id="appeal" placeholder="Platform, notice date, case/reference number, and what you are appealing"></textarea></div></div></section>
+<section class="panel"><h2>Review and export</h2><p class="hint">Check details for accuracy before sharing through the platform's official secure support form.</p>
+<div class="actions no-print"><button type="button" id="json">Download JSON packet</button><button type="button" class="secondary" id="pdf">Print / Save as PDF</button><button type="button" class="secondary" id="draft">Create support-request draft</button></div>
+<textarea id="draftText" class="no-print" placeholder="Your support request draft will appear here." style="margin-top:12px"></textarea></section></form>
+<p class="foot">This tool does not sign in, verify ownership, contact support, provide live agent chat, change account details, remove restrictions, or lock accounts. Use official support for account actions. Keep exported files private.</p></main>
+<script>
+const ids=["name","accountId","display","oldDisplay","email","oldEmail","country","creator","incident","error","date","firstSeen","details","mfaAccess","invoice","provider","last4","billingCity","ip","vpn","linked","appeal"];
+function collect(){const o={app:"Account Recovery Request Assistant",schemaVersion:1,createdAt:new Date().toISOString(),fields:{}};ids.forEach(id=>o.fields[id]=document.getElementById(id).value.trim());o.fields.twoStepMethods=[...document.querySelectorAll('input[name="mfa"]:checked')].map(x=>x.value);return o}
+function makeDraft(o){const f=o.fields;return ["Hello Support Team,","","I am requesting help with my account. Please review the information below and let me know what additional evidence is required through your official secure process.","","Account ID: "+f.accountId,"Current display name: "+f.display,"Current/original email: "+f.email,"Issue: "+f.incident,"Date issue began: "+f.date,"Error message: "+f.error,"Two-step methods used: "+f.twoStepMethods.join(", "),"Methods I can still access: "+f.mfaAccess,"Purchase reference: "+f.invoice,"","What happened:",f.details,"","Thank you."].join("\n")}
+document.getElementById("json").addEventListener("click",()=>{const b=new Blob([JSON.stringify(collect(),null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="recovery-request.json";a.click();URL.revokeObjectURL(a.href)});
+document.getElementById("pdf").addEventListener("click",()=>window.print());
+document.getElementById("draft").addEventListener("click",()=>document.getElementById("draftText").value=makeDraft(collect()));
+</script></body></html>
