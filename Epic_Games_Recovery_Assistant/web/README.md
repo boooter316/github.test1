@@ -203,3 +203,16 @@ These are provider shortcuts and user instructions only. The project does not au
 ## Wireshark packet and port diagnostics
 
 A separate Wireshark & Ports page links to the official Wireshark download and user guide, provides common display-filter examples, and builds a TCP, UDP, or combined display filter for a user-entered port (1–65535). The page does not capture packets itself, sniff other people's traffic, scan public IP ranges, open ports, or transmit packets. Capture only traffic you own or have explicit authorization to inspect. Packet captures can contain personal or authentication data; keep captures minimal and private.
+
+
+## Local IP context, bounded port checks, and VPN/proxy status
+
+The IP/account evidence checker now accepts optional user-entered state/province, region/county, ZIP/postal code, and street-address context. These fields are included in the local evidence report only; they are not geolocated, verified, or transmitted.
+
+The Windows `network_tools.ps1` helper supports:
+- A bounded TCP connect check against one explicitly supplied private, loopback, link-local, or IPv6 unique-local IP address.
+- A maximum of 32 individually selected TCP ports; public IPs, hostnames, CIDR ranges, and bulk scans are rejected.
+- A local VPN profile/adapter and current-user proxy configuration summary. It does not change settings or collect proxy credentials.
+- An optional daily local VPN/proxy status snapshot scheduled in Windows Task Scheduler. It records configuration only; it does not enable, disable, or rotate VPN/proxy routes.
+
+See `SETUP_GUIDE.txt` in the project root for individual Windows 11 build, run, scanner, port-check, VPN/proxy, scheduled-task, and troubleshooting instructions. These are diagnostic helpers, not vulnerability scanners or account-verification services.
