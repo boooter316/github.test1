@@ -56,7 +56,7 @@ The panel links to Epic's official pages; it does not imitate them, collect Epic
 
 - Missing configuration: set all three required administrator environment variables and restart.
 - Sign-in fails: verify the admin email and exact scrypt salt:hash value.
-- Page will not load: run npm install, confirm Node.js 20+, then npm start and inspect the server terminal.
+- Page will not load: run npm install, confirm Node.js 26+, then npm start and inspect the server terminal.
 - Discord notifications do not arrive: verify the secret is an HTTPS Discord webhook URL for a server you control. Notifications are optional.
 - iPhone export: use Safari and check Files > Downloads. The dashboard creates a file on demand; it does not email or upload records.
 
