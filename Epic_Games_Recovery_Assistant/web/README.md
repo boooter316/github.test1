@@ -20,6 +20,10 @@ The container expects HTTP port `8080` (or the `PORT` environment variable). Put
 
 The browser form includes current and previous Epic contact/display-name details, requested display-name/email changes for planning, email/SMS/phone/authenticator-app 2FA method and access notes, optional historical VPN/proxy context, linked-platform identifiers, and platform-specific recovery/appeal fields for Epic, Xbox, PlayStation, Steam, and Nintendo. It can export a JSON packet and use browser print-to-PDF. The PDF/JSON/text packet is a user-entered evidence summary only—not an account dump, database export, credential dump, or executable script.
 
+## Local security scanner tabs
+
+The browser page also includes separate Discord and Fortnite/Epic text-scanning tabs. They inspect only text or log files the user explicitly selects, plus optional pasted text, inside the browser. The Fortnite scanner reports numbered findings with source filenames, line numbers, match categories, and redacted previews; email addresses and account identifiers are masked. The scanners do not open browser credential stores, sign in, test whether a credential is active, or retrieve passwords, tokens, cookies, or sessions. A pattern match is not proof that an account is compromised or that a credential works.
+
 ## Privacy and scope
 
 - Form data is processed in the browser tab only. The server serves the static page and has no form-submission endpoint or account database.
