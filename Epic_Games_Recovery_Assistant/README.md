@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 4.2.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 4.3.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Download the Windows executable
 
@@ -59,12 +59,12 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 - Platform-specific recovery/restriction appeal notes and official support links for Epic, Xbox, PlayStation, Steam, and Nintendo.
 - Linked-service review fields for Xbox, PlayStation, Steam, Nintendo, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, and other services.
 - Planning fields for Epic display-name/email changes; actual changes require official sign-in and verification.
-- Exports a local recovery evidence packet: PDF report, JSON data, readable text details, support-request draft, and a copy of `recovery_assistant.cpp` when `recovery_assistant.cpp` is beside the executable. The checklist can note names of genuine evidence files kept privately on the computer; it does not ingest or extract those files. If it is unavailable, the packet includes `SOURCE_NOT_COPIED.txt`. This exports only information the user enters; it cannot extract platform databases, credentials, cookies, tokens, or account data.
+- Exports a local recovery evidence packet: PDF report, JSON data, readable text details, support-request draft, optional IP-history CSV log, and a copy of `recovery_assistant.cpp` when `recovery_assistant.cpp` is beside the executable. The checklist can note names of genuine evidence files kept privately on the computer; it does not ingest or extract those files. If it is unavailable, the packet includes `SOURCE_NOT_COPIED.txt`. This exports only information the user enters; it cannot extract platform databases, credentials, cookies, tokens, or account data.
 - Includes an offline guided recovery chat for common questions; it is not a live AI model or Epic agent.
 - Prepares a support-request draft and opens Epic's official contact page; the user reviews and submits it. No automatic ticket submission or direct Epic API connection.
 - Opens official recovery, support, account settings, linked-account and 2FA help pages.
 
-## Version 4.2 additions
+## Version 4.3 additions
 
 - Adds an expanded linked-service inventory for Xbox, PlayStation, Nintendo, Steam, Twitch, YouTube, Instagram, TikTok, Facebook, Google/Gmail, LEGO, Roblox, and GTA/Rockstar Games. It records public profile identifiers and link-status notes only.
 - Adds password-change planning and phone-number-control status without collecting passwords, full phone numbers, or verification codes.
