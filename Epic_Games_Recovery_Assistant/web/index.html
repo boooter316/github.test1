@@ -82,12 +82,12 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <section class="panel hidden" id="fortniteTab">
 <h2>Fortnite Security Scanner</h2>
 <p>Review Fortnite or Epic text logs and configuration files that you choose on this device. The scan runs locally in this browser tab.</p>
-<div class="risk"><strong>Security boundary:</strong> This tool does not access Fortnite or Epic accounts, browser storage, game memory, saved passwords, cookies, or session stores. It cannot validate logins or retrieve tokens. It shows a numbered findings list with file names, line numbers, match categories, and redacted previews. Account identifiers such as emails and account IDs are masked. Full passwords, tokens, cookies, and session secrets are never displayed.</div>
+<div class="risk"><strong>Security boundary:</strong> This tool does not access Fortnite or Epic accounts, browser storage, game memory, saved passwords, cookies, or session stores. It cannot validate logins or retrieve tokens. It shows a numbered findings list with file names, line numbers, match categories, and redacted previews. Email addresses, account IDs, and display names are shown in full in this local browser result. Passwords, tokens, cookies, and session secrets are always redacted.</div>
 <p><label for="fortniteFiles">Choose Fortnite/Epic text logs or configuration files</label><input id="fortniteFiles" type="file" accept=".txt,.log,.ini,.cfg,.json,.xml,.csv,.md,.conf" multiple></p>
 <p><label for="fortniteText">Or paste text to inspect (optional)</label><textarea id="fortniteText" placeholder="Paste a Fortnite log/config excerpt. Do not paste passwords, active tokens, or 2FA codes."></textarea></p>
 <div class="actions no-print"><button type="button" id="runFortniteScan">Scan Fortnite files</button><button type="button" class="secondary" id="clearFortniteScan">Clear</button></div>
 <h3>Scan result</h3><div id="fortniteResult" class="scanner-result" role="status" aria-live="polite">No scan has been run.</div>
-<p class="hint">Checks for token/JWT-shaped strings, credential-labelled fields, account identifiers, and Fortnite/Epic authentication references. Findings are numbered and show the source file and line. Secret values and personal account identifiers are redacted or masked. A match is not proof of compromise.</p>
+<p class="hint">Checks for token/JWT-shaped strings, credential-labelled fields, account identifiers, and Fortnite/Epic authentication references. Findings are numbered and show the source file and line. Passwords and tokens are redacted; non-secret account details (emails, account IDs, and display names) are shown in full. A match is not proof of compromise.</p>
 <h3>Recommended next steps</h3><ol><li>If a credential-like pattern is found, do not post the file publicly.</li><li>Secure your Epic account through Epic's official account-security page, change a potentially exposed password, and enable two-factor authentication.</li><li>Sign out of sessions using the official account controls where available, and rotate any exposed API key or webhook through its provider.</li><li>Download Fortnite only through official Epic channels and avoid third-party “token checker” tools.</li></ol>
 </section>
 <p class="foot">Keep exported files private. The browser form processes entries in your tab and does not submit them to this site.</p></main>
@@ -142,12 +142,11 @@ function inspectFortniteText(s,sourceName){
           const value=match[2]||match[0];
           if(value.includes("@")){
             const parts=value.split("@");
-            const local=parts[0];
-            preview=(local.length>1?local[0]+"***": "*")+"@"+parts[1];
+            preview=value;
           }else{
             const label=match[1]&&match[2]?match[1]+": ":"";
             const raw=String(value).trim();
-            preview=label+(raw.length>4?raw.slice(0,2)+"***"+raw.slice(-2):"****");
+            preview=label+raw;
           }
         }else{
           preview=match[0].slice(0,90);
@@ -186,8 +185,8 @@ document.getElementById("runFortniteScan").addEventListener("click",async()=>{
   }else{
     out.push("• No matching patterns");
   }
-  out.push("Distinct masked account details: "+maskedAccounts.size);
-  out.push("Findings are numbered in scan order. Passwords and tokens are redacted; emails and account identifiers are masked.");
+  out.push("Distinct account details: "+maskedAccounts.size);
+  out.push("Findings are numbered in scan order. Emails, account IDs, and display names are shown in full in this local result. Passwords and tokens remain redacted.");
   out.push("");
   if(findings.length){
     findings.forEach((item,index)=>{
