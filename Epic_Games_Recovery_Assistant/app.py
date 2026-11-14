@@ -9,9 +9,11 @@ import shutil
 import webbrowser
 
 APP_NAME = "Epic Games Recovery Assistant"
-APP_VERSION = "1.6"
+APP_VERSION = "1.7"
 SUPPORT_URL = "https://www.epicgames.com/help/en-US/"
 RECOVERY_URL = "https://www.epicgames.com/id/login"
+EPIC_CONTACT_URL = "https://www.epicgames.com/help/c-45487929?contact=1&lang=en-US"
+EPIC_LINKED_ACCOUNTS_URL = "https://www.epicgames.com/account/connections"
 TWO_FA_URL = "https://www.epicgames.com/account/password"
 RECOVERY_GUIDE_URL = "https://www.epicgames.com/help/c-1/a10856556?lang=en-US"
 RECOVERY_REQUEST_URL = "https://www.epicgames.com/help/c-45487929/a21414514"
@@ -48,6 +50,9 @@ class EpicRecoveryAssistant:
         self.issue = tk.StringVar(value="Hacked / compromised")
         self.recovery_status = tk.StringVar(value="Not submitted")
         self.vpn_used = tk.StringVar(value="Not sure")
+        self.ticket_target = tk.StringVar(value="Epic Games")
+        self.ticket_type = tk.StringVar(value="Account recovery / ownership review")
+        self.ownership_ready = tk.StringVar(value="Not sure")
         self.build_ui()
 
     def build_ui(self):
@@ -64,12 +69,14 @@ class EpicRecoveryAssistant:
         self.ban_tab = ttk.Frame(tabs, padding=10)
         self.platform_tab = ttk.Frame(tabs, padding=10)
         self.additional_platform_tab = ttk.Frame(tabs, padding=10)
+        self.ticket_tab = ttk.Frame(tabs, padding=10)
         tabs.add(self.account_tab, text="Account Recovery")
         tabs.add(self.security_tab, text="2-Step & VPN/Proxy")
         tabs.add(self.incident_tab, text="Incident Details")
         tabs.add(self.ban_tab, text="Epic Ban & Appeal")
         tabs.add(self.platform_tab, text="Xbox / PlayStation")
         tabs.add(self.additional_platform_tab, text="Steam / Nintendo")
+        tabs.add(self.ticket_tab, text="Support Ticket Builder")
         tabs.add(self.help_tab, text="Official Help")
         self.build_account_tab()
         self.build_security_tab()
@@ -77,6 +84,7 @@ class EpicRecoveryAssistant:
         self.build_ban_tab()
         self.build_platform_tab()
         self.build_additional_platform_tab()
+        self.build_ticket_tab()
         self.build_help_tab()
         actions = ttk.Frame(main)
         actions.pack(fill="x", pady=(4, 0))
@@ -251,6 +259,64 @@ class EpicRecoveryAssistant:
         ttk.Button(self.additional_platform_tab, text="Open Nintendo account-recovery guide", command=lambda: webbrowser.open(NINTENDO_RECOVERY_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.additional_platform_tab, text="Open Nintendo Support", command=lambda: webbrowser.open(NINTENDO_SUPPORT_URL)).pack(anchor="w", pady=4)
 
+    def build_ticket_tab(self):
+        ttk.Label(self.ticket_tab, text="Prepare a support request (not submitted automatically)", font=("Segoe UI", 12, "bold")).pack(anchor="w", pady=(0, 6))
+        ttk.Label(self.ticket_tab, text="Create a clear draft for the platform owner. The app cannot impersonate an owner, open a live agent session, unlink accounts, remove restrictions, or submit tickets automatically.", wraplength=850).pack(anchor="w", pady=4)
+        self.add_choice(self.ticket_tab, "Support destination", self.ticket_target, ["Epic Games", "Xbox", "PlayStation", "Steam", "Nintendo", "Apple", "LEGO"])
+        self.add_choice(self.ticket_tab, "Request category", self.ticket_type, ["Account recovery / ownership review", "Compromised account / security incident", "Restriction appeal / case review", "Unlink a connected platform or service", "Remove or update a payment method", "Change account email or display name", "Other support request"])
+        self.add_choice(self.ticket_tab, "Can you provide truthful ownership evidence?", self.ownership_ready, ["Not sure", "Yes", "No"])
+        self.add_field(self.ticket_tab, "ticket_account_identifier", "Account name / ID (no passwords)")
+        self.add_field(self.ticket_tab, "ticket_contact_email", "Safe contact email")
+        self.add_field(self.ticket_tab, "ticket_connected_service", "Platform / service to unlink (if relevant)")
+        self.add_field(self.ticket_tab, "ticket_payment_method", "Payment method type to review (no full numbers)")
+        self.add_field(self.ticket_tab, "ticket_case_reference", "Existing support / enforcement reference")
+        ttk.Label(self.ticket_tab, text="What happened and what outcome are you requesting?").pack(anchor="w", pady=(8, 3))
+        self.ticket_summary = tk.Text(self.ticket_tab, height=6, wrap="word")
+        self.ticket_summary.pack(fill="both", expand=True)
+        ttk.Label(self.ticket_tab, text="Ownership evidence you can truthfully provide (invoice IDs, prior emails, linked account IDs, approximate dates; no secrets):").pack(anchor="w", pady=(8, 3))
+        self.ticket_evidence = tk.Text(self.ticket_tab, height=5, wrap="word")
+        self.ticket_evidence.pack(fill="both", expand=True)
+        ttk.Label(self.ticket_tab, text="If you cannot establish ownership, pause and use the platform's official recovery process. This app will not lock, disable, or alter any account. Unlinking and payment changes must be completed by you through the verified account settings or the platform's support team.", foreground="red", wraplength=850).pack(anchor="w", pady=8)
+        ttk.Button(self.ticket_tab, text="Open Epic Support Assistant / Contact", command=lambda: webbrowser.open(EPIC_CONTACT_URL)).pack(anchor="w", pady=3)
+        ttk.Button(self.ticket_tab, text="Open Epic Linked Accounts", command=lambda: webbrowser.open(EPIC_LINKED_ACCOUNTS_URL)).pack(anchor="w", pady=3)
+        ttk.Button(self.ticket_tab, text="Open selected platform support", command=self.open_selected_platform_support).pack(anchor="w", pady=3)
+
+    def open_selected_platform_support(self):
+        urls = {
+            "Epic Games": EPIC_CONTACT_URL,
+            "Xbox": XBOX_ENFORCEMENT_URL,
+            "PlayStation": PLAYSTATION_SUSPENSIONS_URL,
+            "Steam": STEAM_ACCOUNT_HELP_URL,
+            "Nintendo": NINTENDO_SUPPORT_URL,
+            "Apple": "https://support.apple.com/",
+            "LEGO": "https://www.lego.com/service"
+        }
+        webbrowser.open(urls.get(self.ticket_target.get(), EPIC_CONTACT_URL))
+
+    def build_ticket_text(self, data):
+        lines = [
+            "SUPPORT REQUEST DRAFT — NOT SUBMITTED",
+            "",
+            "Support destination: " + data.get("ticket_target", "Not provided"),
+            "Request category: " + data.get("ticket_type", "Not provided"),
+            "Ownership evidence available: " + data.get("ownership_ready", "Not sure"),
+            "Account identifier: " + data.get("ticket_account_identifier", "Not provided"),
+            "Contact email: " + data.get("ticket_contact_email", "Not provided"),
+            "Connected service to unlink: " + data.get("ticket_connected_service", "Not applicable"),
+            "Payment method type to review: " + data.get("ticket_payment_method", "Not applicable"),
+            "Existing case reference: " + data.get("ticket_case_reference", "Not provided"),
+            "",
+            "Request details:",
+            data.get("ticket_summary", "Not provided"),
+            "",
+            "Ownership evidence:",
+            data.get("ticket_evidence", "Not provided"),
+            "",
+            "SECURITY: Never include passwords, one-time 2FA codes, backup codes, authenticator secrets, session cookies, or full payment-card numbers.",
+            "This draft is not sent automatically. Submit only through the official support channel after verifying account ownership."
+        ]
+        return "\n".join(lines) + "\n"
+
     def build_help_tab(self):
         info = (
             "OFFICIAL EPIC RECOVERY PROCESS\n\n"
@@ -300,6 +366,11 @@ class EpicRecoveryAssistant:
             "playstation_notes": self.playstation_notes.get("1.0", "end").strip(),
             "steam_notes": self.steam_notes.get("1.0", "end").strip(),
             "nintendo_notes": self.nintendo_notes.get("1.0", "end").strip(),
+            "ticket_target": self.ticket_target.get(),
+            "ticket_type": self.ticket_type.get(),
+            "ownership_ready": self.ownership_ready.get(),
+            "ticket_summary": self.ticket_summary.get("1.0", "end").strip(),
+            "ticket_evidence": self.ticket_evidence.get("1.0", "end").strip(),
             "prepared_at_local": datetime.now().astimezone().isoformat(timespec="minutes"),
             "app_name": APP_NAME,
             "app_version": APP_VERSION,
@@ -366,6 +437,12 @@ class EpicRecoveryAssistant:
                 ("Support / notice reference", "steam_case_reference"), ("Restriction type", "steam_restriction_type"),
                 ("Notice / restriction date", "steam_restriction_date"), ("Duration / end date", "steam_restriction_duration"),
                 ("Support / appeal status", "steam_appeal_status"), ("Factual notes", "steam_notes")]),
+            ("SUPPORT REQUEST DRAFT", [
+                ("Support destination", "ticket_target"), ("Request category", "ticket_type"),
+                ("Ownership evidence available", "ownership_ready"), ("Account identifier", "ticket_account_identifier"),
+                ("Contact email", "ticket_contact_email"), ("Connected service to unlink", "ticket_connected_service"),
+                ("Payment method type to review", "ticket_payment_method"), ("Existing case reference", "ticket_case_reference"),
+                ("Request details", "ticket_summary"), ("Ownership evidence", "ticket_evidence")]),
             ("NINTENDO RESTRICTION / SUPPORT NOTES", [
                 ("Account nickname", "nintendo_nickname"), ("Account ID / linked profile", "nintendo_account_id"),
                 ("Support / notice reference", "nintendo_case_reference"), ("Restriction type", "nintendo_restriction_type"),
@@ -424,6 +501,7 @@ class EpicRecoveryAssistant:
                 shutil.copy2(Path(__file__).resolve(), folder / "app.py")
             except Exception:
                 (folder / "SOURCE_NOT_COPIED.txt").write_text("The running script could not be copied automatically. Download app.py from the project's GitHub repository.", encoding="utf-8")
+            (folder / "support_request_draft.txt").write_text(self.build_ticket_text(data), encoding="utf-8")
             (folder / "README.txt").write_text(
                 "EPIC GAMES RECOVERY PACKET\n\n"
                 "recovery_request.pdf: readable recovery summary.\n"
@@ -458,6 +536,11 @@ class EpicRecoveryAssistant:
         self.playstation_notes.delete("1.0", tk.END)
         self.steam_notes.delete("1.0", tk.END)
         self.nintendo_notes.delete("1.0", tk.END)
+        self.ticket_summary.delete("1.0", tk.END)
+        self.ticket_evidence.delete("1.0", tk.END)
+        self.ticket_target.set("Epic Games")
+        self.ticket_type.set("Account recovery / ownership review")
+        self.ownership_ready.set("Not sure")
 
     def open_support(self):
         webbrowser.open(SUPPORT_URL)
