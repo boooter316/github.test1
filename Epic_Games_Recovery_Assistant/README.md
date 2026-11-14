@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — C++17 Edition
 
-**Version 3.3.** A Windows C++17 local recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 3.4.** A Windows C++17 local recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Build and run (Windows)
 
@@ -13,13 +13,14 @@ A GitHub Actions workflow also builds a Windows `.exe` when the C++ source chang
 
 The PDF generator is built into the C++ source; no Python, external PDF package, or separate PDF installer is needed. `setup.bat` builds the C++ program; it does not install a PDF reader.
 
-## Version 3.3 additions
+## Version 3.4 additions
 
 - Expanded original-account-country and purchase-history context fields.
 - Added clearer payment-method review notes without collecting full card numbers, CVV, or payment credentials.
 - Added a per-service linked-account inventory prompt covering public IDs/profile names, approximate link dates, and current link status.
 - Added separate appeal-note fields for Epic, Xbox, PlayStation, Steam, and Nintendo.
-- Added an official Epic Support Assistant/ticket entry in the page menu. The app still cannot provide live agent chat or submit a ticket itself.
+- Fixed the duplicate final menu selection and added a clearly labeled Epic support-contact/ticket-options shortcut. The app still cannot provide live agent chat or submit a ticket itself.
+- Corrected the PDF/text/JSON packet version labels so all exports identify version 3.4.
 
 ## Features
 
@@ -56,6 +57,10 @@ The PDF generator is built into the C++ source; no Python, external PDF package,
 - Unlink a console account: https://www.epicgames.com/help/c-Category_EpicAccounts/c-38854402/a17347934?lang=en-US
 - Sign-in: https://www.epicgames.com/id/login
 - Sanctions and appeals: https://safety.epicgames.com/en-US/sanctions-and-appeals
+
+## API configuration
+
+No API provider is configured. An API key is not required to launch this local Windows program. Add an integration only after selecting a legitimate provider and documenting its purpose; never hard-code a key in source code, GitHub, exports, or PDFs. Configure any future secret locally using a protected environment variable or Windows credential storage.
 
 ## Test status
 
