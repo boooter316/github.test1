@@ -1,4 +1,4 @@
-// Epic Games Recovery Assistant 4.10 - C++17
+// Epic Games Recovery Assistant 5.0 - C++17
 // Local-only organizer. Not affiliated with Epic Games.
 #include <cctype>
 #include <ctime>
@@ -75,7 +75,7 @@ void notifyDiscord(const std::string& event) {
  if(!WinHttpCrackUrl(url.c_str(),0,0,&parts)) return;
  std::wstring hostname(host,parts.dwHostNameLength), requestPath(path,parts.dwUrlPathLength);
  if(parts.nScheme!=INTERNET_SCHEME_HTTPS || hostname!=L"discord.com" || requestPath.rfind(L"/api/webhooks/",0)!=0) return;
- std::string body="{\"content\":\"Epic Games Recovery Assistant 4.10: "+escJson(event)+"\"}";
+ std::string body="{\"content\":\"Epic Games Recovery Assistant 5.0: "+escJson(event)+"\"}";
  HINTERNET session=WinHttpOpen(L"EpicRecoveryAssistant/4.10",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,WINHTTP_NO_PROXY_NAME,WINHTTP_NO_PROXY_BYPASS,0);
  if(!session) return;
  HINTERNET connection=WinHttpConnect(session,hostname.c_str(),parts.nPort,0);
@@ -337,7 +337,7 @@ void recoveryProgressPage() {
 }
 
 int runRecoveryCase(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 4.10 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 5.0 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -538,13 +538,13 @@ int runRecoveryCase(){
 
 void saveDashboardProgress() {
  if(fields.empty()) {
-  std::cout<<"No progress notes were entered.\\n";
+  std::cout<<"No progress notes were entered.\n";
   return;
  }
  fs::path path=fs::current_path()/"Recovery_Progress.txt";
  std::ofstream out(path,std::ios::app);
  if(!out) {
-  std::cout<<"Could not save progress notes to "<<path.string()<<"\\n";
+  std::cout<<"Could not save progress notes to "<<path.string()<<"\n";
   fields.clear();
   return;
  }
@@ -552,21 +552,21 @@ void saveDashboardProgress() {
  std::tm* local=std::localtime(&now);
  char stamp[32]="unknown";
  if(local) std::strftime(stamp,sizeof(stamp),"%Y-%m-%d %H:%M:%S",local);
- out<<"\\n=== Progress update "<<stamp<<" (user-entered; not verified by Epic) ===\\n";
- for(const auto& f:fields) out<<f.label<<": "<<f.value<<"\\n";
+ out<<"\n=== Progress update "<<stamp<<" (user-entered; not verified by Epic) ===\n";
+ for(const auto& f:fields) out<<f.label<<": "<<f.value<<"\n";
  out.close();
- if(out) std::cout<<"Progress notes saved locally: "<<path.string()<<"\\n";
- else std::cout<<"The progress file could not be fully written.\\n";
+ if(out) std::cout<<"Progress notes saved locally: "<<path.string()<<"\n";
+ else std::cout<<"The progress file could not be fully written.\n";
  fields.clear();
 }
 
 void epicOfficialLinksMenu() {
  for(;;) {
-  std::cout<<"\\n=== OFFICIAL EPIC ACCOUNT & SUPPORT LINKS ===\\n"
-   <<"These links open only after you select one. Sign in and complete verification on Epic's official site.\\n"
-   <<"1. Account recovery help\\n2. Epic Support / contact\\n3. Linked accounts\\n"
-   <<"4. Account security and password settings\\n5. Epic sign-in\\n"
-   <<"6. Sanctions and appeals\\n0. Return to desktop dashboard\\n";
+  std::cout<<"\n=== OFFICIAL EPIC ACCOUNT & SUPPORT LINKS ===\n"
+   <<"These links open only after you select one. Sign in and complete verification on Epic's official site.\n"
+   <<"1. Account recovery help\n2. Epic Support / contact\n3. Linked accounts\n"
+   <<"4. Account security and password settings\n5. Epic sign-in\n"
+   <<"6. Sanctions and appeals\n0. Return to desktop dashboard\n";
   std::string choice=ask("Choose an official Epic resource");
   if(choice=="0") return;
   if(choice=="1") openLink("https://www.epicgames.com/help/c-45487929/a21414514");
@@ -575,7 +575,7 @@ void epicOfficialLinksMenu() {
   else if(choice=="4") openLink("https://www.epicgames.com/account/password");
   else if(choice=="5") openLink("https://www.epicgames.com/id/login");
   else if(choice=="6") openLink("https://safety.epicgames.com/en-US/sanctions-and-appeals");
-  else std::cout<<"Choose a listed option.\\n";
+  else std::cout<<"Choose a listed option.\n";
  }
 }
 
@@ -583,18 +583,18 @@ int main() {
  if(!authGate()) return 0;
  notifyDiscord("application started");
  for(;;) {
-  std::cout<<"\\n============================================================\\n"
-   <<"       EPIC GAMES RECOVERY ASSISTANT - WINDOWS DESKTOP\\n"
-   <<"                  NATIVE COMMAND DASHBOARD\\n"
-   <<"============================================================\\n"
-   <<"Local Windows application | No browser dashboard or local web server\\n"
-   <<"Not affiliated with Epic Games. Account actions remain with Epic.\\n\\n"
-   <<"1. Start / continue an Epic recovery case\\n"
-   <<"2. Recovery progress tracker\\n"
-   <<"3. Official Epic account and support links\\n"
-   <<"4. Open local project and recovery files\\n"
-   <<"5. Help, privacy and safety information\\n"
-   <<"0. Exit\\n";
+  std::cout<<"\n============================================================\n"
+   <<"       EPIC GAMES RECOVERY ASSISTANT - WINDOWS DESKTOP\n"
+   <<"                  NATIVE COMMAND DASHBOARD\n"
+   <<"============================================================\n"
+   <<"Local Windows application | No browser dashboard or local web server\n"
+   <<"Not affiliated with Epic Games. Account actions remain with Epic.\n\n"
+   <<"1. Start / continue an Epic recovery case\n"
+   <<"2. Recovery progress tracker\n"
+   <<"3. Official Epic account and support links\n"
+   <<"4. Open local project and recovery files\n"
+   <<"5. Help, privacy and safety information\n"
+   <<"0. Exit\n";
   std::string choice=ask("Select a dashboard option");
   if(choice=="0") break;
   if(choice=="1") {
@@ -613,21 +613,21 @@ int main() {
 #ifdef _WIN32
    fs::path folder=fs::current_path();
    ShellExecuteA(nullptr,"open",folder.string().c_str(),nullptr,nullptr,SW_SHOWNORMAL);
-   std::cout<<"Opened the local project folder in File Explorer.\\n";
+   std::cout<<"Opened the local project folder in File Explorer.\n";
 #else
-   std::cout<<"This option is available on Windows.\\n";
+   std::cout<<"This option is available on Windows.\n";
 #endif
   } else if(choice=="5") {
-   std::cout<<"\\nHELP & SAFETY\\n"
-    <<"- Recovery forms, progress notes and exports are stored locally.\\n"
-    <<"- Never enter passwords, 2FA codes, backup codes, cookies, tokens, or full payment-card details.\\n"
-    <<"- Epic account sign-in, ownership checks, recovery decisions and ticket submission happen only through official Epic processes.\\n"
-    <<"- This application does not bypass verification, change account settings, remove restrictions, or guarantee recovery.\\n"
-    <<"- The progress tracker records your notes; it does not connect to Epic or verify account status.\\n"
-    <<"- Official web pages open only when you choose an item in the official-links menu.\\n";
+   std::cout<<"\nHELP & SAFETY\n"
+    <<"- Recovery forms, progress notes and exports are stored locally.\n"
+    <<"- Never enter passwords, 2FA codes, backup codes, cookies, tokens, or full payment-card details.\n"
+    <<"- Epic account sign-in, ownership checks, recovery decisions and ticket submission happen only through official Epic processes.\n"
+    <<"- This application does not bypass verification, change account settings, remove restrictions, or guarantee recovery.\n"
+    <<"- The progress tracker records your notes; it does not connect to Epic or verify account status.\n"
+    <<"- Official web pages open only when you choose an item in the official-links menu.\n";
    ask("Press Enter to return to the desktop dashboard");
   } else {
-   std::cout<<"Choose 1, 2, 3, 4, 5, or 0.\\n";
+   std::cout<<"Choose 1, 2, 3, 4, 5, or 0.\n";
   }
  }
  notifyDiscord("application closed");
