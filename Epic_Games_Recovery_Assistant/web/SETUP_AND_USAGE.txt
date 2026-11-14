@@ -275,3 +275,13 @@ Windows EXE build instructions. Python uses PyInstaller, C++17 uses MSVC or
 g++, and C# targets .NET 10. The browser does not execute or upload source
 code. Review all files before running the generated scripts on Windows.
 Changing a file extension does not translate code between languages.
+
+
+K. GHOSTFACE BACKGROUND AND PROJECT CHECKLIST
+----------------------------------------------
+The browser website and Recovery Panel use the existing ghostface-bg.jpg
+artwork as a background with a dark overlay to keep text readable. The image
+filename and existing folder locations are preserved. Each browser interface
+also includes a small interactive checklist with the requested checkmark and
+Ghostface emojis. Existing project files, source names, and folder names are
+kept intact; these additions do not rename or remove existing features.
