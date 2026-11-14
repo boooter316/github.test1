@@ -86,3 +86,14 @@ Use the local scanners only on files and accounts you own or are expressly autho
 The Fortnite/Epic scanner reports one numbered entry for each detected pattern match, including its source filename (or pasted-text source), line number, detection category, confidence label, and safe preview. The report includes scan timestamp, scanned-source list, totals by finding type, totals by source, and skipped-file notices. TXT export and browser print-to-PDF use the same report text.
 
 In addition to authentication and account-detail patterns, the scanner includes heuristic indicators for SQL injection, cross-site scripting (XSS), HTML/script injection, command injection, path traversal, server-side template injection, and LDAP injection. These are static text-pattern indicators only: they can produce false positives and do not establish that an application is vulnerable or that an attack succeeded. The scanner does not execute input, probe a live service, test credentials, or perform exploit attempts. Passwords, tokens, cookies, and session secrets remain redacted in on-screen and exported reports.
+
+
+## Pro-style multi-platform local scanner
+
+The Pro-style scanner update expands local text scanning to identify account-related fields and log events associated with Epic Games/Fortnite, Xbox, PlayStation, Nintendo, Steam, Google, Twitch, YouTube, TikTok, Instagram, WeGo, and Roblox. Supported indicators include email addresses, Epic and platform-labelled account IDs, usernames/display names/gamertags, sign-in and account event references, JWT-shaped strings, and labelled credential fields.
+
+The scanner accepts selected text/log/configuration files and text-based PDF files. PDF text extraction is performed locally in the browser with PDF.js loaded from its CDN; image-only/scanned PDFs are not OCR-scanned. File size is limited to 10 MB per file and PDF extraction is capped at 200 pages. Reports retain numbered findings, source filename, line number, type, confidence label, safely masked preview, scan timestamp, source/type totals, skipped-file notices, and TXT/PDF export.
+
+**Credential safety:** Passwords, passphrases, tokens, cookies, session identifiers, and similar secret values are redacted. The scanner does not grab accounts or credentials, access browser password stores, validate logins, sign in, inspect platform databases, or bypass security controls. Account IDs, email addresses, and usernames are non-secret identifiers but may still be personal information; review reports before sharing them.
+
+Detection is pattern-based and may produce false positives or miss formats not covered by its rules. Confidence labels describe pattern strength, not whether an account or credential is valid. PDF.js requires an internet connection to load; if it is unavailable, PDF files are reported as skipped. This is a local file auditor, not a commercial certification or guarantee of security.
