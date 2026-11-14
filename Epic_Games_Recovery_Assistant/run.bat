@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title Epic Games Recovery Assistant 5.0
+title Epic Games Recovery Assistant 5.2.0
 cd /d "%~dp0" || exit /b 1
 if not exist "Epic_Games_Recovery_Assistant.exe" (
   echo The executable is missing. Building it now...
