@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Windows Desktop Edition
 
-**Version 4.9.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
+**Version 4.10.** A locally run Windows C++17 recovery-information organizer. It is not made, operated, or endorsed by Epic Games.
 
 ## Download the Windows executable
 
@@ -46,10 +46,10 @@ The separate browser-based prototype in the `web/` folder is not the Windows des
 
 1. Install MinGW-w64/GCC with C++17 support and add `g++` to PATH: https://www.mingw-w64.org/
 2. Open this folder in File Explorer.
-3. Run `build.bat` (or `setup.bat`) to compile `recovery_assistant.c++`.
-4. Run `run.bat` to launch the program.
+3. Run `build.bat` to use the same checked build path exercised by GitHub Actions; `setup.bat` performs the C++17 compilation and returns a nonzero exit code if compilation fails.
+4. Run `run.bat` to launch the program. If the executable is missing, `run.bat` attempts a build first and stops with an error if the build fails.
 
-The GitHub Actions workflow also builds a Windows executable whenever the desktop source or build workflow changes, and can be manually run from the GitHub Actions tab.
+The GitHub Actions workflow runs the actual `build.bat` one-click builder on Windows, validates the three batch launchers and PowerShell scripts, compiles the C++17 source, and packages the project. It runs on relevant pushes and pull requests and can also be started manually from the GitHub Actions tab.
 
 ## Prompts
 
