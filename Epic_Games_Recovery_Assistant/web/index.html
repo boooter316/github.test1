@@ -433,13 +433,16 @@ document.getElementById("networkToolsReport").addEventListener("change",async(ev
  if(file.size>2*1024*1024){out.textContent="Report exceeds the 2 MB import limit.";return}
  try{
   const data=JSON.parse(await file.text()),lines=["WINDOWS NETWORK TOOLS REPORT","Generated: "+(data.TimestampUtc||"timestamp unavailable"),"Mode: "+(data.Mode||"status"),"Target: "+(data.Target||"not scanned")];
-  if(Array.isArray(data.PortResults)){lines.push("TCP PORT RESULTS");data.PortResults.forEach(x=>lines.push("- "+x.Port+": "+x.Status+" ("+(x.ElapsedMs??"n/a")+" ms)"))}
-  if(Array.isArray(data.VpnProfiles)){lines.push("VPN PROFILES");data.VpnProfiles.forEach(x=>lines.push("- "+x.Name+": "+x.ConnectionStatus))}
-  if(Array.isArray(data.VpnAdapters)){lines.push("VPN-LIKE ADAPTERS");data.VpnAdapters.forEach(x=>lines.push("- "+x.Name+": "+x.Status))}
+  const portResults=Array.isArray(data.PortResults)?data.PortResults:(data.PortResults?[data.PortResults]:[]);
+  const vpnProfiles=Array.isArray(data.VpnProfiles)?data.VpnProfiles:(data.VpnProfiles?[data.VpnProfiles]:[]);
+  const vpnAdapters=Array.isArray(data.VpnAdapters)?data.VpnAdapters:(data.VpnAdapters?[data.VpnAdapters]:[]);
+  if(portResults.length){lines.push("TCP PORT RESULTS");portResults.forEach(x=>lines.push("- "+x.Port+": "+x.Status+" ("+(x.ElapsedMs??"n/a")+" ms)"))}
+  if(vpnProfiles.length){lines.push("VPN PROFILES");vpnProfiles.forEach(x=>lines.push("- "+x.Name+": "+x.ConnectionStatus))}
+  if(vpnAdapters.length){lines.push("VPN-LIKE ADAPTERS");vpnAdapters.forEach(x=>lines.push("- "+x.Name+": "+x.Status))}
   if(data.Proxy){lines.push("CURRENT-USER PROXY","Enabled: "+data.Proxy.Enabled,"Server: "+(data.Proxy.Server||"not configured"),"Auto config URL present: "+Boolean(data.Proxy.AutoConfigUrl))}
   if(data.WinHttpProxy)lines.push("WINHTTP PROXY: "+data.WinHttpProxy);
   lines.push("Scope: "+(data.Scope||"Local metadata only."));
-  out.textContent=lines.join("\\n");
+  out.textContent=lines.join("\n");
  }catch(error){out.textContent="Could not read report: "+(error.message||"invalid JSON")}
 });
 document.getElementById("buildWiresharkFilter").addEventListener("click",()=>{
