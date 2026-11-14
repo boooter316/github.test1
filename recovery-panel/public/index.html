@@ -89,7 +89,7 @@ $("clearPanelPdfScan").addEventListener("click",()=>{$("panelPdfFiles").value=""
 $("downloadPanelPdfReport").addEventListener("click",()=>{if(!panelPdfReport)return;download("local-pdf-evidence-report.txt",panelPdfReport,"text/plain;charset=utf-8")});
 
 window.addEventListener("error",()=>{api("/api/client-error",{method:"POST",body:"{}"}).catch(()=>{});notice("A dashboard error occurred. Refresh the page; if it continues, check server logs.")});init();
-</script><section class="project-checklist" aria-labelledby="projectChecklistTitle">
+</script><section class="card" aria-labelledby="setupDocsTitle"><h2 id="setupDocsTitle">Setup and project guides</h2><p class="muted">The Recovery Panel is a separate Node.js app. Its records stay in this browser on this device; they do not sync automatically with the main browser multitool.</p><p><a href="https://github.com/boooter316/github.test1/blob/main/docs/SETUP_GUIDE.md" target="_blank" rel="noopener">Open complete setup guide</a></p><p><a href="https://github.com/boooter316/github.test1/blob/main/docs/PROJECT_STRUCTURE.md" target="_blank" rel="noopener">Open project structure map</a></p><p><a href="https://github.com/boooter316/github.test1/blob/main/recovery-panel/README.md" target="_blank" rel="noopener">Open Recovery Panel README</a></p></section><section class="project-checklist" aria-labelledby="projectChecklistTitle">
 <h2 id="projectChecklistTitle">Project checklist ✅✔️😈</h2>
 <p>Use these checkboxes to track the included project features. Selections are temporary and stay in this page only.</p>
 <label><input type="checkbox"> ✅ Recovery Assistant and existing records</label>
