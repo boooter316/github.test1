@@ -161,3 +161,10 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 ## Build status
 
 The Windows workflow compiles the C++ source and uploads the resulting executable as a downloadable artifact. A successful build confirms compilation, not a complete runtime test on every Windows computer.
+
+
+## Separate web dashboard (Recovery Panel)
+
+A mobile-friendly, separately hosted dashboard is available in the [recovery-panel folder](https://github.com/boooter316/github.test1/tree/main/recovery-panel). It includes a server-side administrator login, local browser recovery records, Epic Account ID/account-number field, email/phone/authenticator access tracking, official Epic sign-in and support links, JSON/TXT exports, and optional generic Discord status notifications. See the [panel setup guide](https://github.com/boooter316/github.test1/blob/main/recovery-panel/README.md).
+
+The panel is a Node.js web application, not a standalone iPhone app or a static HTML page. It must be configured and run on a trusted server before its login page can be used. Its recovery records are stored in the browser on the device, so export backups before switching devices. The panel is separate from the Windows C++ desktop executable. Do not put Epic credentials, verification codes, webhook URLs, or server secrets in source control.
