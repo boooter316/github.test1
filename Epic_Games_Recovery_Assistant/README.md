@@ -19,8 +19,9 @@ The app opens a local sign-in/register screen, followed by a numbered command da
 - Epic recovery information organizer and factual support-request draft.
 - Recovery progress notes for account status, linked-account status, email/display-name status, email-change progress, and restriction end-date estimates.
 - Local PDF, JSON, CSV, and text evidence exports, plus optional historical IP and login-activity notes.
+- Local PDF evidence scanner: page-level receipt/order/date/Epic/account-label indicators; possible sensitive values are flagged by category only. Extracted PDF text is never printed or saved. OCR is not included; image-only pages are marked not fully inspected.
 - Native local secret-hygiene scanner for selected project folders. It checks text/code/config assignments for likely hard-coded secrets and reports only file paths, line numbers, and categories; values are always redacted and nothing is uploaded.\n- Recovery progress tracker captures the user's Epic display name, optional account ID/email, and Epic support case/reference number alongside manual progress notes.\n- Official Epic recovery, contact, linked-account, account-security, sign-in, and sanctions/appeals links.
-- Generic optional Discord application/build notifications only. Notifications never include account details, recovery notes, evidence, exports, passwords, or authentication secrets.
+- Native app and Windows build workflow use no Discord/webhook notifications and do not upload recovery evidence.
 
 ## Build requirements
 
@@ -30,7 +31,7 @@ The app opens a local sign-in/register screen, followed by a numbered command da
 
 Manual build:
 1. Install MinGW-w64/GCC and add `g++` to PATH.
-2. Run `build.bat` (which calls `setup.bat`).
+2. Run `build.bat` (which calls `setup.bat`). The PDF scanner is a companion Python utility: install `py -3 -m pip install --user -r requirements-pdf.txt`, then drag PDF files onto `PDF_EVIDENCE_SCANNER.bat`.
 3. Run `run.bat`.
 
 GitHub Actions compiles the C++17 source on Windows and uploads the executable and complete project package. A successful CI build confirms compilation and packaging; it is not a guarantee of runtime behavior on every PC. Windows may warn that the unsigned executable is from an unknown publisher.
@@ -41,7 +42,7 @@ The repository retains its existing PowerShell, batch, and `web/` source files s
 
 ## Epic account and recovery limitations
 
-The app does not sign in to Epic, connect to private Epic APIs, verify account ownership, submit tickets automatically, change account settings, unlink services, remove restrictions, bypass verification, or guarantee recovery. The recovery-progress tracker stores your own case identifiers and notes locally; it does not query Epic or verify account status. The native scanner is a heuristic source/config hygiene check, not antivirus software; it skips browser-profile and database files, limits file sizes, and never displays or exports matched secret values. The support-request draft must be reviewed and submitted by you through Epic's official support process.
+The app does not sign in to Epic, connect to private Epic APIs, verify account ownership, submit tickets automatically, change account settings, unlink services, remove restrictions, bypass verification, or guarantee recovery. The recovery-progress tracker stores your own case identifiers and notes locally; it does not query Epic or verify account status. The native source/config scanner is a heuristic hygiene check, not antivirus software; it skips browser-profile and database files, limits file sizes, and never displays or exports matched secret values. The PDF scanner uses local text extraction only, has no OCR, and marks image-only pages not fully inspected. The support-request draft must be reviewed and submitted by you through Epic's official support process.
 
 Never enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, session cookies, or access tokens. Card last four digits are optional. Historical IP/VPN/proxy information is optional user-reported context only; the app does not spoof IPs, rotate proxies, or impersonate a location.
 
@@ -56,4 +57,4 @@ Never enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, 
 
 ## Security
 
-The unsafe legacy Discord token-grabber was removed from the current source in PR #44. Do not restore or run it. A webhook secret was embedded in old Git history; revoke/rotate that webhook if you have not already done so. The safe Discord Security Scanner remains available in the retained legacy browser source, but is not currently integrated into this native command dashboard.
+The unsafe legacy Discord token-grabber was removed from the current source in PR #44. Do not restore or run it.  The safe Discord Security Scanner remains available in the retained legacy browser source, but is not currently integrated into this native command dashboard.
