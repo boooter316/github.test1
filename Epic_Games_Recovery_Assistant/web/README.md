@@ -169,3 +169,14 @@ The browser interface groups the existing features into selectable tabs so users
 ## Official account links page
 
 The browser interface includes a separate **Account Links** page with shortcuts to official websites for Epic Games/Fortnite, Roblox, GTA/Rockstar Games, Minecraft, GeForce NOW, LEGO, Xbox, Steam, PlayStation, Nintendo, TeamSpeak, GitHub, Facebook, Instagram, Twitch, YouTube, TikTok, X, Snapchat, Discord, Disney+, Microsoft, Google, Gmail, and Yahoo. These are external website shortcuts only; they do not connect accounts, read private profile data, sign in, validate credentials, or change linked-account settings. Users must sign in and manage connections directly through each service's official website. The links open in a new tab with `noopener noreferrer`.
+
+
+## Account Connections & Payment Services
+
+A separate **Account Connections** page provides official-site shortcuts for Discord, Disney+, NVIDIA/GeForce NOW, LEGO, Roblox, Microsoft/Xbox, Google, Epic Games, Cash App/Bitcoin, PayPal, Apple Pay, and Google Wallet/Pay. It explains where users can review authorized apps, linked accounts, and automatic payments, and how to revoke a connection with the provider.
+
+These are provider shortcuts and user instructions only. The project does not authenticate, exchange OAuth tokens, verify account ownership, connect payment wallets, read balances, move funds, or remove third-party connections. The page always states that connection status is not checked by this app. Real linking requires provider-specific approval, OAuth/API registration, secure server-side implementation, explicit consent, and (for payment services) appropriate provider approval and compliance controls. Never enter passwords, one-time codes, wallet seed phrases, private keys, full card numbers, or CVV into the project.
+
+## Wireshark packet and port diagnostics
+
+A separate **Wireshark & Ports** page links to the official Wireshark download and user guide, provides common display-filter examples, and builds a TCP, UDP, or combined display filter for a user-entered port (1–65535). The page does not capture packets itself, sniff other people's traffic, scan public IP ranges, open ports, or transmit packets. Capture only traffic on devices/networks the user owns or is explicitly authorized to inspect. Packet captures can contain personal or authentication data; keep captures minimal and private.
