@@ -155,7 +155,7 @@ class EpicRecoveryAssistant:
 
     def validate(self, data):
         email = data.get("recovery_email", "")
-        if not re.fullmatch(r"[^@\\s]+@[^@\\s]+\\.[^@\\s]+", email):
+        if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
             messagebox.showwarning("Recovery email required", "Enter a valid current recovery contact email address.")
             return False
         return True
@@ -195,7 +195,7 @@ class EpicRecoveryAssistant:
                 value = data.get(key) or "Not provided"
                 if isinstance(value, list):
                     value = ", ".join(value) if value else "Not provided"
-                value = escape(str(value)).replace("\\n", "<br/>")
+                value = escape(str(value)).replace("\n", "<br/>")
                 story.append(Paragraph("<b>" + escape(label) + ":</b> " + value, body))
             story.append(Spacer(1, 6))
         story.append(Paragraph("SECURITY NOTES", styles["Heading2"]))
@@ -217,7 +217,7 @@ class EpicRecoveryAssistant:
             return
         try:
             self.build_pdf(data, output)
-            messagebox.showinfo("PDF created", "Recovery PDF saved to:\\n" + output)
+            messagebox.showinfo("PDF created", "Recovery PDF saved to:\n" + output)
         except ImportError:
             messagebox.showerror("Missing dependency", "Install ReportLab: py -m pip install -r requirements.txt")
         except Exception as exc:
@@ -242,13 +242,13 @@ class EpicRecoveryAssistant:
             except Exception:
                 (folder / "SOURCE_NOT_COPIED.txt").write_text("The running script could not be copied automatically. Download app.py from the project's GitHub repository.", encoding="utf-8")
             (folder / "README.txt").write_text(
-                "EPIC GAMES RECOVERY PACKET\\n\\n"
-                "recovery_request.pdf: readable recovery summary.\\n"
-                "account_details.json: structured copy of the form details.\\n"
-                "app.py: copy of the running script, when available.\\n\\n"
-                "Keep this folder private. It contains personal account information. Do not add passwords, 2FA codes, backup codes, authenticator keys, session cookies, or full payment-card numbers. Submit information only through Epic's official recovery flow.\\n"
-                + SUPPORT_URL + "\\n", encoding="utf-8")
-            messagebox.showinfo("Recovery packet exported", "Created your local packet:\\n" + str(folder))
+                "EPIC GAMES RECOVERY PACKET\n\n"
+                "recovery_request.pdf: readable recovery summary.\n"
+                "account_details.json: structured copy of the form details.\n"
+                "app.py: copy of the running script, when available.\n\n"
+                "Keep this folder private. It contains personal account information. Do not add passwords, 2FA codes, backup codes, authenticator keys, session cookies, or full payment-card numbers. Submit information only through Epic's official recovery flow.\n"
+                + SUPPORT_URL + "\n", encoding="utf-8")
+            messagebox.showinfo("Recovery packet exported", "Created your local packet:\n" + str(folder))
         except ImportError:
             messagebox.showerror("Missing dependency", "Install ReportLab: py -m pip install -r requirements.txt")
         except Exception as exc:
