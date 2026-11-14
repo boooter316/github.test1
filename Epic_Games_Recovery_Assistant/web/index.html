@@ -121,7 +121,7 @@ function inspectFortniteText(s,sourceName){
   const rules=[
     {name:"JWT-shaped token",re:/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,secret:true,confidence:"High"},
     {name:"Epic/Fortnite bearer or eg1 token",re:/\b(?:eg1~|bearer\s+)[A-Za-z0-9._~\-]{12,}/gi,secret:true,confidence:"High"},
-    {name:"Credential-labelled secret",re:/\b(password|passwd|pwd|passphrase|access[_-]?token|refresh[_-]?token|id[_-]?token|auth[_-]?token|authorization|client[_-]?secret|api[_-]?key|secret[_-]?key|session[_-]?(?:id|key|token)|sid|csrf[_-]?token|xsrf[_-]?token|cookie|set-cookie)["']?\s*[:=]\s*(?:"[^"]{1,}"|'[^']{1,}'|[^\s,;}\]]{1,})/gi,secret:true,confidence:"High"},
+    {name:"Credential-labelled secret",re:/\b(password|passwd|pwd|passphrase|access[_-]?token|refresh[_-]?token|id[_-]?token|auth[_-]?token|authorization|client[_-]?secret|api[_-]?key|secret[_-]?key|session[_-]?(?:id|key|token)|sid|csrf[_-]?token|xsrf[_-]?token|cookie|set-cookie)\b["']?\s*[:=]\s*(?:"[^"]{1,}"|'[^']{1,}'|[^\s,;}\]]{1,})/gi,secret:true,confidence:"High"},
     {name:"Email address",re:/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,account:true,confidence:"High"},
     {name:"Epic account ID field",re:/["']?((?:epic|fortnite)[_ -]?(?:games[_ -]?)?(?:account[_ -]?)?id|epic[_ -]?id|account[_ -]?id|user[_ -]?id|account[_ -]?identifier)["']?\s*[:=]\s*["']?([A-Za-z0-9_-]{5,})/gi,account:true,confidence:"High"},
     {name:"Platform account ID field",re:/["']?((?:xbox|xbox[_ -]?live|gamertag|playstation|psn|sony|nintendo|switch|steam|google|twitch|youtube|tiktok|instagram|wego|roblox)[_ -]?(?:account[_ -]?)?(?:id|uid|identifier|online[_ -]?id))["']?\s*[:=]\s*["']?([A-Za-z0-9_-]{3,})/gi,account:true,confidence:"Medium"},
