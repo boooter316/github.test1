@@ -100,8 +100,6 @@ int main(){
  add("Epic Authenticator access status (can access / cannot access / unsure; never enter a code)");
  add("Third-party authenticator app access status (can access / cannot access / unsure; never enter a code)");
  add("2FA method requested for official support guidance (email / SMS-phone / authenticator app / alternative method)");
- add("");
- add("
  add("Phone number associated with SMS 2FA (optional; never enter SMS codes)");
  add("Linked services to review (Xbox, PlayStation, Nintendo, Steam, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other Epic-connected apps/services)");
  add("Linked-service actions requested (review only; actual unlinking must be done by the platform owner)");
