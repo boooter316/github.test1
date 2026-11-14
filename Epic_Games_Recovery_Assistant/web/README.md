@@ -141,3 +141,13 @@ The Pro scanner includes a local-only evidence review for reference IPv4/IPv6 ad
 - IP addresses can be shared/reassigned or reflect VPNs, proxies, mobile carrier NAT, schools, workplaces, or household networks. Usernames/emails can change or be copied; timestamps can be incomplete or use different time zones.
 - A PDF is only a formatted copy of the report, not independent verification. For ownership review, provide original platform-issued records and original purchase receipts through official secure support. Only the platform can make an ownership decision.
 - Evidence is processed in the browser tab and is not uploaded by this feature. Remove passwords, tokens, cookies, 2FA codes, and other secrets from logs before selecting them.
+
+
+## Pro Account Ownership Evidence Packet
+
+The Pro scanner includes a local-only ownership evidence packet builder. It lets a user identify the platform they are asking to review, record an existing official support case, note a non-secret receipt/order reference and oldest evidence date, select original evidence categories they say they can provide, and add factual notes. It generates a TXT report and a browser print/save-as-PDF copy.
+
+- The report status is always **NOT VERIFIED — AWAITING OFFICIAL PLATFORM REVIEW**. It is an evidence organizer, not an ownership certificate, identity proof, forensic finding, or authority to transfer or lock an account.
+- Checklist selections and notes are user-entered claims; the tool does not authenticate receipts, screenshots, emails, or documents. Only the platform can compare original evidence against its internal account records and decide who is entitled to the account.
+- Users should submit only original, unedited platform-issued records through official secure support. Do not fabricate or alter evidence or submit another person's private records.
+- The feature does not request or accept passwords, 2FA codes, backup codes, cookies, tokens, full payment-card numbers, or document uploads. No account login, external lookup, API request, or upload occurs; the report is generated in the browser.
