@@ -54,7 +54,7 @@ int main() {
 
   const auto page = readFile("/app/index.html");
   const auto networkScript = readFile("/app/network_security.js");
-  const networkTools = readFile("/app/network_tools.ps1");
+  const auto networkTools = readFile("/app/network_tools.ps1");
   if (page.empty() || networkScript.empty() || networkTools.empty()) {
     std::cerr << "Cannot read /app/index.html, /app/network_security.js, or /app/network_tools.ps1\n";
     return 1;
