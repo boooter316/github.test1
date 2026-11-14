@@ -10,6 +10,7 @@
 #include <vector>
 #ifdef _WIN32
 #include <windows.h>
+#include <shellapi.h>
 #endif
 namespace fs = std::filesystem;
 struct Field { std::string label, value; };
@@ -21,17 +22,33 @@ std::string escPdf(const std::string& s) { std::string o; for(unsigned char c:s)
 std::string safe(std::string s){ for(char& c:s) if(!std::isalnum((unsigned char)c)&&c!='_'&&c!='-')c='_'; return s.empty()?"Recovery_Packet":s; }
 void save(const fs::path& p,const std::string& s){std::ofstream f(p,std::ios::binary);f<<s;}
 bool pdf(const fs::path& path,const std::vector<std::string>& lines){
- std::ostringstream c; c<<"BT\n/F1 9 Tf\n45 795 Td\n"; int n=0;
- for(const auto& l:lines){std::string r=l.empty()?" ":l;while(!r.empty()&&n<52){auto part=r.substr(0,88);r.erase(0,part.size());c<<"("<<escPdf(part)<<") Tj\n0 -14 Td\n";++n;}}
- c<<"ET"; std::string body=c.str();
- std::vector<std::string> ob={
- "<< /Type /Catalog /Pages 2 0 R >>",
- "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
- "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
- "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
- "<< /Length "+std::to_string(body.size())+" >>\nstream\n"+body+"\nendstream"};
- std::ofstream f(path,std::ios::binary);if(!f)return false;f<<"%PDF-1.4\n";std::vector<long> off(1,0);
- for(size_t i=0;i<ob.size();++i){off.push_back((long)f.tellp());f<<i+1<<" 0 obj\n"<<ob[i]<<"\nendobj\n";}
+ std::vector<std::vector<std::string>> pages(1);
+ for(const auto& line:lines){
+  std::string rest=line.empty()?" ":line;
+  while(!rest.empty()){
+   std::string part=rest.substr(0,88);rest.erase(0,part.size());
+   if(pages.back().size()>=52)pages.emplace_back();
+   pages.back().push_back(part);
+  }
+ }
+ std::vector<std::string> objects;
+ objects.push_back("<< /Type /Catalog /Pages 2 0 R >>");
+ std::ostringstream kids;kids<<"<< /Type /Pages /Kids [";
+ for(size_t i=0;i<pages.size();++i)kids<<(4+i*2)<<" 0 R ";
+ kids<<"] /Count "<<pages.size()<<" >>";objects.push_back(kids.str());
+ objects.push_back("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+ for(size_t i=0;i<pages.size();++i){
+  size_t pageId=4+i*2, contentId=pageId+1;
+  std::ostringstream page;page<<"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 842] /Resources << /Font << /F1 3 0 R >> >> /Contents "<<contentId<<" 0 R >>";
+  objects.push_back(page.str());
+  std::ostringstream stream;stream<<"BT\n/F1 9 Tf\n45 795 Td\n";
+  for(const auto& line:pages[i])stream<<"("<<escPdf(line)<<") Tj\n0 -14 Td\n";
+  stream<<"ET";std::string body=stream.str();
+  objects.push_back("<< /Length "+std::to_string(body.size())+" >>\nstream\n"+body+"\nendstream");
+ }
+ std::ofstream f(path,std::ios::binary);if(!f)return false;f<<"%PDF-1.4\n";
+ std::vector<long> off(1,0);
+ for(size_t i=0;i<objects.size();++i){off.push_back((long)f.tellp());f<<i+1<<" 0 obj\n"<<objects[i]<<"\nendobj\n";}
  long x=(long)f.tellp();f<<"xref\n0 "<<off.size()<<"\n0000000000 65535 f \n";
  for(size_t i=1;i<off.size();++i){std::ostringstream z;z.width(10);z.fill('0');z<<off[i];f<<z.str()<<" 00000 n \n";}
  f<<"trailer\n<< /Size "<<off.size()<<" /Root 1 0 R >>\nstartxref\n"<<x<<"\n%%EOF\n";return(bool)f;
