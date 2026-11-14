@@ -67,6 +67,6 @@ CI coverage is targeted. It does not replace interactive browser testing, Window
 ## Known maintenance items
 
 - Recovery Panel direct dependencies are pinned, but a lockfile is not currently committed; transitive dependency resolution can change.
-- PDF.js is still loaded as version 3.11.174 from a CDN in both browser interfaces. Upgrading it should be a separately tested migration of the library and worker integration, not a blind URL edit.
+- Both browser interfaces use Mozilla PDF.js 6.5.438 as an ES module, with the matching module worker. The browser loads this pinned release from jsDelivr; an internet connection is required.
 - Recovery Panel Express MemoryStore is not suitable for production or multi-instance hosting.
 - The browser app and Recovery Panel have separate data storage; there is no automatic cross-device synchronization.
