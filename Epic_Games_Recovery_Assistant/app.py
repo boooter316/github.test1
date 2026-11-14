@@ -201,7 +201,7 @@ class EpicRecoveryAssistant:
             "SUPPORTED 2FA OPTIONS\n"
             "Epic's help currently lists Epic Authenticator, third-party authenticator apps, email, and SMS. Availability of SMS can vary by region. The app records which methods you used; it does not perform verification.\n\n"
             "VPN / PROXY\n"
-            "Record past use honestly for context only. Do not use a VPN or proxy to imitate an old location. For the sign-in error described in Epic's troubleshooting guide, disconnect VPN/hosting/proxy services before trying again.\n\n"
+            "Record past use honestly for context only. Do not use a VPN or proxy to imitate an old location or submit a recovery request through one. Epic says VPN/proxy use or an unfamiliar location can contribute to a denied recovery request. For the relevant sign-in error, disconnect VPN/hosting/proxy services before trying again.\n\n"
             "BANS / SANCTIONS\n"
             "Check the notice email or in-game message for sanction type, duration, rule, and Sanction ID. Review eligible sanctions and appeal through Epic's Sanctions and Appeals portal. Epic allows one appeal per eligible sanction; this app only organizes notes and cannot remove a ban.\n\n"
             "LOCAL PRIVACY\n"
@@ -260,6 +260,8 @@ class EpicRecoveryAssistant:
             ("ACCOUNT IDENTIFICATION", [
                 ("Recovery contact email", "recovery_email"), ("Original email", "original_email"),
                 ("Other emails used", "other_emails"), ("Current / most recent display name", "username"),
+                ("Desired new Epic display name (planning only)", "desired_username"),
+                ("Desired new Epic account email (planning only)", "desired_email"),
                 ("Original display name", "original_username"), ("Previous display names", "previous_names"),
                 ("First name", "first_name"), ("Last name", "last_name"), ("Country created", "country"),
                 ("State / region", "state"), ("Approximate creation date", "creation_date"),
@@ -301,7 +303,7 @@ class EpicRecoveryAssistant:
         story.append(Paragraph("SECURITY NOTES", styles["Heading2"]))
         for note in [
             "Never share passwords, one-time 2FA codes, backup codes, authenticator setup keys, or full payment-card numbers in this document.",
-            "VPN/proxy information is recorded only as truthful context. This app does not connect to proxies, spoof IP addresses, or bypass verification.",
+            "VPN/proxy information is recorded only as truthful context. Epic warns VPN/proxy use may contribute to recovery denial; do not use one to submit a recovery request. This app does not connect to proxies, spoof IP addresses, or bypass verification.",
             "This app does not contact Epic, verify account ownership, or submit recovery requests.",
             "Use only Epic's official account recovery and support pages: " + SUPPORT_URL
         ]:
