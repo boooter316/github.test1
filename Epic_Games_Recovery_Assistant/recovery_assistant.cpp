@@ -61,7 +61,7 @@ void openLink(const char* url){
 #endif
 }
 int main(){
- std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.5 (C++17)\n"
+ std::cout<<"EPIC GAMES RECOVERY ASSISTANT 3.6 (C++17)\n"
  <<"Local organizer only; not an official Epic tool.\n"
  <<"Never enter passwords, account PINs, CVV, full card numbers, 2FA codes,\n"
  <<"backup codes, authenticator secrets, session cookies, or access tokens.\n"
@@ -85,6 +85,9 @@ int main(){
  add("Approximate date/period IP was used");
  add("VPN/proxy provider and region used (history only; no spoofing)");
  add("VPN/proxy active during recovery attempts? (yes/no/unsure)");
+ add("VPN/proxy usage dates and purpose (historical notes only)");
+ add("Was the remembered IP obtained from your own records? (yes/no/unsure; do not guess)");
+ add("Network history note: this app does not connect to proxies, rotate VPNs, spoof IPs, or imitate another device/location");
  add("2FA methods enabled: Epic Authenticator / third-party authenticator app / email / SMS-phone (list methods only)");
  add("Preferred or primary 2FA method (if known)");
  add("Can you access your email inbox now? (yes/no/unsure)");
@@ -92,6 +95,13 @@ int main(){
  add("Can you access your authenticator app now? (yes/no/unsure)");
  add("2FA help requested: set up / switch method / lost email / lost phone / lost authenticator / other (planning only)");
  add("2FA recovery notes: describe which registered methods you can still access; never enter codes or backup codes");
+ add("Email 2FA access status (can access / cannot access / unsure; never enter a code)");
+ add("SMS/phone 2FA access status (can access / cannot access / unsure; never enter a code)");
+ add("Epic Authenticator access status (can access / cannot access / unsure; never enter a code)");
+ add("Third-party authenticator app access status (can access / cannot access / unsure; never enter a code)");
+ add("2FA method requested for official support guidance (email / SMS-phone / authenticator app / alternative method)");
+ add("");
+ add("
  add("Phone number associated with SMS 2FA (optional; never enter SMS codes)");
  add("Linked services to review (Xbox, PlayStation, Nintendo, Steam, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other Epic-connected apps/services)");
  add("Linked-service actions requested (review only; actual unlinking must be done by the platform owner)");
@@ -106,6 +116,12 @@ int main(){
  add("Requested Epic display-name change (planning only; official account settings required)");
  add("Requested Epic email change (planning only; official verification required)");
  add("Restriction appeal target: Epic / Xbox / PlayStation / Steam / Nintendo / other");
+ add("Xbox appeal request summary (official review only; no automated enforcement changes)");
+ add("PlayStation appeal request summary (official review only; no automated suspension changes)");
+ add("Steam restriction/support request summary (official review only; no automated restriction changes)");
+ add("Nintendo restriction/support request summary (official review only; no automated restriction changes)");
+ add("Evidence bundle description: list only lawful, truthful documents you already possess; do not dump credentials, cookies, tokens, or private account databases");
+ add("Account data export limitation: this tool exports only the information you type into this form; it cannot extract or dump data from Epic or another platform");
  add("Restriction notice details, appeal eligibility, end date, and case/reference number");
  add("Requested support ticket category and desired outcome (review/appeal/recovery/linking guidance)");
  add("Support agent conversation notes or ticket number (do not enter passwords or codes)");
@@ -132,12 +148,12 @@ int main(){
  fs::path dir=fs::current_path()/safe("Epic_Recovery_"+(fields.empty()?std::string("Packet"):fields[0].value));
  std::error_code ec;fs::create_directories(dir,ec);if(ec){std::cerr<<ec.message()<<"\n";return 1;}
  std::ostringstream txt,j,draft;std::vector<std::string> lines={
- "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.5 | Not an official Epic form",
+ "EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET","Version 3.6 | Not an official Epic form",
  "This app cannot verify ownership, change accounts, unlink services, or remove restrictions.",
  "IP and VPN/proxy history are optional context, not proof of ownership.",
  "Never provide passwords, account PINs, full card numbers, CVV, 2FA codes, or backup codes.",
  "Use official platform forms and share only information they request.",""};
- txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 3.5\n\n";
+ txt<<"EPIC GAMES RECOVERY ASSISTANT - LOCAL PACKET\nVersion 3.6\n\n";
  j<<"{\n \"version\":\"3.4\",\n \"notice\":\"Local organizer only; no sign-in or account verification.\",\n \"fields\":[\n";
  for(size_t i=0;i<fields.size();++i){txt<<fields[i].label<<": "<<fields[i].value<<"\n";lines.push_back(fields[i].label+": "+fields[i].value);
  j<<"  {\"label\":\""<<escJson(fields[i].label)<<"\",\"value\":\""<<escJson(fields[i].value)<<"\"}"<<(i+1==fields.size()?"\n":",\n");}
@@ -145,7 +161,7 @@ int main(){
  draft<<"Subject: Request for account recovery / support\n\nHello Support Team,\n\nI am requesting assistance with my account. I can provide truthful, non-secret information through your official secure process and additional evidence if requested.\n\nRequest: "<<request<<"\n\nPlease advise which official verification steps and documents are required. I understand that only your team can verify ownership, review restrictions, or approve account changes.\n\nThank you.\n";
  save(dir/"recovery_details.txt",txt.str());save(dir/"recovery_details.json",j.str());save(dir/"support_request_draft.txt",draft.str());
  if(!pdf(dir/"recovery_request.pdf",lines))std::cerr<<"PDF export failed; other exports attempted.\n";
- std::cout<<"\nSaved packet to: "<<dir.string()<<"\nIncludes PDF, JSON, text details, and support-request draft.\n"
+ std::cout<<"\nSaved packet to: "<<dir.string()<<"\nIncludes PDF evidence report, JSON evidence packet, readable text details, and support-request draft. This is a user-entered evidence export, not an account/credential dump.\n"
  <<"No account action was taken. If evidence is missing, pause and ask official support about alternatives.\n\n"
  <<"1 Open Epic account recovery request form\n2 Open Epic support/contact\n3 Open linked-account settings\n4 Open 2FA/security settings\n5 Epic sign-in\n6 Epic display-name help\n7 Epic email-change help\n8 Xbox enforcement/support\n9 PlayStation suspension support\n10 Steam account help\n11 Nintendo support\n12 Epic account settings\n13 Epic lost-2FA help\n14 Epic unlink help\n15 Epic sanctions and appeals\n16 Epic support contact / ticket options\n17 2FA methods and setup guide\n18 Lost access to 2FA help\n19 Epic recovery help\n0 Exit\n";
  std::string choice=ask("Choose an official page");
