@@ -1,5 +1,5 @@
 @echo off
-title Epic Games Recovery Assistant 4.7 - Builder
+title Epic Games Recovery Assistant 4.8 - Builder
 cd /d "%~dp0"
 where g++ >nul 2>nul
 if errorlevel 1 (
