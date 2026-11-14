@@ -13,6 +13,8 @@
 #include <cmath>
 #include <cstdio>
 #include <limits>
+#include <regex>
+#include <algorithm>
 #ifdef _WIN32
 #include <conio.h>
 #include <windows.h>
@@ -295,6 +297,10 @@ bool authGate() {
 
 void recoveryProgressPage() {
  std::cout<<"\n=== RECOVERY PROGRESS - PAGE 2 ===\nManual notes only; no live Epic account verification is performed.\n";
+ fields.push_back({"Recovery tracker - Epic display name (user-entered)",ask("Epic display name for this recovery case (optional)")});
+ fields.push_back({"Recovery tracker - Epic Account ID (user-entered)",ask("Epic Account ID if known (optional; do not guess)")});
+ fields.push_back({"Recovery tracker - account email (user-entered)",ask("Account email (optional; never enter a password or verification code)")});
+ fields.push_back({"Recovery tracker - Epic support case/reference ID",ask("Epic support/recovery case number if one was provided (optional)")});
  for(;;) {
   std::cout<<"\n1 Account status\n2 Linked-account check\n3 Account email check\n4 Username/display-name check\n5 Email-change progress\n6 Restriction countdown\n0 Return\n";
   std::string c=ask("Choose a progress check");
@@ -536,6 +542,91 @@ int runRecoveryCase(){
  return 0;
 }
 
+
+void runLocalSecretHygieneScanner() {
+ std::cout<<"\n=== LOCAL PROJECT SECRET-HYGIENE SCANNER ===\n"
+  <<"Scans text/code/config files in a folder you choose. It reports file/line/category only.\n"
+  <<"Secret values are never printed, copied, exported, uploaded, or sent anywhere.\n"
+  <<"This is a heuristic review, not an antivirus scan or proof that a project is clean.\n";
+ std::string folder=ask("Folder path to scan (blank = current project folder)");
+ fs::path root=folder.empty()?fs::current_path():fs::path(folder);
+ std::error_code ec;
+ if(!fs::exists(root,ec)||!fs::is_directory(root,ec)) {
+  std::cout<<"That folder does not exist or is not a directory.\n";
+  return;
+ }
+ const std::vector<std::string> extensions={
+  ".c",".cc",".cpp",".h",".hpp",".cs",".py",".js",".ts",".jsx",".tsx",
+  ".ps1",".bat",".cmd",".sh",".json",".yaml",".yml",".toml",".ini",".cfg",
+  ".conf",".env",".properties",".xml"
+ };
+ const std::vector<std::string> skipped={
+  ".git","node_modules",".venv","venv","__pycache__","build","dist","bin","obj",
+  "AppData","Local Settings","Browser","Chrome","Edge","Firefox"
+ };
+ const std::regex pattern(
+  R"((api[_-]?key|client[_-]?secret|password|passwd|access[_-]?token|refresh[_-]?token|discord[_-]?webhook|authorization)\s*[:=]\s*["']?([A-Za-z0-9_./+=-]{8,}))",
+  std::regex_constants::icase
+ );
+ std::ofstream report(fs::current_path()/"Local_Security_Scan_Report.txt",std::ios::trunc);
+ if(!report) {
+  std::cout<<"Could not create Local_Security_Scan_Report.txt.\n";
+  return;
+ }
+ report<<"LOCAL SECRET-HYGIENE SCAN — HEURISTIC RESULTS\n"
+       <<"Root: "<<root.string()<<"\n"
+       <<"Only file path, line number, and category are recorded. Secret values are intentionally omitted.\n\n";
+ size_t files=0,findings=0,skippedLarge=0;
+ const size_t maxFiles=5000,maxFindings=500,maxBytes=2*1024*1024;
+ std::error_code iterError;
+ fs::recursive_directory_iterator it(root,fs::directory_options::skip_permission_denied,iterError),end;
+ for(;it!=end && files<maxFiles && findings<maxFindings;it.increment(iterError)) {
+  if(iterError){iterError.clear();continue;}
+  const auto name=it->path().filename().string();
+  if(it->is_directory(iterError)) {
+   if(std::find(skipped.begin(),skipped.end(),name)!=skipped.end()) it.disable_recursion_pending();
+   continue;
+  }
+  if(!it->is_regular_file(iterError)) continue;
+  std::string ext=it->path().extension().string();
+  std::transform(ext.begin(),ext.end(),ext.begin(),[](unsigned char c){return (char)std::tolower(c);});
+  bool allowed=std::find(extensions.begin(),extensions.end(),ext)!=extensions.end() || it->path().filename()==".env";
+  if(!allowed) continue;
+  auto size=it->file_size(iterError);
+  if(iterError){iterError.clear();continue;}
+  if(size>maxBytes){++skippedLarge;continue;}
+  std::ifstream input(it->path());
+  if(!input) continue;
+  ++files;
+  std::string line;size_t lineNumber=0;
+  while(std::getline(input,line) && findings<maxFindings) {
+   ++lineNumber;
+   std::smatch match;
+   if(!std::regex_search(line,match,pattern)) continue;
+   std::string value=match[2].str(),lower=value;
+   std::transform(lower.begin(),lower.end(),lower.begin(),[](unsigned char c){return (char)std::tolower(c);});
+   if(lower.find("placeholder")!=std::string::npos || lower.find("example")!=std::string::npos ||
+      lower.find("changeme")!=std::string::npos || lower.find("your_")!=std::string::npos ||
+      lower.find("your-")!=std::string::npos || lower=="redacted" || lower=="xxxxxxxx") continue;
+   const std::string category=match[1].str();
+   report<<"Potential hard-coded secret-like assignment: "<<it->path().string()
+         <<":"<<lineNumber<<" ["<<category<<"] — VALUE REDACTED\n";
+   ++findings;
+  }
+ }
+ report<<"\nFiles scanned: "<<files<<"\nPotential findings: "<<findings
+       <<"\nFiles skipped for size: "<<skippedLarge
+       <<"\nFile scan limit: "<<maxFiles
+       <<"\nFinding limit: "<<maxFindings
+       <<"\nNo file contents or secret values were transmitted.\n";
+ report.close();
+ std::cout<<"Scan complete. "<<files<<" text/code/config file(s) scanned; "
+          <<findings<<" potential finding(s); "<<skippedLarge<<" oversized file(s) skipped.\n"
+          <<"Report saved locally: "<<(fs::current_path()/"Local_Security_Scan_Report.txt").string()<<"\n"
+          <<"Review each finding manually. No secret value was displayed or transmitted.\n";
+}
+
+
 void saveDashboardProgress() {
  if(fields.empty()) {
   std::cout<<"No progress notes were entered.\n";
@@ -593,7 +684,7 @@ int main() {
    <<"2. Recovery progress tracker\n"
    <<"3. Official Epic account and support links\n"
    <<"4. Open local project and recovery files\n"
-   <<"5. Help, privacy and safety information\n"
+   <<"5. Local project secret-hygiene scanner\n"\n   <<"6. Help, privacy and safety information\n"
    <<"0. Exit\n";
   std::string choice=ask("Select a dashboard option");
   if(choice=="0") break;
