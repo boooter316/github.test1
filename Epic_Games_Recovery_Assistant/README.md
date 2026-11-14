@@ -1,6 +1,6 @@
 # Epic Games Recovery Assistant — Native Windows Desktop Edition
 
-**Version 5.1.** A locally run C++17 Windows command-dashboard application. It is an independent organizer and is not made, operated, or endorsed by Epic Games.
+**Version 5.2.0.** A locally run C++17 Windows command-dashboard application. It is an independent organizer and is not made, operated, or endorsed by Epic Games.
 
 ## Launch the desktop dashboard
 
