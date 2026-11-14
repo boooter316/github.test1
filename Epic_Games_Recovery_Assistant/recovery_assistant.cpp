@@ -86,14 +86,14 @@ void logHistoricalIPs(const fs::path& dir,const std::string& accountId) {
 
 
 void logLoginActivity(const fs::path& dir,const std::string& accountId) {
- std::cout<<"\\nOPTIONAL LOGIN / RECOVERY ACTIVITY LOG\\n"
-  <<"This records only details you manually enter about your own attempts. NEVER enter a password, 2FA code, backup code, cookie, or token.\\n";
+ std::cout<<"\nOPTIONAL LOGIN / RECOVERY ACTIVITY LOG\n"
+  <<"This records only details you manually enter about your own attempts. NEVER enter a password, 2FA code, backup code, cookie, or token.\n";
  std::string choice=ask("Record a login or recovery attempt? (y/n)");
  fs::path logPath=dir/"login_activity_log.csv";
  bool newFile=!fs::exists(logPath);
  std::ofstream log(logPath,std::ios::app);
- if(!log){std::cerr<<"Could not open login activity log.\\n";return;}
- if(newFile) log<<"logged_at_local,epic_account_id,username_or_display_name,email_address,activity_type,result_status,error_message,verification_status\\n";
+ if(!log){std::cerr<<"Could not open login activity log.\n";return;}
+ if(newFile) log<<"logged_at_local,epic_account_id,username_or_display_name,email_address,activity_type,result_status,error_message,verification_status\n";
  while(choice=="y"||choice=="Y"||choice=="yes"||choice=="YES"){
   std::string username=ask("Username/display name used (optional; do not enter a password)");
   std::string email=ask("Email address used (optional; no password or code)");
@@ -105,9 +105,9 @@ void logLoginActivity(const fs::path& dir,const std::string& accountId) {
   if(local) std::strftime(stamp,sizeof(stamp),"%Y-%m-%d %H:%M:%S",local);
   log<<csv(stamp)<<","<<csv(accountId)<<","<<csv(username)<<","<<csv(email)<<","
      <<csv(activity)<<","<<csv(status)<<","<<csv(error)<<","
-     <<csv("USER-REPORTED - NOT VERIFIED BY EPIC")<<"\\n";
+     <<csv("USER-REPORTED - NOT VERIFIED BY EPIC")<<"\n";
   log.flush();
-  std::cout<<"Saved a user-reported activity record. No credentials were requested or captured.\\n";
+  std::cout<<"Saved a user-reported activity record. No credentials were requested or captured.\n";
   choice=ask("Record another login or recovery attempt? (y/n)");
  }
 }
