@@ -2,6 +2,10 @@
 
 **Version 5.2.0.** A locally run C++17 Windows command-dashboard application. It is an independent organizer and is not made, operated, or endorsed by Epic Games.
 
+## Project-wide guides
+
+For the full Windows, browser, Recovery Panel, and mobile setup instructions, see [the setup guide](../docs/SETUP_GUIDE.md). For the repository folder map and component boundaries, see [the project structure guide](../docs/PROJECT_STRUCTURE.md). The desktop launcher below builds and starts the native Windows app only; it does not start the browser server.
+
 ## Launch the desktop dashboard
 
 1. Download and extract the complete project ZIP on Windows 10/11.
