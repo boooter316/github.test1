@@ -15,6 +15,9 @@ RECOVERY_URL = "https://www.epicgames.com/id/login"
 TWO_FA_URL = "https://www.epicgames.com/account/password"
 RECOVERY_GUIDE_URL = "https://www.epicgames.com/help/c-1/a10856556?lang=en-US"
 RECOVERY_REQUEST_URL = "https://www.epicgames.com/help/c-45487929/a21414514"
+RECOVERY_STATUS_URL = "https://www.epicgames.com/help/recovery-status-check/"
+RECOVERY_DENIED_URL = "https://www.epicgames.com/help/c-45487929/c-38978022/a14929060?lang=en-US"
+TOO_MANY_REQUESTS_URL = "https://www.epicgames.com/help/c-45487929/c-40721840/i-m-getting-a-too-many-requests-please-try-again-later-error-when-trying-to-recover-my-account-or-change-my-email-address-a15637378"
 TWO_FA_METHODS_URL = "https://www.epicgames.com/help/c-45487929/c-38978022/a11272697"
 LOST_2FA_URL = "https://www.epicgames.com/help/c-45487929/c-38978022/a22922707?lang=en-US"
 VPN_TROUBLESHOOTING_URL = "https://www.epicgames.com/help/c-45487929/c-38854402/a20296521?lang=en-US"
@@ -252,9 +255,9 @@ class EpicRecoveryAssistant:
         info = (
             "OFFICIAL EPIC RECOVERY PROCESS\n\n"
             "1. Start with Epic's account recovery guide. From the sign-in page, choose 'Trouble signing in?' and follow the on-screen steps.\n"
-            "2. If self-service does not restore access, use Epic's multi-step recovery request. It may ask for Account ID or Invoice ID, past emails and display names, name/country, the phone number used for 2FA, linked accounts and payment information. Provide accurate details; skip anything you do not know.\n"
+            "2. If self-service does not restore access, use Epic's multi-step recovery request. It may ask for a recovery contact email, Account ID or Invoice ID, past emails and display names, name/country, the phone number used for 2FA, linked accounts and payment information. Provide accurate details; skip anything you do not know. Verification is decided by Epic, and correct details do not guarantee approval.\n"
             "3. Epic currently lists Epic Authenticator, third-party authenticator apps, email, and SMS. If locked out of authenticator or SMS, Epic says to try email verification or backup codes through its official flow. Never enter codes or backup codes in this app.\n"
-            "4. Review the recovery details for accuracy before submitting through Epic's own form.\n\n"
+            "4. Review the recovery details for accuracy before submitting through Epic's own form. After submission, check the recovery status page using the Recovery ID and watch the new contact email (including spam). If you see a too-many-requests message, stop retrying and follow Epic's wait guidance.\n\n"
             "SUPPORTED 2FA OPTIONS\n"
             "Epic's help currently lists Epic Authenticator, third-party authenticator apps, email, and SMS. Availability of SMS can vary by region. The app records which methods you used; it does not perform verification.\n\n"
             "VPN / PROXY\n"
@@ -271,6 +274,9 @@ class EpicRecoveryAssistant:
         ttk.Button(self.help_tab, text="Open Epic account settings", command=lambda: webbrowser.open(ACCOUNT_SETTINGS_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.help_tab, text="Open Epic account recovery guide", command=lambda: webbrowser.open(RECOVERY_GUIDE_URL)).pack(anchor="w", pady=(12, 4))
         ttk.Button(self.help_tab, text="Open official recovery request form guide", command=lambda: webbrowser.open(RECOVERY_REQUEST_URL)).pack(anchor="w", pady=4)
+        ttk.Button(self.help_tab, text="Check Epic recovery request status", command=lambda: webbrowser.open(RECOVERY_STATUS_URL)).pack(anchor="w", pady=4)
+        ttk.Button(self.help_tab, text="Why a recovery request may be denied", command=lambda: webbrowser.open(RECOVERY_DENIED_URL)).pack(anchor="w", pady=4)
+        ttk.Button(self.help_tab, text="Too many recovery attempts? Read Epic guidance", command=lambda: webbrowser.open(TOO_MANY_REQUESTS_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.help_tab, text="Open official 2FA methods guide", command=lambda: webbrowser.open(TWO_FA_METHODS_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.help_tab, text="Locked out of authenticator or SMS?", command=lambda: webbrowser.open(LOST_2FA_URL)).pack(anchor="w", pady=4)
         ttk.Button(self.help_tab, text="Epic VPN/proxy sign-in troubleshooting", command=lambda: webbrowser.open(VPN_TROUBLESHOOTING_URL)).pack(anchor="w", pady=4)
