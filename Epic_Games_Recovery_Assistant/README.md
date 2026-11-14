@@ -64,7 +64,7 @@ Use the following prompts when asking an AI assistant to help maintain this proj
 - Prepares a support-request draft and opens Epic's official contact page; the user reviews and submits it. No automatic ticket submission or direct Epic API connection.
 - Opens official recovery, support, account settings, linked-account and 2FA help pages.
 
-## Version 4.4 additions
+## Version 4.3 additions
 
 - Adds `build.bat` as a one-click build launcher; `setup.bat` performs the C++17 compilation of the correctly named `recovery_assistant.cpp` into `Epic_Games_Recovery_Assistant.exe`.
 - Adds an optional local `ip_history_log.csv`. It appends IP addresses manually entered by the user, the Epic Account ID label, approximate use date, record source, and a clear `NOT VERIFIED` status.
