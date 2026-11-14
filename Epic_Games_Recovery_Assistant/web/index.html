@@ -10,9 +10,15 @@ input,textarea,select{box-sizing:border-box;width:100%;padding:10px;border:1px s
 .checks{display:flex;flex-wrap:wrap;gap:12px}.checks label{font-weight:400}.check{display:flex;gap:7px;align-items:center}.check input{width:auto}
 .actions{display:flex;gap:10px;flex-wrap:wrap}button{border:0;border-radius:9px;padding:11px 16px;background:#175cd3;color:white;font-weight:650;font-size:1rem}button.secondary{background:#e8edf4;color:#1c2b40}
 small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wrap{max-width:none;padding:0}header,.panel{border:0;break-inside:avoid;padding:8px;margin:0 0 8px}.actions,.no-print{display:none!important}input,textarea,select{border:0;padding:2px;appearance:none}.notice{background:#fff}}
+.tabs{display:flex;gap:8px;margin:0 0 16px}.tabs .tab{flex:1}.tabs .tab[aria-selected="false"]{background:#e8edf4;color:#1c2b40}.tabs .tab[aria-selected="true"]{background:#175cd3;color:#fff}.scanner-result{white-space:pre-wrap;background:#f5f7fa;border:1px solid #dce2ea;border-radius:8px;padding:12px;min-height:80px}.risk{border-left:4px solid #b7791f;background:#fff8e8;padding:10px 14px}.hidden{display:none!important}
 </style></head><body><main class="wrap">
 <header><h1>Account Recovery Request Assistant</h1><p>Prepare a factual support request for Epic Games or another platform. This is an independent organizer, not an official support tool.</p>
 <div class="notice"><strong>Privacy:</strong> Your entries stay in this browser tab. This site does not send them to or save them on the hosting server. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, or API keys.</div></header>
+<nav class="tabs no-print" aria-label="Application pages">
+<button type="button" class="tab active" id="recoveryTabButton" aria-selected="true">Recovery Assistant</button>
+<button type="button" class="tab secondary" id="securityTabButton" aria-selected="false">Discord Security Scanner</button>
+</nav>
+<div id="recoveryTab">
 <form id="packet">
 <section class="panel"><h2>Account and contact details</h2><div class="grid">
 <div><label for="name">Name used on purchases (optional)</label><input id="name" autocomplete="name"></div>
@@ -59,6 +65,19 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <p>For Epic, PlayStation, Xbox, Nintendo, Steam, GeForce NOW, Roblox, Minecraft, GTA, Disney, Twitch, YouTube, and TikTok, use the form to document the issue and prepare an appeal where the platform offers one. Only the relevant service can review account access or restrictions.</p>
 <p class="foot"><strong>Notice:</strong> This is an independent, local-first organizer. It does not access platform databases, verify ownership, guarantee account recovery, or perform account changes. Use each platform's official support and appeal process.</p>
 </section>
+</div>
+<section class="panel hidden" id="securityTab">
+<h2>Discord Security Scanner</h2>
+<p>This page checks text files you deliberately select on your device for patterns that resemble exposed credentials. It runs locally in this browser tab.</p>
+<div class="risk"><strong>Important limitation:</strong> It does not sign in to Discord or Epic, test whether a token is active, verify a login, access browser password stores, or retrieve credentials. It never displays, saves, or sends token values. A pattern match is only a warning—not proof that a credential works.</div>
+<p><label for="scanFiles">Choose local text/log files to scan</label><input id="scanFiles" type="file" accept=".txt,.log,.json,.js,.html,.csv,.md,.conf,.ini,.yaml,.yml,.env" multiple></p>
+<p><label for="scanText">Or paste text you want checked (optional)</label><textarea id="scanText" placeholder="Paste log/config text here. Do not paste live passwords, tokens, or 2FA codes."></textarea></p>
+<div class="actions no-print"><button type="button" id="runScan">Scan locally</button><button type="button" class="secondary" id="clearScan">Clear</button></div>
+<h3>Scan result</h3><div id="scanResult" class="scanner-result" role="status" aria-live="polite">No scan has been run.</div>
+<p class="hint">Checks include JWT-shaped strings, Discord-token-shaped strings, and credential labels such as password, authorization, and access_token. Only counts and filenames are reported; matched values are discarded immediately.</p>
+<h3>If a possible secret is found</h3><ol><li>Do not share the file or scan output publicly.</li><li>Revoke or rotate the affected credential using the service's official security settings.</li><li>Change a reused password and enable two-step verification.</li><li>Remove the exposed secret from public commits and logs; rotating it is still necessary because old copies may remain.</li></ol>
+<p class="hint">For an exposed Discord webhook, delete/regenerate it in Discord. For Epic Games, use Epic's official account security and recovery pages. This scanner cannot validate or recover an Epic account.</p>
+</section>
 <p class="foot">Keep exported files private. The browser form processes entries in your tab and does not submit them to this site.</p></main>
 <script>
 const ids=["name","accountId","display","oldDisplay","email","oldEmail","desiredDisplay","desiredEmail","country","creator","incident","error","date","firstSeen","details","mfaAccess","invoice","provider","last4","billingCity","ip","vpn","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"];
@@ -67,4 +86,20 @@ function makeDraft(o){const f=o.fields;return ["Hello Support Team,","","I am re
 document.getElementById("json").addEventListener("click",()=>{const b=new Blob([JSON.stringify(collect(),null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="recovery-request.json";a.click();URL.revokeObjectURL(a.href)});
 document.getElementById("pdf").addEventListener("click",()=>window.print());
 document.getElementById("draft").addEventListener("click",()=>document.getElementById("draftText").value=makeDraft(collect()));
+
+// Page navigation
+const recoveryTabButton=document.getElementById("recoveryTabButton");
+const securityTabButton=document.getElementById("securityTabButton");
+function showTab(which){const recovery=which==="recovery";document.getElementById("recoveryTab").classList.toggle("hidden",!recovery);document.getElementById("securityTab").classList.toggle("hidden",recovery);recoveryTabButton.setAttribute("aria-selected",String(recovery));securityTabButton.setAttribute("aria-selected",String(!recovery));recoveryTabButton.classList.toggle("secondary",!recovery);securityTabButton.classList.toggle("secondary",recovery)}
+recoveryTabButton.addEventListener("click",()=>showTab("recovery"));
+securityTabButton.addEventListener("click",()=>showTab("security"));
+// Local-only, redacted pattern scan. Never render or retain matched secret values.
+function inspectText(s){const patterns=[
+{name:"JWT-shaped string",re:/\beyJ[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\.[a-zA-Z0-9_-]{8,}\b/g},
+{name:"Discord-token-shaped string",re:/\b[\w-]{24,26}\.[\w-]{6}\.[\w-]{30,40}\b/g},
+{name:"Credential-labelled field",re:/(?:password|passwd|access[_-]?token|refresh[_-]?token|authorization|client[_-]?secret)\s*[:=]\s*[^\s,;"']{4,}/gi}
+];const counts={};for(const p of patterns){p.re.lastIndex=0;let n=0;while(p.re.exec(s)!==null)n++;counts[p.name]=n}return counts}
+document.getElementById("runScan").addEventListener("click",async()=>{const input=document.getElementById("scanText").value;const files=[...document.getElementById("scanFiles").files];let totals={"JWT-shaped string":0,"Discord-token-shaped string":0,"Credential-labelled field":0};let scanned=0;let tooLarge=[];const add=(name,c)=>{for(const k of Object.keys(totals))totals[k]+=c[k]||0;scanned++};if(input.trim())add("pasted text",inspectText(input));for(const file of files){if(file.size>2*1024*1024){tooLarge.push(file.name);continue}try{const content=await file.text();add(file.name,inspectText(content))}catch(e){tooLarge.push(file.name)}}const total=Object.values(totals).reduce((a,b)=>a+b,0);const lines=["Files/text scanned: "+scanned,"Potential pattern matches: "+total,...Object.entries(totals).map(([k,v])=>k+": "+v),...(tooLarge.length?["Skipped (over 2 MB or unreadable): "+tooLarge.join(", ")]:[]),"","No matched credential values were displayed, saved, or transmitted.","A pattern match does not prove that a token or login is valid."];document.getElementById("scanResult").textContent=lines.join("\n")});
+document.getElementById("clearScan").addEventListener("click",()=>{document.getElementById("scanText").value="";document.getElementById("scanFiles").value="";document.getElementById("scanResult").textContent="Cleared. No scan has been run."});
+
 </script></body></html>
