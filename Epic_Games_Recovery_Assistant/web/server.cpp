@@ -54,8 +54,9 @@ int main() {
 
   const auto page = readFile("/app/index.html");
   const auto networkScript = readFile("/app/network_security.js");
-  if (page.empty() || networkScript.empty()) {
-    std::cerr << "Cannot read /app/index.html or /app/network_security.js\n";
+  const networkTools = readFile("/app/network_tools.ps1");
+  if (page.empty() || networkScript.empty() || networkTools.empty()) {
+    std::cerr << "Cannot read /app/index.html, /app/network_security.js, or /app/network_tools.ps1\n";
     return 1;
   }
 
@@ -97,6 +98,8 @@ int main() {
       reply(c, 200, "OK", "text/html; charset=utf-8", page);
     } else if (path == "/network_security.js") {
       reply(c, 200, "OK", "text/javascript; charset=utf-8", networkScript);
+    } else if (path == "/network_tools.ps1") {
+      reply(c, 200, "OK", "text/plain; charset=utf-8", networkTools);
     } else {
       reply(c, 404, "Not Found", "text/plain; charset=utf-8", "Not found\n");
     }
