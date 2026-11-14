@@ -210,8 +210,8 @@ bool derivePasswordHash(const std::string& password,const std::vector<unsigned c
  hash.assign(32,0);
  NTSTATUS st=BCryptDeriveKeyPBKDF2(algorithm,
   (PUCHAR)password.data(),(ULONG)password.size(),
-  (PUCHAR)salt.data(),(ULONG)salt.size(),iterations,0,
-  hash.data(),(ULONG)hash.size());
+  (PUCHAR)salt.data(),(ULONG)salt.size(),iterations,
+  hash.data(),(ULONG)hash.size(),0);
  BCryptCloseAlgorithmProvider(algorithm,0);
  return st>=0;
 }
