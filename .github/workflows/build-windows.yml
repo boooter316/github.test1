@@ -18,7 +18,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
       - name: Install native C++ and Poppler dependencies
         uses: msys2/setup-msys2@v2
         with:
@@ -107,7 +107,7 @@ jobs:
           if not exist Epic_Games_Recovery_Assistant.exe exit /b 1
           if not exist paf_evidence_scanner.exe exit /b 1
       - name: Upload Windows executable
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: Epic-Games-Recovery-Assistant-Windows
           path: |
@@ -141,14 +141,14 @@ jobs:
           $hash = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
           "$hash  $zip" | Set-Content -Encoding ascii SHA256SUMS.txt
       - name: Upload Windows desktop bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: Epic-Games-Recovery-Assistant-Windows-Bundle
           path: Epic-Games-Recovery-Assistant-Windows-Bundle.zip
           if-no-files-found: error
           retention-days: 30
       - name: Upload complete project update package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: Epic-Games-Recovery-Assistant-Project
           path: |
