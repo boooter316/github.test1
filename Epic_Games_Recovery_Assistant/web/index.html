@@ -748,7 +748,7 @@ function addToolbar(panel){
    status.textContent="Latest main-branch source ZIP requested. Review changes and back up your files before replacing an installation.";
  });
  makeButton("Build / Self-test", "",()=>{
-   const ids=[...document.querySelectorAll("[id]")].map(el=>el.id),duplicates=ids.filter((id,i)=>ids.indexOf(id)!==i);
+   const ids=[...panel.querySelectorAll("[id]")].map(el=>el.id),duplicates=ids.filter((id,i)=>ids.indexOf(id)!==i);
    const hasHeading=Boolean(panel.querySelector(":scope > h2, :scope > h3"));
    const controls=panel.querySelectorAll("button,input,select,textarea,a").length;
    const passed=hasHeading&&duplicates.length===0;
