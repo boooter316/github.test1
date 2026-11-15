@@ -107,7 +107,7 @@ window.addEventListener("error",()=>{api("/api/client-error",{method:"POST",body
 (function(){
 "use strict";
 const zip="https://github.com/boooter316/github.test1/archive/refs/heads/main.zip";
-const taskMap=new Map(),nativeFetch=window.fetch.bind(window);
+const taskMap=new Map(),nativeFetch=window.fetch.bind(window);\nlet panelPdfCancelRequested=false;
 window.fetch=function(input,init){
  const panel=document.querySelector('[data-panel-active="true"]')?.id||"recordsTabPanel";
  const controller=new AbortController();if(!taskMap.has(panel))taskMap.set(panel,new Set());taskMap.get(panel).add(controller);
@@ -123,7 +123,7 @@ for(const id of ["recordsTabPanel","pdfScannerTabPanel"]){
  const title=document.createElement("strong");title.textContent="Workspace actions — "+heading.textContent;bar.appendChild(title);
  const status=document.createElement("p");status.setAttribute("role","status");status.textContent="Actions apply to this panel only.";
  const button=(label,fn)=>{const b=document.createElement("button");b.type="button";b.textContent=label;b.addEventListener("click",fn);bar.appendChild(b);};
- button("Stop",()=>{let count=0;for(const c of taskMap.get(id)||[]){c.abort();count++;}taskMap.delete(id);status.textContent=count?"Stop requested for "+count+" active request(s).":"No cancellable request is running in this panel.";});
+ button("Stop",()=>{let count=0;for(const c of taskMap.get(id)||[]){c.abort();count++;}taskMap.delete(id);if(id==="pdfScannerTabPanel")panelPdfCancelRequested=true;status.textContent=count?"Stop requested for "+count+" active request(s).":id==="pdfScannerTabPanel"?"PDF scan cancellation requested; it will stop between pages.":"No cancellable request is running in this panel.";});
  button("Upgrade",()=>{const a=document.createElement("a");a.href=zip;a.target="_blank";a.rel="noopener noreferrer";a.click();status.textContent="Latest main-branch source ZIP requested. Review and back up before updating an installation.";});
  button("Build / Self-test",()=>{const headingOk=Boolean(panel.querySelector("h2"));const controls=panel.querySelectorAll("button,input,select,textarea").length;const result=["RECOVERY PANEL SELF-TEST",heading.textContent,"Result: "+(headingOk?"PASS":"REVIEW REQUIRED"),"Interactive elements: "+controls,"Checked: "+new Date().toISOString(),"This checks page structure only; it does not compile or install software."].join("\n");save(id+"-self-test.txt",result);status.textContent=headingOk?"Self-test passed. Report downloaded.":"Review required.";});
  button("Download report",()=>{const text=[heading.textContent,"Exported: "+new Date().toISOString(),...Array.from(panel.querySelectorAll("[role='status'],.muted")).map(el=>(el.innerText||el.textContent||"").trim()).filter(Boolean),"","Sensitive form values and selected file contents are excluded."].join("\n");save(id+"-report.txt",text);status.textContent="Panel report downloaded without form values.";});
