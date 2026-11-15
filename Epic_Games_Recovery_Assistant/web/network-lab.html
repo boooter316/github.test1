@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><meta name="theme-color" content="#111827">
+<title>DigitalOcean &amp; Private Network Lab</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#080d17;color:#e5e7eb}*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#090d18,#111827);min-height:100vh}main{width:min(1050px,100%);margin:auto;padding:22px 16px 60px}header,.card{background:#172235;border:1px solid #34445d;border-radius:15px;padding:18px;margin:0 0 15px}h1{font-size:1.55rem;margin:0 0 8px}h2{font-size:1.15rem;margin:0 0 12px}p,li{line-height:1.6;color:#cbd5e1}.notice{padding:12px;border-left:4px solid #e6a23c;background:#302718;color:#fde7b1;border-radius:8px;margin:12px 0}.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.tabs button,button{border:0;border-radius:9px;padding:10px 14px;background:#2563eb;color:white;font-weight:650;cursor:pointer}.tabs button[aria-selected=false]{background:#334155;color:#e5e7eb}.tab-panel[hidden]{display:none}.tab-panel{background:#172235;border:1px solid #34445d;border-radius:15px;padding:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.tile{background:#101a2a;border:1px solid #34445d;border-radius:12px;padding:14px}code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#080d17;padding:13px;border-radius:9px;border:1px solid #34445d;color:#dbeafe}a{color:#93c5fd}.muted{color:#94a3b8;font-size:.9rem}@media(max-width:600px){main{padding:14px 10px 40px}.tabs{display:grid;grid-template-columns:1fr 1fr}.tabs button{padding:10px 7px;font-size:.88rem}}
+</style></head>
+<body><main>
+<header><h1>DigitalOcean &amp; Private Network Lab</h1><p>Guides for a VPS you own, private VPN access, a restricted proxy, Kali Linux in VirtualBox, and PuTTY/SSH administration.</p>
+<div class="notice"><strong>Cost and safety:</strong> This guide does not create cloud resources or spend money. You create and delete DigitalOcean resources yourself. A Droplet is billable while it exists, even when idle. Do not expose an unauthenticated proxy or remote admin service to the public internet.</div></header>
+<nav class="tabs" role="tablist" aria-label="Network lab guides">
+<button role="tab" id="vpsTab" aria-controls="vpsPanel" aria-selected="true">DigitalOcean VPS</button>
+<button role="tab" id="vpnTab" aria-controls="vpnPanel" aria-selected="false">Private VPN</button>
+<button role="tab" id="proxyTab" aria-controls="proxyPanel" aria-selected="false">Private Proxy</button>
+<button role="tab" id="kaliTab" aria-controls="kaliPanel" aria-selected="false">Kali Linux</button>
+<button role="tab" id="puttyTab" aria-controls="puttyPanel" aria-selected="false">PuTTY / SSH</button>
+<button role="tab" id="ipTab" aria-controls="ipPanel" aria-selected="false">Server IP &amp; Firewall</button>
+</nav>
+<section id="vpsPanel" class="tab-panel" role="tabpanel" aria-labelledby="vpsTab">
+<h2>1. Create your own DigitalOcean VPS</h2>
+<ol>
+<li>Create/sign in to your DigitalOcean account and enable multi-factor authentication.</li>
+<li>Open <a href="https://cloud.digitalocean.com/droplets" target="_blank" rel="noopener noreferrer">DigitalOcean Droplets</a>, choose a supported Ubuntu LTS image, region, and the smallest plan that meets your needs.</li>
+<li>Add an SSH public key during creation. Do not use password-only SSH for an internet-facing server.</li>
+<li>Choose a hostname, review the displayed monthly/hourly price and backups, then create the Droplet yourself. This project will not create a paid resource or store your cloud API token.</li>
+<li>Record the public IPv4 address shown in the Droplet control panel. Restrict inbound access with a DigitalOcean Cloud Firewall and the server firewall.</li>
+</ol>
+<div class="notice">Keep SSH (TCP 22) limited to your current trusted public IP when possible. Open only the ports required for the service you intentionally run. Do not expose admin dashboards, databases, or proxy ports publicly.</div>
+<p>Official docs: <a href="https://docs.digitalocean.com/products/droplets/" target="_blank" rel="noopener noreferrer">Droplets</a> · <a href="https://docs.digitalocean.com/products/networking/firewalls/" target="_blank" rel="noopener noreferrer">Cloud Firewalls</a> · <a href="https://docs.digitalocean.com/products/droplets/how-to/connect-with-ssh/" target="_blank" rel="noopener noreferrer">SSH connection</a>.</p>
+</section>
+<section id="vpnPanel" class="tab-panel" role="tabpanel" aria-labelledby="vpnTab" hidden>
+<h2>2. Build a private WireGuard VPN</h2>
+<p>Use this only for devices and traffic you own or are authorized to administer. Keep the WireGuard UDP port limited to the intended VPN service and use unique keys per device.</p>
+<pre>sudo apt update
+sudo apt install wireguard ufw -y
+umask 077
+wg genkey | tee server_private.key | wg pubkey > server_public.key
+wg genkey | tee client_private.key | wg pubkey > client_public.key</pre>
+<p>Use the official WireGuard quick start to create <code>/etc/wireguard/wg0.conf</code>, assign a private tunnel subnet that does not overlap your home network, configure forwarding/NAT only if you intend to route client internet traffic, and add the matching peer public key. Never paste private keys into this website, GitHub, chat, or screenshots.</p>
+<pre>sudo systemctl enable --now wg-quick@wg0
+sudo wg show
+sudo ufw allow 51820/udp
+sudo ufw status verbose</pre>
+<p>Before enabling UFW remotely, explicitly allow SSH from your trusted admin IP so you do not lock yourself out. Configure the DigitalOcean Cloud Firewall to match. Verify DNS, IPv4/IPv6 leak behavior, and that disconnecting the tunnel stops routed traffic if you require a kill switch.</p>
+<p>Official guide: <a href="https://www.wireguard.com/quickstart/" target="_blank" rel="noopener noreferrer">WireGuard Quick Start</a> · <a href="https://docs.digitalocean.com/products/networking/firewalls/" target="_blank" rel="noopener noreferrer">DigitalOcean Firewall</a>.</p>
+</section>
+<section id="proxyPanel" class="tab-panel" role="tabpanel" aria-labelledby="proxyTab" hidden>
+<h2>3. Run a restricted private HTTP proxy</h2>
+<p>A proxy forwards traffic for configured applications; it is not an encrypted VPN. Use a private address, authentication, and a firewall allowlist. Never run an open proxy.</p>
+<pre>sudo apt update
+sudo apt install squid ufw -y
+sudo systemctl enable --now squid
+sudo systemctl status squid --no-pager</pre>
+<p>Configure Squid to listen only on the VPN interface/private address, permit only your VPN subnet or trusted client addresses, deny all other clients, and require authentication where appropriate. Validate the configuration before restarting:</p>
+<pre>sudo squid -k parse
+sudo systemctl restart squid
+sudo journalctl -u squid -n 50 --no-pager</pre>
+<p>Do not open TCP 3128 to the world. Allow it only from your VPN subnet in both UFW and the DigitalOcean Cloud Firewall. Avoid proxy rotation, public relay use, or forwarding traffic for unknown users.</p>
+<p>Official docs: <a href="https://www.squid-cache.org/Doc/" target="_blank" rel="noopener noreferrer">Squid documentation</a>.</p>
+</section>
+<section id="kaliPanel" class="tab-panel" role="tabpanel" aria-labelledby="kaliTab" hidden>
+<h2>4. Kali Linux in Oracle VirtualBox</h2>
+<ol>
+<li>Download VirtualBox from <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="noopener noreferrer">Oracle VirtualBox</a>.</li>
+<li>Download the official prebuilt VirtualBox image from <a href="https://www.kali.org/get-kali/#kali-virtual-machines" target="_blank" rel="noopener noreferrer">Kali Linux Virtual Machines</a>; verify its published checksum.</li>
+<li>Import the appliance, set a strong VM password, and install updates from Kali's official repositories.</li>
+<li>Start with NAT networking for ordinary outbound updates. Use Host-only networking for isolated lab communication. Avoid Bridged mode unless you understand the exposure and have permission on that network.</li>
+<li>Take a clean snapshot before experiments. Use test systems you own or have written authorization to assess.</li>
+</ol>
+<p>Do not expose the Kali VM's SSH, web services, or test tools to the public internet by default. The VM is a separate lab environment; it does not automatically become a DigitalOcean server.</p>
+<p>Official docs: <a href="https://www.kali.org/docs/virtualization/install-virtualbox-guest-vm/" target="_blank" rel="noopener noreferrer">Kali VirtualBox guide</a> · <a href="https://www.virtualbox.org/manual/" target="_blank" rel="noopener noreferrer">VirtualBox manual</a>.</p>
+</section>
+<section id="puttyPanel" class="tab-panel" role="tabpanel" aria-labelledby="puttyTab" hidden>
+<h2>5. Connect with PuTTY using SSH</h2>
+<ol>
+<li>Install PuTTY from <a href="https://www.putty.org/" target="_blank" rel="noopener noreferrer">the official PuTTY site</a>.</li>
+<li>Use PuTTYgen to create an SSH key pair. Add the public key to the Droplet's authorized keys; keep the private key on your own device and protect it with a passphrase.</li>
+<li>In PuTTY, enter the Droplet's public IP and port 22, select SSH, and configure your private key under Connection → SSH → Auth/Credentials.</li>
+<li>Verify the server host-key fingerprint using a trusted channel before accepting it. Log in using the configured Linux account; use <code>sudo</code> only for tasks requiring administration.</li>
+<li>Disable password-based SSH only after key login has been tested in a second session and you have console recovery access.</li>
+</ol>
+<p>PuTTY is an SSH terminal client for managing your own server. This guide does not configure C2, covert remote control, persistence, or command execution against third-party systems.</p>
+<p>Official docs: <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/docs.html" target="_blank" rel="noopener noreferrer">PuTTY documentation</a> · <a href="https://docs.digitalocean.com/products/droplets/how-to/connect-with-ssh/" target="_blank" rel="noopener noreferrer">DigitalOcean SSH guide</a>.</p>
+</section>
+<section id="ipPanel" class="tab-panel" role="tabpanel" aria-labelledby="ipTab" hidden>
+<h2>6. Check your VPS public IP and firewall</h2>
+<p>Find the public IPv4/IPv6 addresses in the DigitalOcean Droplet control panel. From an SSH session on your own server, these commands show the public egress address observed by the external service:</p>
+<pre>curl -4 https://icanhazip.com
+curl -6 https://icanhazip.com
+ip -brief address
+sudo ufw status numbered
+sudo ss -tulpn</pre>
+<p>The address returned by an external IP service is the server's current egress address; it can differ when traffic uses a VPN, NAT, or another gateway. Do not use IP geolocation as proof of a person's identity or account ownership.</p>
+<div class="notice">Before going live: update the OS, use SSH keys and MFA, restrict inbound ports, enable unattended security updates where appropriate, monitor logs, back up configuration securely, and delete unused Droplets to stop ongoing charges.</div>
+</section>
+<footer class="card"><p class="muted">This page is an instructional guide only. It does not call DigitalOcean APIs, create resources, configure a server, collect credentials, or launch network services. Review provider pricing and official documentation before making changes.</p><p><a href="https://github.com/boooter316/github.test1">Return to the GitHub project</a></p></footer>
+</main>
+<script>
+"use strict";
+const tabs=[...document.querySelectorAll('[role="tab"]')];
+function activate(tab){for(const t of tabs){const selected=t===tab;t.setAttribute("aria-selected",String(selected));document.getElementById(t.getAttribute("aria-controls")).hidden=!selected}tab.focus()}
+for(const tab of tabs){tab.addEventListener("click",()=>activate(tab));tab.addEventListener("keydown",e=>{if(!["ArrowRight","ArrowLeft","Home","End"].includes(e.key))return;e.preventDefault();let i=tabs.indexOf(tab);if(e.key==="Home")i=0;else if(e.key==="End")i=tabs.length-1;else i=(i+(e.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length;activate(tabs[i])})}
+</script></body></html>

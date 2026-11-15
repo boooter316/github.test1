@@ -15,6 +15,7 @@ const files = new Map([
   ["/index.html", ["index.html", "text/html; charset=utf-8"]],
   ["/network_security.js", ["network_security.js", "text/javascript; charset=utf-8"]],
   ["/network-tools.html", ["network-tools.html", "text/html; charset=utf-8"]],
+  ["/network-lab.html", ["network-lab.html", "text/html; charset=utf-8"]],
   ["/network_tools.ps1", ["network_tools.ps1", "text/plain; charset=utf-8"]],
   ["/SETUP_AND_USAGE.txt", ["SETUP_AND_USAGE.txt", "text/plain; charset=utf-8"]],
   ["/FAZE_JARVIS_SETUP.md", ["FAZE_JARVIS_SETUP.md", "text/markdown; charset=utf-8"]],
@@ -160,7 +161,7 @@ const server = http.createServer(async (req, res) => {
   try {
     let body = await readFile(path.join(ROOT, entry[0]));
     if (url.pathname === "/" || url.pathname === "/index.html") {
-      body = Buffer.from(body.toString("utf8").replace("</nav>", '<a class="tab" href="/network-tools.html" style="display:inline-block;text-decoration:none;text-align:center">IP &amp; Network Tools</a></nav>'));
+      body = Buffer.from(body.toString("utf8").replace("</nav>", '<a class="tab" href="/network-tools.html" style="display:inline-block;text-decoration:none;text-align:center">IP &amp; Network Tools</a><a class="tab" href="/network-lab.html" style="display:inline-block;text-decoration:none;text-align:center">DigitalOcean &amp; VPS Lab</a></nav>'));
     }
     res.writeHead(200, {
       "Content-Type": entry[1],

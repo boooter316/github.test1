@@ -108,3 +108,22 @@ test("main page is served with browser security headers", async () => {
   assert.equal(response.headers.get("x-content-type-options"), "nosniff");
   assert.match(await response.text(), /Recovery Assistant/i);
 });
+
+test("DigitalOcean network lab page is served with restrictive browser security headers", async () => {
+  const response = await fetch(`${baseUrl}/network-lab.html`);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-security-policy") || "", /default-src 'self'/);
+  const body = await response.text();
+  assert.match(body, /DigitalOcean.*Private Network Lab/i);
+  assert.match(body, /WireGuard/);
+  assert.match(body, /Kali Linux/);
+  assert.match(body, /PuTTY/);
+  assert.match(body, /does not create cloud resources/i);
+});
+
+test("main navigation links to the separate DigitalOcean VPS lab", async () => {
+  const response = await fetch(baseUrl);
+  const body = await response.text();
+  assert.match(body, /href="\/network-lab\.html"/);
+  assert.match(body, /DigitalOcean &amp; VPS Lab/);
+});

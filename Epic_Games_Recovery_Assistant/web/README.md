@@ -285,3 +285,8 @@ These are provider shortcuts and user instructions only. The project does not au
 ## Wireshark packet and port diagnostics
 
 A separate Wireshark & Ports page links to the official Wireshark download and user guide, provides common display-filter examples, and builds a TCP, UDP, or combined display filter for a user-entered port (1–65535). The page does not capture packets itself, sniff other people's traffic, scan public IP ranges, open ports, or transmit packets. Capture only traffic you own or have explicit authorization to inspect. Packet captures can contain personal or authentication data; keep captures minimal and private.
+
+
+## DigitalOcean & VPS Network Lab
+
+The browser multitool provides a separate **DigitalOcean & VPS Lab** navigation link. The tabbed guide covers manually creating a DigitalOcean Droplet, private WireGuard VPN, restricted Squid proxy, Kali Linux in VirtualBox, PuTTY/SSH administration, and server IP/firewall checks. It does not create paid cloud resources or handle DigitalOcean API credentials. Restrict SSH and proxy ports to trusted addresses, and never operate an open proxy. These are legitimate administration guides, not C2 instructions.
