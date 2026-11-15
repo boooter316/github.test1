@@ -682,7 +682,7 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
  const kind=document.getElementById("builderLanguage").value,desc=document.getElementById("builderDescription").value.trim();
  const safeDesc=desc.replace(/[<>]/g,"").slice(0,1000);
  const templates={
- html:"<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><title>"+name+"</title><body><h1>"+name+"</h1><p>"+safeDesc.replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</p>\x3cscript\x3econsole.log('Project ready');<\/script>
+ html:"<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><title>"+name+"</title><body><h1>"+name+"</h1><p>"+safeDesc.replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</p><p>Project ready</p>
 </body></html>\n",
  python:'"""'+name+' — starter project. '+safeDesc.replace(/"""/g,"")+"\n"+'"""\n\ndef main():\n    print("'+name+' is ready")\n\nif __name__ == "__main__":\n    main()\n',
  powershell:'# '+name+' — starter script\n# '+safeDesc.replace(/\r?\n/g," ")+'\n[CmdletBinding(SupportsShouldProcess=$true)]\nparam()\nWrite-Output "'+name+' is ready"\n',
