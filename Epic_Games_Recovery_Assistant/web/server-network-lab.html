@@ -46,7 +46,59 @@
 <section class="pane" id="putty" hidden><div class="panel"><h2>PuTTY — SSH to your own VPS</h2><ol class="steps"><li>Install PuTTY from its official website.</li><li>In DigitalOcean, copy the Droplet's public IP address from its dashboard.</li><li>Open PuTTY, enter that IP as the Host Name, choose SSH, and keep port 22 unless you intentionally configured another port.</li><li>Under Connection → SSH → Auth, select your private key file if using key authentication. Never upload or share that private key.</li><li>Connect and verify the host-key fingerprint against a trusted provider console or first-connection record.</li><li>Sign in with the non-root account you created. Close the session when finished and keep SSH firewall access restricted.</li></ol>
 <div class="notice">Use SSH for normal server administration only. This guide does not configure C2, remote implants, command beacons, or unauthorized remote control.</div>
 <p><a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html" target="_blank" rel="noopener noreferrer">PuTTY official download and documentation</a>.</p></div></section>
-<section class="pane" id="requirements" hidden><div class="panel"><h2>Installation requirements checklist</h2><ul class="steps"><li>Windows 11 or another supported host OS with current security updates.</li><li>Hardware virtualization enabled; enough free disk space, memory, and CPU capacity for a VM.</li><li>VirtualBox and the official Kali Linux image, checksum verified.</li><li>PuTTY or another maintained SSH client.</li><li>DigitalOcean account with MFA and a billing method, if you choose to rent a VPS.</li><li>SSH key pair, public key uploaded to the VPS provider, private key stored securely on your PC.</li><li>Firewall rules, patching, backups, monitoring, and a documented recovery path.</li><li>WireGuard client/server packages only if you choose to create a private VPN.</li><li>A private proxy implementation only if your use case requires one; authentication and firewall restrictions are mandatory.</li></ul><p class="muted">No cloud account, paid Droplet, VPN subscription, proxy service, or VM is created automatically by this guide. Review current provider pricing and system requirements before installing.</p></div></section>
+<section class="pane" id="requirements" hidden><div class="panel"><h2>Installation requirements checklist</h2><ul class="steps"><li>Windows 11 or another supported host OS with current security updates.</li><li>Hardware virtualization enabled; enough free disk space, memory, and CPU capacity for a VM.</li><li>VirtualBox and the official Kali Linux image, checksum verified.</li><li>PuTTY or another maintained SSH client.</li><li>DigitalOcean account with MFA and a billing method, if you choose to rent a VPS.</li><li>SSH key pair, public key uploaded to the VPS provider, private key stored securely on your PC.</li><li>Firewall rules, patching, backups, monitoring, and a documented recovery path.</li><li>WireGuard client/server packages only if you choose to create a private VPN.</li><li>A private proxy implementation only if your use case requires one; authentication and firewall restrictions are mandatory.</li></ul><p class="muted">No cloud account, paid Droplet, VPN subscription, proxy service, or VM is created automatically by this guide. Review current provider pricing and system requirements before installing.</p></div>
+<section class="pane" id="packages" hidden><div class="panel"><h2>Install Packages — choose the machine first</h2>
+<p>Run commands only on the machine named in the heading. These are examples for a fresh, supported installation; review each command before running it. Do not paste private keys, passwords, API tokens, or recovery codes into this project.</p>
+<h3>1. Windows 11 host — VirtualBox and PuTTY</h3>
+<p><strong>Requirements:</strong> supported 64-bit Windows host, hardware virtualization enabled (Intel VT-x/AMD-V), current Windows updates, administrator permission, and sufficient free disk space/RAM. Check <em>Settings → System → About → System type</em> before choosing an installer. Confirm current VirtualBox host support for your CPU architecture.</p>
+<pre><code>winget source update
+winget install --id Oracle.VirtualBox -e
+winget install --id PuTTY.PuTTY -e</code></pre>
+<p>Alternatively download installers only from the official VirtualBox and PuTTY sites linked above. Restart Windows if the installer requests it. Open VirtualBox and confirm it launches; open PuTTY and confirm the SSH client is available. Do not install an unofficial extension pack.</p>
+<h3>2. Windows 11 host — create an SSH key (optional, for your own VPS)</h3>
+<pre><code>ssh-keygen -t ed25519 -C "windows-vps-admin"</code></pre>
+<p>Accept a secure local save location and use a passphrase. To display the public key for adding to your provider account:</p>
+<pre><code>Get-Content $env:USERPROFILE\.ssh\id_ed25519.pub</code></pre>
+<p>Copy only the <code>.pub</code> public key into your VPS provider. Keep <code>id_ed25519</code> private and on your own device.</p>
+<h3>3. Ubuntu LTS VPS — base administration packages</h3>
+<p><strong>Requirements:</strong> a VPS you own, a supported Ubuntu LTS image, provider-console access, an SSH public key already installed, and a firewall plan. Keep your provider console available in case firewall rules interrupt SSH.</p>
+<pre><code>sudo apt update
+sudo apt upgrade -y
+sudo apt install -y openssh-server ufw fail2ban unattended-upgrades curl ca-certificates</code></pre>
+<p>Before enabling UFW, replace <code>ADMIN_IP</code> with your trusted public admin IP and ensure your provider firewall also permits your SSH source:</p>
+<pre><code>sudo ufw allow from ADMIN_IP to any port 22 proto tcp
+sudo ufw status verbose
+sudo ufw enable
+sudo systemctl enable --now ssh
+sudo systemctl enable --now fail2ban
+sudo dpkg-reconfigure -plow unattended-upgrades</code></pre>
+<p>Verify access in a second SSH session before closing the original. Do not expose SSH to the whole internet when a source-IP allow-list is practical.</p>
+<h3>4. Ubuntu VPS — WireGuard VPN (optional)</h3>
+<pre><code>sudo apt install -y wireguard wireguard-tools
+sudo systemctl enable --now wg-quick@wg0</code></pre>
+<p>The service command assumes you have already created and securely installed a correct <code>/etc/wireguard/wg0.conf</code>. Do not run it before configuring the interface and firewall. Generate unique keys per device, protect private keys with restrictive permissions, and allow only the chosen UDP port (commonly 51820) from the devices that need access. Follow the official WireGuard guide for configuration and routing.</p>
+<h3>5. Ubuntu VPS — optional restricted Squid proxy</h3>
+<pre><code>sudo apt install -y squid</code></pre>
+<p>Installing Squid alone does not make a safe proxy. Do not start or expose it publicly with default settings. Before enabling it, bind it only to a private/VPN interface, configure authentication, allow-list the intended private subnet, deny all other clients, restrict outbound destinations as appropriate, and firewall the listener. Test from an authorized client and verify that unauthenticated external clients cannot connect. If you cannot implement those controls, do not install or enable the proxy.</p>
+<h3>6. Kali Linux VM — learning tools</h3>
+<p><strong>Requirements:</strong> official Kali image verified against its published checksum/signature, VirtualBox VM with adequate resources, NAT or host-only networking, and a snapshot before lab changes. Use only authorized lab targets.</p>
+<pre><code>sudo apt update
+sudo apt full-upgrade -y
+sudo apt install -y kali-linux-default git curl wget ca-certificates python3 python3-venv python3-pip build-essential</code></pre>
+<p>Reboot if the system update requires it. Install additional tools only when a specific authorized lab needs them; avoid installing every tool category by default.</p>
+<h3>7. Device and service checklist</h3>
+<ul class="steps">
+<li><strong>Windows host:</strong> VirtualBox, PuTTY (or built-in OpenSSH), Windows updates, and optional SSH key pair.</li>
+<li><strong>Kali guest:</strong> Kali Linux, Guest Additions only if needed, and the listed learning packages.</li>
+<li><strong>Ubuntu VPS:</strong> OpenSSH server, UFW, Fail2ban, unattended upgrades, curl, and CA certificates.</li>
+<li><strong>VPN server/client:</strong> WireGuard packages on the server and official WireGuard app on each client device.</li>
+<li><strong>Private proxy:</strong> Squid only if needed, plus authentication, private-interface binding, allow-listing, firewall rules, and monitoring.</li>
+<li><strong>Cloud provider:</strong> account MFA, SSH public key, cloud firewall, backups, monitoring, and an explicit budget review before creating billable resources.</li>
+</ul>
+<div class="notice"><strong>Not automated:</strong> These commands are documentation, not remote actions. They do not install software on your PC, create a DigitalOcean Droplet, generate or upload credentials, configure a live VPN/proxy, or incur cloud charges. Run one section at a time and verify the result before proceeding.</div>
+</div></section>
+
+</section>
 <script>
 (()=>{const buttons=[...document.querySelectorAll("[data-tab]")],panes=[...document.querySelectorAll(".pane")];function activate(id){for(const b of buttons)b.setAttribute("aria-selected",String(b.dataset.tab===id));for(const p of panes)p.hidden=p.id!==id;}for(const b of buttons)b.addEventListener("click",()=>activate(b.dataset.tab));})();
 </script></main></body></html>
