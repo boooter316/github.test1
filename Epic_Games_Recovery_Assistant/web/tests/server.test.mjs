@@ -127,3 +127,23 @@ test("main navigation links to the separate DigitalOcean VPS lab", async () => {
   assert.match(body, /href="\/network-lab\.html"/);
   assert.match(body, /DigitalOcean &amp; VPS Lab/);
 });
+
+test("server package setup guide is routed and exposes machine-specific instructions", async () => {
+  const response = await fetch(`${baseUrl}/server-network-lab.html`);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-security-policy") || "", /default-src 'self'/);
+  const body = await response.text();
+  assert.match(body, /Server &amp; Networking Lab/);
+  assert.match(body, /Install Packages/);
+  assert.match(body, /Windows 11 host/);
+  assert.match(body, /Ubuntu LTS VPS/);
+  assert.match(body, /Kali Linux VM/);
+});
+
+test("main navigation exposes both network lab workspaces", async () => {
+  const response = await fetch(baseUrl);
+  const body = await response.text();
+  assert.match(body, /href="\/network-lab\.html"/);
+  assert.match(body, /href="\/server-network-lab\.html"/);
+  assert.match(body, /Server Setup &amp; Packages/);
+});
