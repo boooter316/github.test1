@@ -1,6 +1,7 @@
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { readFile } from "node:fs/promises";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -169,5 +170,28 @@ test("central dashboard lists every independently selectable browser tool", asyn
   ]) {
     assert.ok(body.includes('data-open-page="' + page + '"'), "Missing launcher target: " + page);
     assert.ok(body.includes(label), "Missing visible launcher label: " + label);
+  }
+});
+
+test("each browser workspace receives scoped stop, upgrade, build, and download controls", async () => {
+  const response = await fetch(baseUrl);
+  assert.equal(response.status, 200);
+  const body = await response.text();
+  for (const label of ["Stop", "Upgrade", "Build / Self-test", "Download report"]) {
+    assert.ok(body.includes(label), "Missing workspace action: " + label);
+  }
+  assert.match(body, /document\.querySelectorAll\("section\[id\]"\)\.forEach\(addToolbar\)/);
+  assert.match(body, /const currentRoot=activeRoot\(\)/);
+  assert.match(body, /Form field values, passwords, tokens, cookies, and file contents are not included/);
+});
+
+test("Recovery Panel records and PDF tabs include independent workspace actions", async () => {
+  const panelPath = path.resolve(here, "../../../recovery-panel/public/index.html");
+  const body = await readFile(panelPath, "utf8");
+  assert.match(body, /recordsTabPanel/);
+  assert.match(body, /pdfScannerTabPanel/);
+  assert.match(body, /Workspace actions — /);
+  for (const label of ["Stop", "Upgrade", "Build / Self-test", "Download report"]) {
+    assert.ok(body.includes(label), "Missing Recovery Panel action: " + label);
   }
 });
