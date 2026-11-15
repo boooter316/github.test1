@@ -74,7 +74,7 @@
     const build = document.createElement("button");
     build.type = "button"; build.className = "build"; build.textContent = "Build";
     build.addEventListener("click", () => {
-      const candidates = [...panel.querySelectorAll("button,input[type=button],input[type=submit]")].filter(el => el !== stop && el !== upgrade && el !== build && !el.closest(".workspace-actions"));
+      const candidates = [...panel.querySelectorAll("button,input[type=button],input[type=submit]")].filter(el => el !== stop && el !== upgrade && el !== build && !el.closest(".workspace-actions") && !el.closest(".hidden,[hidden]") && el.closest('[id$="Tab"],[id$="TabPanel"],[role="tabpanel"],.tab-panel,.pane') === panel);
       const target = candidates.find(el => /build|compile|package|create executable/i.test((el.textContent || el.value || el.getAttribute("aria-label") || "").trim()) && !el.disabled);
       if (target) { status.textContent = "Starting the existing builder: " + (target.textContent || target.value || "Build") + "."; target.click(); }
       else status.textContent = "No build operation is defined for this tab. Use Build in the project builder or the GitHub Actions workflow for supported builds.";
