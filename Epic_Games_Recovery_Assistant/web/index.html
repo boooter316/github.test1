@@ -737,6 +737,7 @@ function addToolbar(panel){
  const makeButton=(text,cls,handler)=>{const b=document.createElement("button");b.type="button";b.textContent=text;b.className=cls||"secondary";b.addEventListener("click",handler);bar.appendChild(b);};
  makeButton("Stop", "secondary",()=>{
    const currentRoot=activeRoot(),rootPanel=document.getElementById(currentRoot)||panel;
+   if(currentRoot==="pdfEvidenceTab")window.__pdfEvidenceCancelRequested=true;
    let stopped=0;const set=controllers.get(currentRoot);if(set){for(const c of set){c.abort();stopped++;}controllers.delete(currentRoot);}
    const stopButtons=[...rootPanel.querySelectorAll("button")].filter(b=>!b.closest(".tool-action-bar")&&(/\bstop\b/i.test(b.textContent)||/^stop/i.test(b.id))&&!b.disabled);
    stopButtons.forEach(b=>{try{b.click();stopped++;}catch(_){}});
@@ -1060,18 +1061,21 @@ function pdfEvidenceCategories(text){
  return rules.filter(([,re])=>re.test(text)).map(([label])=>label);
 }
 document.getElementById("runPdfEvidenceScan").addEventListener("click",async()=>{
+ window.__pdfEvidenceCancelRequested=false;
  const files=[...document.getElementById("pdfEvidenceFiles").files],out=["LOCAL PDF EVIDENCE INDICATOR REPORT","Generated: "+new Date().toISOString(),"Selected files: "+files.length,"","No document text or matched secret values are included."];
  const result=document.getElementById("pdfEvidenceResult");
  if(!files.length){result.textContent="Choose one or more PDF files first.";return}
  if(!window.pdfjsLib){result.textContent="PDF engine did not load. Check the internet connection and reload this page.";return}
  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
  for(const file of files){
+  if(window.__pdfEvidenceCancelRequested){out.push("Scan stopped by user.");break;}
   out.push("FILE: "+file.name);
   if(file.size>50*1024*1024){out.push("Skipped: file exceeds 50 MB.","");continue}
   try{
    const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
    const maxPages=Math.min(doc.numPages,2000);let readable=0,indicators=0;
    for(let pageNo=1;pageNo<=maxPages;pageNo++){
+    if(window.__pdfEvidenceCancelRequested){out.push("Stopped by user after page "+(pageNo-1)+".");break;}
     const page=await doc.getPage(pageNo),content=await page.getTextContent(),pageText=content.items.map(x=>x.str||"").join(" ");
     if(!pageText.trim()){out.push("Page "+pageNo+": no extractable text (possibly image-only; OCR not included).");continue}
     readable++;const labels=pdfEvidenceCategories(pageText);
