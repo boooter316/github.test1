@@ -180,7 +180,7 @@ test("each browser workspace receives scoped stop, upgrade, build, and download 
   for (const label of ["Stop", "Upgrade", "Build / Self-test", "Download report"]) {
     assert.ok(body.includes(label), "Missing workspace action: " + label);
   }
-  assert.match(body, /document\.querySelectorAll\("section\[id\]"\)\.forEach\(addToolbar\)/);
+  assert.match(body, /document\.querySelectorAll\("\[id\]"\)\.forEach\(addToolbar\)/);
   assert.match(body, /const currentRoot=activeRoot\(\)/);
   assert.match(body, /Form field values, passwords, tokens, cookies, and file contents are not included/);
   assert.match(body, /window\.__pdfEvidenceCancelRequested=true/);
