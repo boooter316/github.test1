@@ -147,3 +147,27 @@ test("main navigation exposes both network lab workspaces", async () => {
   assert.match(body, /href="\/server-network-lab\.html"/);
   assert.match(body, /Server Setup &amp; Packages/);
 });
+
+test("central dashboard lists every independently selectable browser tool", async () => {
+  const response = await fetch(baseUrl);
+  const body = await response.text();
+  for (const [page, label] of [
+    ["recovery", "Recovery Assistant"],
+    ["fazeJarvis", "Faze Jarvis AI"],
+    ["security", "Discord Security Scanner"],
+    ["fortnite", "Pro Multi-Tool"],
+    ["pdfEvidence", "PDF Evidence Scanner"],
+    ["accountLinks", "Account Links"],
+    ["accountConnections", "Account Connections"],
+    ["packetDiagnostics", "Wireshark &amp; Ports"],
+    ["accountStatus", "Account Status &amp; Details"],
+    ["telegramConnect", "Telegram Connect"],
+    ["fortniteSkinCheck", "Fortnite Skin Check"],
+    ["scriptBuilder", "Script Builder"],
+    ["serverNetworkLab", "Server &amp; Networking Lab"],
+    ["setupInstall", "Setup &amp; Install"]
+  ]) {
+    assert.ok(body.includes('data-open-page="' + page + '"'), "Missing launcher target: " + page);
+    assert.ok(body.includes(label), "Missing visible launcher label: " + label);
+  }
+});
