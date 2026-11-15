@@ -735,11 +735,10 @@ function addToolbar(panel){
  const label=document.createElement("strong");label.textContent="Workspace actions — "+heading.textContent.trim();bar.appendChild(label);
  const status=document.createElement("p");status.className="tool-action-status";status.setAttribute("role","status");status.setAttribute("aria-live","polite");status.textContent="Actions apply to this workspace only."; 
  const makeButton=(text,cls,handler)=>{const b=document.createElement("button");b.type="button";b.textContent=text;b.className=cls||"secondary";b.addEventListener("click",handler);bar.appendChild(b);};
- const rootId=panel.closest("section[id]")?.id||panel.id;
  makeButton("Stop", "secondary",()=>{
    const currentRoot=activeRoot(),rootPanel=document.getElementById(currentRoot)||panel;
    let stopped=0;const set=controllers.get(currentRoot);if(set){for(const c of set){c.abort();stopped++;}controllers.delete(currentRoot);}
-   const stopButtons=[...rootPanel.querySelectorAll("button")].filter(b=>b!==bar&&(/\bstop\b/i.test(b.textContent)||/^stop/i.test(b.id))&&!b.disabled);
+   const stopButtons=[...rootPanel.querySelectorAll("button")].filter(b=>!b.closest(".tool-action-bar")&&(/\bstop\b/i.test(b.textContent)||/^stop/i.test(b.id))&&!b.disabled);
    stopButtons.forEach(b=>{try{b.click();stopped++;}catch(_){}});
    status.textContent=stopped?"Stop requested for "+stopped+" active task(s) in this workspace.":"No cancellable task is currently running here.";
  });
