@@ -29,7 +29,7 @@ before(async () => {
     env: {
       ...process.env,
       PORT: String(port),
-      WEB_ROOT: here,
+      WEB_ROOT: path.resolve(here, ".."),
       DEEPSEEK_API_KEY: "",
       CHAT_ACCESS_PASSWORD: "",
       TELEGRAM_BOT_TOKEN: "",
