@@ -17,9 +17,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - name: Set up Node.js 26 LTS
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: 26
       - name: Check inline browser JavaScript syntax
@@ -82,7 +82,7 @@ jobs:
         run: |
           g++ -std=c++17 -O2 -Wall -Wextra -pedantic Epic_Games_Recovery_Assistant/web/server.cpp -o recovery-web
       - name: Upload Linux server binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: Recovery-Assistant-Web-Linux
           path: recovery-web
