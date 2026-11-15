@@ -61,7 +61,7 @@
         a.style.cssText = "color:#93c5fd;margin-right:12px;display:inline-block";
         bar.appendChild(a);
       });
-    });;
+    });
 
     const build = document.createElement("button");
     build.type = "button"; build.className = "build"; build.textContent = "Build";
