@@ -7,7 +7,7 @@ A separate, self-hosted dashboard. It is an independent organizer and is not aff
 - Server-side administrator sign-in; no public sign-up.
 - Session cookies, login rate limiting, security headers, and scrypt password verification.
 - Mobile-friendly dashboard for iPhone and desktop.
-- Separate Recovery Records and PDF Evidence Scanner tabs.
+- Separate Recovery Records and PDF Evidence Scanner tabs, plus linked DigitalOcean/private-network and server package-setup lab pages.
 - Local PDF text inspection with page-level evidence indicators; document text and matched secret values are never displayed or included in reports.
 - PDF scan reports can be downloaded as TXT from the panel.
 - Epic Account ID/account-number field, display name, optional account email, case status, support reference, non-secret error text, and notes.
@@ -76,4 +76,4 @@ The main website and Recovery Panel include an optional on-page checklist for tr
 
 ## DigitalOcean and private network lab
 
-The dashboard includes a separate tabbed guide at `public/network-lab.html` for creating a DigitalOcean VPS manually, setting up a private WireGuard VPN, configuring a restricted private Squid proxy, running Kali Linux in VirtualBox, and connecting with PuTTY/SSH. The guide does not provision billable cloud resources or store provider API tokens. Keep proxy access private; never expose an open proxy. It is for authorized server administration and does not configure C2 or covert remote control.
+The dashboard links to two separate tabbed guides: `public/network-lab.html` covers DigitalOcean VPS, private WireGuard VPN, restricted private Squid proxy, Kali Linux, PuTTY/SSH, and IP/firewall checks; `public/server-network-lab.html` covers Windows 11, Ubuntu VPS, Kali VM, VirtualBox, PuTTY, requirements, and machine-specific package installation. Neither guide provisions billable cloud resources or stores provider API tokens. Keep proxy access private; never expose an open proxy. These guides are for authorized server administration and do not configure C2 or covert remote control.

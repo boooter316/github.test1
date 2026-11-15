@@ -8,6 +8,8 @@ A private, independently maintained recovery organizer and defensive diagnostics
 - **Browser website:** install Node.js 26 LTS or newer, open a terminal in `Epic_Games_Recovery_Assistant/web/`, run `node server.mjs`, then open `http://127.0.0.1:8080`.
 - **Separate Recovery Panel:** see [recovery-panel/README.md](recovery-panel/README.md). It is a separate Node.js app with administrator configuration.
 - **Full setup walkthrough:** [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md).
+- **DigitalOcean/private network lab:** `Epic_Games_Recovery_Assistant/web/network-lab.html` (VPS, VPN, restricted proxy, Kali, PuTTY, and firewall tabs).
+- **Server package setup lab:** `Epic_Games_Recovery_Assistant/web/server-network-lab.html` (Windows 11, Ubuntu, Kali, prerequisites, package commands, and usage tabs).
 - **Folder and component map:** [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md).
 
 ## Main components
@@ -23,7 +25,7 @@ A private, independently maintained recovery organizer and defensive diagnostics
 
 ## Current scope and important limitations
 
-- The browser multitool and Recovery Panel are separate applications; they do not share a server or automatically synchronize records.
+- The browser multitool and Recovery Panel are separate applications; both link to the network lab and package-setup guides, but they do not share a server or automatically synchronize records.
 - Recovery records in the Recovery Panel are stored in that browser's local storage. Export a backup before clearing browser data or changing devices.
 - The browser PDF scanner uses PDF.js from a CDN. The native Windows scanner uses Poppler for text extraction and does not OCR image-only PDFs.
 - The Recovery Panel currently uses Express MemoryStore. Do not expose it to the public internet or treat it as production-ready until a maintained persistent session store, HTTPS, network restrictions, and deployment controls are configured and tested.

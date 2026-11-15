@@ -48,6 +48,8 @@ The default server port is 8080; set the `PORT` environment variable before laun
 
 The Dockerfile is optional and is only for users who deliberately want a container deployment. The container listens on HTTP; public hosting requires HTTPS termination and appropriate network controls.
 
+The browser navigation includes two separate lab workspaces: **DigitalOcean & VPS Lab** (`/network-lab.html`) and **Server Setup & Packages** (`/server-network-lab.html`). The second page has machine-specific tabs for Windows 11 host tools, Ubuntu VPS packages, WireGuard, restricted Squid, Kali Linux VM setup, and a per-device requirements checklist. These are instructions to review and run on the named machine; they do not install software or provision a VPS automatically.
+
 ## 4. Separate Recovery Panel
 
 The Recovery Panel is not the same server as the main browser multitool.
@@ -74,7 +76,7 @@ The Recovery Panel is not the same server as the main browser multitool.
    ```
 7. Open http://localhost:3000 on that computer.
 
-The panel currently has Recovery Records and PDF Evidence Scanner tabs. Records are saved in that browser's local storage, not in a central server database. Export your records before clearing browser data or changing devices.
+The panel has Recovery Records and PDF Evidence Scanner tabs and links to both network lab workspaces: DigitalOcean/private network administration and machine-specific server package setup. The package guide is also available at `recovery-panel/public/server-network-lab.html`. Records are saved in that browser's local storage, not in a central server database. Export your records before clearing browser data or changing devices.
 
 **Production warning:** the panel currently uses Express MemoryStore for sessions and is not production-ready. Do not expose it publicly until a maintained persistent session store, HTTPS, network restrictions, secure deployment secrets, backups, and logging have been configured and reviewed. No production deployment is included in this setup.
 
