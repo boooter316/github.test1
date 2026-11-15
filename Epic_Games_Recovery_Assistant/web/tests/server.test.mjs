@@ -167,14 +167,7 @@ test("central dashboard lists every independently selectable browser tool", asyn
     ["serverNetworkLab", "Server &amp; Networking Lab"],
     ["setupInstall", "Setup &amp; Install"]
   ]) {
-    assert.match(body, new RegExp('data-open-page="' + page + '"'));
-    assert.match(body, new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, "\\test("main navigation exposes both network lab workspaces", async () => {
-  const response = await fetch(baseUrl);
-  const body = await response.text();
-  assert.match(body, /href="\/network-lab\.html"/);
-  assert.match(body, /href="\/server-network-lab\.html"/);
-  assert.match(body, /Server Setup &amp; Packages/);
-});
-")));
+    assert.ok(body.includes('data-open-page="' + page + '"'), "Missing launcher target: " + page);
+    assert.ok(body.includes(label), "Missing visible launcher label: " + label);
   }
 });
