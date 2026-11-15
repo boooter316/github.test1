@@ -72,3 +72,8 @@ Never share panel passwords, webhook URLs, Epic passwords, 2FA codes, backup cod
 ## Project checklist
 
 The main website and Recovery Panel include an optional on-page checklist for tracking the included Recovery Assistant, local PDF scanner, navigation tabs, and background artwork. Checklist selections are temporary in the current page and are not saved or uploaded.
+
+
+## DigitalOcean and private network lab
+
+The dashboard includes a separate tabbed guide at `public/network-lab.html` for creating a DigitalOcean VPS manually, setting up a private WireGuard VPN, configuring a restricted private Squid proxy, running Kali Linux in VirtualBox, and connecting with PuTTY/SSH. The guide does not provision billable cloud resources or store provider API tokens. Keep proxy access private; never expose an open proxy. It is for authorized server administration and does not configure C2 or covert remote control.
