@@ -102,4 +102,5 @@ sudo ss -tulpn</pre>
 const tabs=[...document.querySelectorAll('[role="tab"]')];
 function activate(tab){for(const t of tabs){const selected=t===tab;t.setAttribute("aria-selected",String(selected));document.getElementById(t.getAttribute("aria-controls")).hidden=!selected}tab.focus()}
 for(const tab of tabs){tab.addEventListener("click",()=>activate(tab));tab.addEventListener("keydown",e=>{if(!["ArrowRight","ArrowLeft","Home","End"].includes(e.key))return;e.preventDefault();let i=tabs.indexOf(tab);if(e.key==="Home")i=0;else if(e.key==="End")i=tabs.length-1;else i=(i+(e.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length;activate(tabs[i])})}
-</script></body></html>
+</script><script src="workspace-controls.js" defer></script>
+</body></html>
