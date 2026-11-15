@@ -65,6 +65,8 @@ jobs:
           PY
           node --check /tmp/web-inline.js
           node --check /tmp/public-inline.js
+          node --check Epic_Games_Recovery_Assistant/web/workspace-controls.js
+          node --check recovery-panel/public/workspace-controls.js
       - name: Validate Node.js server entry points and Recovery Panel dependencies
         working-directory: recovery-panel
         run: |
