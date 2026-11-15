@@ -105,7 +105,7 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { provider: "DeepSeek", apiKeyConfigured: Boolean(API_KEY), accessPasswordConfigured: Boolean(CHAT_PASSWORD), configured: Boolean(API_KEY && CHAT_PASSWORD) });
   }
   if (req.method === "POST" && url.pathname === "/api/chat") {
-    if (!API_KEY || !CHAT_PASSWORD) return json(res, 503, { error: "Chat is not configured. Set DEEPSEEK_API_KEY and CHAT_ACCESS_PASSWORD on the server." });
+    if (!API_KEY || !CHAT_PASSWORD) return json(res, 503, { error: "Chat is not configured. Ask the administrator to configure the server-side chat credentials." });
     if (!sameSecret(req.headers["x-chat-access"], CHAT_PASSWORD)) return json(res, 401, { error: "The app access password is incorrect." });
     const ip = req.socket.remoteAddress || "unknown";
     if (!allowedRate(ip)) return json(res, 429, { error: "Too many requests. Wait a minute and try again." });
