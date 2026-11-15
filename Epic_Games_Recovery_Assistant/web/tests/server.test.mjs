@@ -147,3 +147,34 @@ test("main navigation exposes both network lab workspaces", async () => {
   assert.match(body, /href="\/server-network-lab\.html"/);
   assert.match(body, /Server Setup &amp; Packages/);
 });
+
+test("central dashboard lists every independently selectable browser tool", async () => {
+  const response = await fetch(baseUrl);
+  const body = await response.text();
+  for (const [page, label] of [
+    ["recovery", "Recovery Assistant"],
+    ["fazeJarvis", "Faze Jarvis AI"],
+    ["security", "Discord Security Scanner"],
+    ["fortnite", "Pro Multi-Tool"],
+    ["pdfEvidence", "PDF Evidence Scanner"],
+    ["accountLinks", "Account Links"],
+    ["accountConnections", "Account Connections"],
+    ["packetDiagnostics", "Wireshark &amp; Ports"],
+    ["accountStatus", "Account Status &amp; Details"],
+    ["telegramConnect", "Telegram Connect"],
+    ["fortniteSkinCheck", "Fortnite Skin Check"],
+    ["scriptBuilder", "Script Builder"],
+    ["serverNetworkLab", "Server &amp; Networking Lab"],
+    ["setupInstall", "Setup &amp; Install"]
+  ]) {
+    assert.match(body, new RegExp('data-open-page="' + page + '"'));
+    assert.match(body, new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, "\\test("main navigation exposes both network lab workspaces", async () => {
+  const response = await fetch(baseUrl);
+  const body = await response.text();
+  assert.match(body, /href="\/network-lab\.html"/);
+  assert.match(body, /href="\/server-network-lab\.html"/);
+  assert.match(body, /Server Setup &amp; Packages/);
+});
+")));
+  }
+});
