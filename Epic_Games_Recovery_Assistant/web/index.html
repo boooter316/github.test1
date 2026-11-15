@@ -49,9 +49,11 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <button type="button" class="tab secondary" id="fortniteSkinCheckTabButton" aria-selected="false">Fortnite Skin Check</button>
 <button type="button" class="tab secondary" id="setupInstallTabButton" aria-selected="false">Setup &amp; Install</button>
 <button type="button" class="tab secondary" id="scriptBuilderTabButton" aria-selected="false">Script Builder</button>
+<button type="button" class="tab secondary" id="serverNetworkLabTabButton" aria-selected="false">Server &amp; Networking Lab</button>
 </nav><div id="globalTaskControls" class="panel no-print" style="position:sticky;top:8px;z-index:20;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px">
 <strong>Task controls</strong><button type="button" id="globalStopButton" class="secondary">Stop current task</button><span id="globalStopStatus" class="hint" role="status">No stop request active.</span>
 </div>
+<section id="serverNetworkLabTab" class="hidden"><section class="panel"><h2>Server &amp; Networking Lab</h2><p class="hint">Separate guides for DigitalOcean VPS administration, private VPN and proxy design, Kali Linux, VirtualBox, PuTTY/SSH, and installation requirements.</p><iframe title="Server and Networking Lab" src="server-network-lab.html" loading="lazy" style="width:100%;height:1050px;border:0;border-radius:10px;background:#f4f6fa"></iframe></section></section>
 <section id="dashboardTab">
 <section class="panel">
 <h2>Project Dashboard</h2>
@@ -62,6 +64,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div class="panel"><h3>PDF Evidence Scanner</h3><p class="hint">Check selected PDFs locally and get page-level evidence indicators without exporting document text.</p><button type="button" class="secondary" data-open-page="pdfEvidence">Open PDF Evidence Scanner</button></div>
 <div class="panel"><h3>Script Builder</h3><p class="hint">Prepare Python, C++17, and C# source and Windows EXE build packages.</p><button type="button" data-open-page="scriptBuilder">Open Script Builder</button></div>
 <div class="panel"><h3>Accounts &amp; network</h3><p class="hint">Open official account links, connection notes, and network diagnostics.</p><button type="button" class="secondary" data-open-page="accountLinks">Account Links</button><button type="button" class="secondary" data-open-page="accountConnections">Account Connections</button><button type="button" class="secondary" data-open-page="packetDiagnostics">Wireshark &amp; Ports</button></div>
+<div class="panel"><h3>Server &amp; Networking Lab</h3><p class="hint">Separate setup guides for your own VPS, private VPN, restricted proxy, Kali Linux, VirtualBox, and PuTTY/SSH.</p><button type="button" class="secondary" data-open-page="serverNetworkLab">Open Server &amp; Networking Lab</button></div>
 <div class="panel"><h3>Setup &amp; updates</h3><p class="hint">Install prerequisites and open the first-run setup guide.</p><button type="button" class="secondary" data-open-page="setupInstall">Setup &amp; Install</button></div>
 </div>
 <div class="notice"><strong>Task control:</strong> The Stop current task control remains visible above the pages. It requests cancellation for cooperative browser tasks; it cannot terminate a program you launched separately in Windows.</div>
@@ -558,7 +561,8 @@ const pageTabs={
  telegramConnect:{button:document.getElementById("telegramConnectTabButton"),panel:document.getElementById("telegramConnectTab")},
  fortniteSkinCheck:{button:document.getElementById("fortniteSkinCheckTabButton"),panel:document.getElementById("fortniteSkinCheckTab")},
  setupInstall:{button:document.getElementById("setupInstallTabButton"),panel:document.getElementById("setupInstallTab")},
- scriptBuilder:{button:document.getElementById("scriptBuilderTabButton"),panel:document.getElementById("scriptBuilderTab")}
+ scriptBuilder:{button:document.getElementById("scriptBuilderTabButton"),panel:document.getElementById("scriptBuilderTab")},
+ serverNetworkLab:{button:document.getElementById("serverNetworkLabTabButton"),panel:document.getElementById("serverNetworkLabTab")}
 };
 function showTab(which){
  for(const [key,item] of Object.entries(pageTabs)){
