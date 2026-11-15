@@ -694,7 +694,7 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
 "use strict";
 const repoZip="https://github.com/boooter316/github.test1/archive/refs/heads/main.zip";
 const navMap={
- dashboardTabButton:"dashboardTab",recoveryTabButton:"ticketManager",fazeJarvisTabButton:"fazeJarvisTab",
+ dashboardTabButton:"dashboardTab",recoveryTabButton:"recoveryTab",fazeJarvisTabButton:"fazeJarvisTab",
  securityTabButton:"securityTab",fortniteTabButton:"fortniteTab",pdfEvidenceTabButton:"pdfEvidenceTab",
  accountLinksTabButton:"accountLinksTab",accountConnectionsTabButton:"accountConnectionsTab",
  packetDiagnosticsTabButton:"packetDiagnosticsTab",accountStatusTabButton:"accountStatusTab",
@@ -737,14 +737,15 @@ function addToolbar(panel){
  const makeButton=(text,cls,handler)=>{const b=document.createElement("button");b.type="button";b.textContent=text;b.className=cls||"secondary";b.addEventListener("click",handler);bar.appendChild(b);};
  const rootId=panel.closest("section[id]")?.id||panel.id;
  makeButton("Stop", "secondary",()=>{
-   let stopped=0;const set=controllers.get(rootId);if(set){for(const c of set){c.abort();stopped++;}controllers.delete(rootId);}
-   const stopButtons=[...panel.querySelectorAll("button")].filter(b=>b!==bar&&(/\bstop\b/i.test(b.textContent)||/^stop/i.test(b.id))&&!b.disabled);
+   const currentRoot=activeRoot(),rootPanel=document.getElementById(currentRoot)||panel;
+   let stopped=0;const set=controllers.get(currentRoot);if(set){for(const c of set){c.abort();stopped++;}controllers.delete(currentRoot);}
+   const stopButtons=[...rootPanel.querySelectorAll("button")].filter(b=>b!==bar&&(/\bstop\b/i.test(b.textContent)||/^stop/i.test(b.id))&&!b.disabled);
    stopButtons.forEach(b=>{try{b.click();stopped++;}catch(_){}});
    status.textContent=stopped?"Stop requested for "+stopped+" active task(s) in this workspace.":"No cancellable task is currently running here.";
  });
  makeButton("Upgrade", "secondary",()=>{
-   const opened=window.open(repoZip,"_blank","noopener,noreferrer");
-   status.textContent=opened===null?"Allow pop-ups, then use the latest main-branch ZIP link: "+repoZip:"Latest main-branch source ZIP opened. Review changes and back up your files before replacing an installation.";
+   const link=document.createElement("a");link.href=repoZip;link.target="_blank";link.rel="noopener noreferrer";link.click();
+   status.textContent="Latest main-branch source ZIP requested. Review changes and back up your files before replacing an installation.";
  });
  makeButton("Build / Self-test", "",()=>{
    const ids=[...document.querySelectorAll("[id]")].map(el=>el.id),duplicates=ids.filter((id,i)=>ids.indexOf(id)!==i);
