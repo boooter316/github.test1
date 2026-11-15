@@ -60,17 +60,20 @@ function classifyPdfPage(text){
  return rules.filter(([,re])=>re.test(text)).map(([label])=>label);
 }
 $("runPanelPdfScan").addEventListener("click",async()=>{
+ panelPdfCancelRequested=false;
  const files=[...$("panelPdfFiles").files],out=["LOCAL PDF EVIDENCE INDICATOR REPORT","Generated: "+new Date().toISOString(),"Selected files: "+files.length,"","No document text or matched secret values are included."];
  if(!files.length){$("panelPdfResult").textContent="Choose one or more PDF files first.";return}
  if(!window.pdfjsLib){$("panelPdfResult").textContent="PDF engine did not load. Check the internet connection and reload this page.";return}
  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
  for(const file of files){
+  if(panelPdfCancelRequested){out.push("Scan stopped by user.");break;}
   out.push("FILE: "+file.name);
   if(file.size>50*1024*1024){out.push("Skipped: file exceeds 50 MB.","");continue}
   try{
    const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
    const maxPages=Math.min(doc.numPages,2000);let readable=0,indicators=0;
    for(let pageNo=1;pageNo<=maxPages;pageNo++){
+    if(panelPdfCancelRequested){out.push("Stopped by user after page "+(pageNo-1)+".");break;}
     const page=await doc.getPage(pageNo),content=await page.getTextContent();
     const text=content.items.map(x=>x.str||"").join(" ");
     if(!text.trim()){out.push("Page "+pageNo+": no extractable text (possibly image-only; OCR not included).");continue}
@@ -107,7 +110,8 @@ window.addEventListener("error",()=>{api("/api/client-error",{method:"POST",body
 (function(){
 "use strict";
 const zip="https://github.com/boooter316/github.test1/archive/refs/heads/main.zip";
-const taskMap=new Map(),nativeFetch=window.fetch.bind(window);\nlet panelPdfCancelRequested=false;
+const taskMap=new Map(),nativeFetch=window.fetch.bind(window);
+let panelPdfCancelRequested=false;
 window.fetch=function(input,init){
  const panel=document.querySelector('[data-panel-active="true"]')?.id||"recordsTabPanel";
  const controller=new AbortController();if(!taskMap.has(panel))taskMap.set(panel,new Set());taskMap.get(panel).add(controller);
