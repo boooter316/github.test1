@@ -682,7 +682,89 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
  const kind=document.getElementById("builderLanguage").value,desc=document.getElementById("builderDescription").value.trim();
  const safeDesc=desc.replace(/[<>]/g,"").slice(0,1000);
  const templates={
- html:"<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><title>"+name+"</title><body><h1>"+name+"</h1><p>"+safeDesc.replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</p><script>console.log('Project ready');<\/script></body></html>\n",
+ html:"<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><title>"+name+"</title><body><h1>"+name+"</h1><p>"+safeDesc.replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</p><script>console.log('Project ready');<\/script>
+<style>
+.tool-action-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px;margin:12px 0 16px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}
+.tool-action-bar strong{flex:1 1 100%;color:#172033}.tool-action-bar button{flex:1 1 120px;font-size:.9rem;padding:10px}
+.tool-action-bar .tool-action-status{flex:1 1 100%;font-size:.82rem;color:#475569;margin:0;min-height:1.2em}
+@media(max-width:520px){.tool-action-bar button{flex:1 1 calc(50% - 8px)}}
+</style>
+<script>
+(function(){
+"use strict";
+const repoZip="https://github.com/boooter316/github.test1/archive/refs/heads/main.zip";
+const navMap={
+ dashboardTabButton:"dashboardTab",recoveryTabButton:"ticketManager",fazeJarvisTabButton:"fazeJarvisTab",
+ securityTabButton:"securityTab",fortniteTabButton:"fortniteTab",pdfEvidenceTabButton:"pdfEvidenceTab",
+ accountLinksTabButton:"accountLinksTab",accountConnectionsTabButton:"accountConnectionsTab",
+ packetDiagnosticsTabButton:"packetDiagnosticsTab",accountStatusTabButton:"accountStatusTab",
+ telegramConnectTabButton:"telegramConnectTab",fortniteSkinCheckTabButton:"fortniteSkinCheckTab",
+ setupInstallTabButton:"setupInstallTab",scriptBuilderTabButton:"scriptBuilderTab",
+ serverNetworkLabTabButton:"serverNetworkLabTab"
+};
+const activeRoot=()=>{const selected=document.querySelector('.tabs button[aria-selected="true"]');return selected?(navMap[selected.id]||selected.id):"dashboardTab"};
+const controllers=new Map();
+const nativeFetch=window.fetch.bind(window);
+window.fetch=function(input,init){
+ const root=activeRoot(),controller=new AbortController();
+ if(!controllers.has(root))controllers.set(root,new Set());
+ controllers.get(root).add(controller);
+ let signal=controller.signal;
+ if(init&&init.signal&&typeof AbortSignal!=="undefined"&&AbortSignal.any)signal=AbortSignal.any([init.signal,controller.signal]);
+ return nativeFetch(input,{...(init||{}),signal}).finally(()=>{const set=controllers.get(root);if(set){set.delete(controller);if(!set.size)controllers.delete(root);}});
+};
+function safeName(value){return String(value||"tool").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,48)||"tool";}
+function download(name,content){
+ const blob=new Blob([content],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200);
+}
+function reportText(panel){
+ const heading=panel.querySelector(":scope > h2, :scope > h3")||panel.querySelector("h2,h3");
+ const title=heading?heading.textContent.trim():"Tool workspace";
+ const reportNodes=[...panel.querySelectorAll(".scanner-result,pre,[role='status']")].filter(el=>!el.closest(".tool-action-bar")&&!el.closest(".hidden"));
+ const reports=reportNodes.map(el=>el.innerText||el.textContent||"").map(x=>x.trim()).filter(Boolean);
+ const summary=[...panel.querySelectorAll(":scope > p, :scope > .notice, :scope > .risk")].slice(0,8).map(el=>el.innerText||el.textContent||"").map(x=>x.trim()).filter(Boolean);
+ return ["WORKSPACE EXPORT",title,"Exported: "+new Date().toISOString(),"","REPORTS",...(reports.length?reports:summary.length?summary:["No report has been generated in this workspace yet."]), "","Privacy note: Form field values, passwords, tokens, cookies, and file contents are not included by this export."].join("\n");
+}
+function addToolbar(panel){
+ if(panel.dataset.toolControlsReady==="true")return;
+ const heading=panel.querySelector(":scope > h2, :scope > h3");
+ if(!heading)return;
+ panel.dataset.toolControlsReady="true";
+ const bar=document.createElement("div");bar.className="tool-action-bar no-print";bar.setAttribute("aria-label",heading.textContent.trim()+" actions");
+ const label=document.createElement("strong");label.textContent="Workspace actions — "+heading.textContent.trim();bar.appendChild(label);
+ const status=document.createElement("p");status.className="tool-action-status";status.setAttribute("role","status");status.setAttribute("aria-live","polite");status.textContent="Actions apply to this workspace only."; 
+ const makeButton=(text,cls,handler)=>{const b=document.createElement("button");b.type="button";b.textContent=text;b.className=cls||"secondary";b.addEventListener("click",handler);bar.appendChild(b);};
+ const rootId=panel.closest("section[id]")?.id||panel.id;
+ makeButton("Stop", "secondary",()=>{
+   let stopped=0;const set=controllers.get(rootId);if(set){for(const c of set){c.abort();stopped++;}controllers.delete(rootId);}
+   const stopButtons=[...panel.querySelectorAll("button")].filter(b=>b!==bar&&(/\bstop\b/i.test(b.textContent)||/^stop/i.test(b.id))&&!b.disabled);
+   stopButtons.forEach(b=>{try{b.click();stopped++;}catch(_){}});
+   status.textContent=stopped?"Stop requested for "+stopped+" active task(s) in this workspace.":"No cancellable task is currently running here.";
+ });
+ makeButton("Upgrade", "secondary",()=>{
+   const opened=window.open(repoZip,"_blank","noopener,noreferrer");
+   status.textContent=opened===null?"Allow pop-ups, then use the latest main-branch ZIP link: "+repoZip:"Latest main-branch source ZIP opened. Review changes and back up your files before replacing an installation.";
+ });
+ makeButton("Build / Self-test", "",()=>{
+   const ids=[...document.querySelectorAll("[id]")].map(el=>el.id),duplicates=ids.filter((id,i)=>ids.indexOf(id)!==i);
+   const hasHeading=Boolean(panel.querySelector(":scope > h2, :scope > h3"));
+   const controls=panel.querySelectorAll("button,input,select,textarea,a").length;
+   const passed=hasHeading&&duplicates.length===0;
+   const output=["WORKSPACE SELF-TEST",heading.textContent.trim(),"Result: "+(passed?"PASS":"REVIEW REQUIRED"),"Checked: "+new Date().toISOString(),"Heading present: "+hasHeading,"Interactive elements found: "+controls,"Duplicate page IDs: "+(duplicates.length?[...new Set(duplicates)].join(", "):"none"),"Note: This browser self-test checks page structure only; it does not compile native Windows executables or install/update software."].join("\n");
+   status.textContent=passed?"Self-test passed. Download the check report for details.":"Review required: a heading or unique page IDs check failed.";
+   download(safeName(heading.textContent)+"-self-test.txt",output);
+ });
+ makeButton("Download report", "secondary",()=>{
+   download(safeName(heading.textContent)+"-workspace-report.txt",reportText(panel));
+   status.textContent="Workspace report downloaded. Form values and selected file contents are excluded.";
+ });
+ bar.appendChild(status);heading.insertAdjacentElement("afterend",bar);
+}
+document.querySelectorAll("section[id]").forEach(addToolbar);
+})();
+</script>
+</body></html>\n",
  python:'"""'+name+' — starter project. '+safeDesc.replace(/"""/g,"")+"\n"+'"""\n\ndef main():\n    print("'+name+' is ready")\n\nif __name__ == "__main__":\n    main()\n',
  powershell:'# '+name+' — starter script\n# '+safeDesc.replace(/\r?\n/g," ")+'\n[CmdletBinding(SupportsShouldProcess=$true)]\nparam()\nWrite-Output "'+name+' is ready"\n',
  cpp:'#include <iostream>\n\nint main() {\n    std::cout << "'+name+' is ready\\n";\n    return 0;\n}\n// Goal: '+safeDesc.replace(/\r?\n/g," ")+'\n'
