@@ -46,30 +46,22 @@
 
     const upgrade = document.createElement("button");
     upgrade.type = "button"; upgrade.textContent = "Check for updates";
-    upgrade.addEventListener("click", async () => {
-      upgrade.disabled = true; status.textContent = "Checking the latest published project version…";
-      try {
-        const [commitRes, releaseRes] = await Promise.all([
-          fetch(API + "/commits/main", {headers:{"Accept":"application/vnd.github+json"}}),
-          fetch(API + "/releases/latest", {headers:{"Accept":"application/vnd.github+json"}})
-        ]);
-        if (!commitRes.ok) throw new Error("GitHub version check returned HTTP " + commitRes.status);
-        const commit = await commitRes.json();
-        let release = null;
-        if (releaseRes.ok) release = await releaseRes.json();
-        const shortSha = String(commit.sha || "").slice(0,7);
-        if (release && release.html_url) {
-          status.textContent = "Latest main commit: " + shortSha + ". Latest release: " + (release.tag_name || "published release") + ". Review the release notes before updating.";
-          const a = document.createElement("a"); a.href = release.html_url; a.target="_blank"; a.rel="noopener noreferrer"; a.textContent="Open latest release"; a.style.color="#93c5fd"; bar.appendChild(a);
-        } else {
-          status.textContent = "Latest main commit: " + shortSha + ". No GitHub release is published; use the current source ZIP and review changes before replacing your copy.";
-          const a = document.createElement("a"); a.href = ZIP; a.target="_blank"; a.rel="noopener noreferrer"; a.textContent="Download latest main ZIP"; a.style.color="#93c5fd"; bar.appendChild(a);
-        }
-      } catch (e) {
-        status.textContent = "Update check unavailable (" + e.message + "). You can open the repository to check manually.";
-        const a = document.createElement("a"); a.href="https://github.com/"+REPO; a.target="_blank"; a.rel="noopener noreferrer"; a.textContent="Open GitHub repository"; a.style.color="#93c5fd"; bar.appendChild(a);
-      } finally { upgrade.disabled = false; }
-    });
+    upgrade.addEventListener("click", () => {
+      status.textContent = "This repository is private, so the browser cannot reliably query its GitHub API without your sign-in. Open the signed-in GitHub pages below to review the latest commits, releases, or source ZIP.";
+      bar.querySelectorAll("[data-update-link]").forEach(el => el.remove());
+      const links = [
+        ["View latest commits", "https://github.com/" + REPO + "/commits/main/"],
+        ["View releases", "https://github.com/" + REPO + "/releases"],
+        ["Download main ZIP", ZIP]
+      ];
+      links.forEach(([label, href]) => {
+        const a = document.createElement("a");
+        a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer";
+        a.textContent = label; a.dataset.updateLink = "1";
+        a.style.cssText = "color:#93c5fd;margin-right:12px;display:inline-block";
+        bar.appendChild(a);
+      });
+    });;
 
     const build = document.createElement("button");
     build.type = "button"; build.className = "build"; build.textContent = "Build";
@@ -94,7 +86,40 @@
       status.textContent = "Downloaded a standalone HTML snapshot of this tab. Interactive app functions and server-side features are not included in the snapshot.";
     });
 
-    bar.append(stop, upgrade, build, download, status);
+    const diagnostics = document.createElement("button");
+    diagnostics.type = "button"; diagnostics.textContent = "Export diagnostics";
+    diagnostics.addEventListener("click", () => {
+      const report = {
+        generatedAt: new Date().toISOString(),
+        page: location.origin + location.pathname,
+        title: document.title,
+        activeWorkspace: tabTitle(panel),
+        panelId: panel.id || null,
+        counts: {
+          tabs: document.querySelectorAll('[role="tab"]').length,
+          tabPanels: document.querySelectorAll('[role="tabpanel"],[id$="Tab"],[id$="TabPanel"],.tab-panel,.pane').length,
+          buttons: document.querySelectorAll("button").length,
+          links: document.querySelectorAll("a[href]").length,
+          scripts: document.scripts.length
+        },
+        note: "This report intentionally excludes form values, cookies, local storage, tokens, and page text."
+      };
+      const blob = new Blob([JSON.stringify(report, null, 2)], {type:"application/json;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href=url; a.download="workspace-diagnostics.json";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+      status.textContent = "Downloaded a privacy-conscious diagnostics report. It does not include form values, cookies, local storage, or tokens.";
+    });
+
+    const buildStatus = document.createElement("button");
+    buildStatus.type = "button"; buildStatus.textContent = "Build status";
+    buildStatus.addEventListener("click", () => {
+      window.open("https://github.com/" + REPO + "/actions", "_blank", "noopener,noreferrer");
+      status.textContent = "Opened the repository's GitHub Actions page. Sign in to view private build logs and artifacts.";
+    });
+
+    bar.append(stop, upgrade, build, download, diagnostics, buildStatus, status);
     panel.appendChild(bar);
   }
 
