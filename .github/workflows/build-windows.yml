@@ -85,7 +85,7 @@ jobs:
         run: |
           $scanner = 'Epic_Games_Recovery_Assistant/paf_evidence_scanner.c++'
           $source = Get-Content $scanner -Raw
-          foreach ($required in @('extractPdfText', 'NO READABLE TEXT', 'OCR is not performed', 'document text not retained', 'Ownership verification: NOT PERFORMED', 'MAX_PDF_BYTES', 'MAX_PAGES')) {
+          foreach ($required in @('extractPdfText', 'NO READABLE TEXT', 'OCR is not performed', 'document text not retained', 'Ownership verification: NOT PERFORMED', 'MAX_PDF_BYTES', 'MAX_PAGES', 'MAX_FILES')) {
             if (-not $source.Contains($required)) { throw "Missing native scanner behavior: $required" }
           }
           if ($source -match 'std::cout\s*<<\s*(extracted|page|text)') { throw 'Scanner appears to print extracted PDF text.' }
