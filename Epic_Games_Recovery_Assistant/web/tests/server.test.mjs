@@ -53,7 +53,7 @@ before(async () => {
     }
     try {
       const response = await fetch(`${baseUrl}/healthz`);
-      if (response.ok) return;
+      if (response.ok) break;
     } catch {
       // The server has not started listening yet.
     }
@@ -61,7 +61,6 @@ before(async () => {
   }
   child.kill();
   throw new Error(`Timed out waiting for web server startup: ${startupError}`);
-  });
   const unauthenticated = await nativeFetch(baseUrl, { redirect: "manual" });
   assert.equal(unauthenticated.status, 303);
   assert.equal(unauthenticated.headers.get("location"), "/login.html");
