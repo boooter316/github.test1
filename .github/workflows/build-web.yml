@@ -157,9 +157,16 @@ jobs:
           node --check server.js
           node --check public/identifier-scanner.js
           node -e "const fs=require('node:fs');const h=fs.readFileSync('public/index.html','utf8');for(const id of ['identifierTabButton','identifierTabPanel','runIdentifierScan','downloadIdentifierReport'])if(!h.includes(id))throw new Error('Missing identifier scanner UI control: '+id)"
-          npm install --no-audit --no-fund
+          npm install --package-lock-only --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npm run check
           npm audit --omit=dev --audit-level=high
+      - name: Upload generated Recovery Panel lockfile for review
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: recovery-panel-package-lock
+          path: recovery-panel/package-lock.json
+          if-no-files-found: error
       - name: Run standalone web server regression tests
         working-directory: Epic_Games_Recovery_Assistant/web
         run: |
