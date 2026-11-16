@@ -9,6 +9,8 @@ COPY network_tools.ps1 /app/network_tools.ps1
 COPY SETUP_AND_USAGE.txt /app/SETUP_AND_USAGE.txt
 ENV PORT=8080
 EXPOSE 8080
+RUN mkdir -p /data && chown node:node /data
+ENV DASHBOARD_USERS_FILE=/data/dashboard-users.json
 USER node
 CMD ["node", "/app/server.mjs"]
 COPY FAZE_JARVIS_SETUP.md /app/FAZE_JARVIS_SETUP.md

@@ -2,15 +2,15 @@
 
 This folder contains the browser-based recovery-request builder, a Node.js web/API server for the optional DeepSeek chat, and the original C++17 static server source.
 
-## Dashboard sign-in
+## Dashboard sign-in and first account registration
 
-The browser dashboard is protected by a server-checked username and password. Credentials are never placed in browser JavaScript or committed to GitHub.
+The browser dashboard requires a server-verified account before any dashboard page or API route can be used. On first launch, choose **Register** to create the one owner account. Registration closes automatically as soon as that first account is saved; later visitors can only sign in. This avoids an unrestricted public registration page.
 
-On Windows, run `START_WEB_DASHBOARD.bat`. It prompts for the dashboard username and password each time, then starts the protected web server. The password prompt is masked. Keep the terminal open while using the dashboard; press Ctrl+C to stop the server.
+Passwords are stored as salted scrypt hashes in a local `.dashboard-users.json` data file, never in browser JavaScript or the Git repository. Keep this file private and back it up securely. Deleting it while the server is stopped resets first-run registration; anyone with write access to the server's data folder could then claim the initial account.
 
-For a hosted deployment, configure `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD` as private environment variables in the hosting provider before starting the server. Use HTTPS in production. Do not put real credentials in source files, GitHub commits, screenshots, or public issue comments. If a password has been shared in a chat or other place you do not fully control, rotate it before using the dashboard publicly.
+On Windows, run `START_WEB_DASHBOARD.bat`. It starts the protected server and opens first-run registration at `http://127.0.0.1:8080`. Keep the terminal open while using the dashboard; press Ctrl+C to stop the server. The data file stays in this `web/` folder.
 
-The server issues an HttpOnly, SameSite=Strict session cookie with an eight-hour lifetime and rate-limits sign-in attempts. The session store is in memory and is cleared when the server restarts; use a single server instance unless persistent/shared sessions are implemented.
+For hosted deployments, set `DASHBOARD_USERS_FILE` to a persistent, private writable path and mount persistent storage there. Use HTTPS in production. The Docker image runs as the unprivileged `node` user; mount a writable volume at `/data` and set `DASHBOARD_USERS_FILE=/data/dashboard-users.json`. Do not commit account data, passwords, session cookies, or secrets to GitHub. The session cookie is HttpOnly and SameSite=Strict, sessions expire after eight hours, and sign-in/registration attempts are rate-limited. Sessions are in memory and end when the server restarts.
 
 ## First-run Windows setup
 

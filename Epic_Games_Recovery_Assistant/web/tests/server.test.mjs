@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import net from "node:net";
 import path from "node:path";
+import os from "node:os";
+import { rm } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -10,6 +12,7 @@ const serverPath = path.resolve(here, "../server.mjs");
 let child;
 let baseUrl;
 let sessionCookie;
+const usersFile = path.join(os.tmpdir(), `dashboard-users-${process.pid}-${Date.now()}.json`);
 const nativeFetch = globalThis.fetch;
 
 async function unusedPort() {
@@ -34,8 +37,7 @@ before(async () => {
       WEB_ROOT: path.resolve(here, ".."),
       DEEPSEEK_API_KEY: "",
       CHAT_ACCESS_PASSWORD: "",
-      DASHBOARD_USERNAME: "test-dashboard-user",
-      DASHBOARD_PASSWORD: "test-dashboard-password",
+      DASHBOARD_USERS_FILE: usersFile,
       TELEGRAM_BOT_TOKEN: "",
       TELEGRAM_BOT_USERNAME: ""
     },
@@ -66,28 +68,30 @@ before(async () => {
   assert.equal(unauthenticated.headers.get("location"), "/login.html");
   const loginPage = await nativeFetch(baseUrl + "/login.html");
   assert.equal(loginPage.status, 200);
-  assert.match(await loginPage.text(), /Dashboard sign in/);
-  const rejected = await nativeFetch(baseUrl + "/api/auth/login", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: "test-dashboard-user", password: "wrong-password" })
-  });
-  assert.equal(rejected.status, 401);
-  const accepted = await nativeFetch(baseUrl + "/api/auth/login", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: "test-dashboard-user", password: "test-dashboard-password" })
-  });
-  assert.equal(accepted.status, 200);
-  assert.match(accepted.headers.get("set-cookie") || "", /HttpOnly/);
-  sessionCookie = (accepted.headers.get("set-cookie") || "").split(";")[0];
-  globalThis.fetch = (input, init = {}) => {
-    const headers = new Headers(init.headers || {});
-    if (sessionCookie && !String(input).includes("/api/auth/login")) headers.set("Cookie", sessionCookie);
-    return nativeFetch(input, { ...init, headers });
-  };
+  assert.match(await loginPage.text(), /Dashboard account/);
+  const status = await nativeFetch(baseUrl + "/api/auth/status");
+  assert.deepEqual(await status.json(), { registrationAvailable: true });
+  const weak = await nativeFetch(baseUrl + "/api/auth/register", { method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"test-user",password:"short"}) });
+  assert.equal(weak.status,400);
+  const registered = await nativeFetch(baseUrl + "/api/auth/register", { method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"test-dashboard-user",password:"test-dashboard-password-long"}) });
+  assert.equal(registered.status,201);
+  assert.match(registered.headers.get("set-cookie") || "",/HttpOnly/);
+  sessionCookie=(registered.headers.get("set-cookie") || "").split(";")[0];
+  const closed=await nativeFetch(baseUrl + "/api/auth/status");
+  assert.deepEqual(await closed.json(),{registrationAvailable:false});
+  const blocked=await nativeFetch(baseUrl + "/api/auth/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"another-user",password:"another-password-long"})});
+  assert.equal(blocked.status,403);
+  const rejected=await nativeFetch(baseUrl + "/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"test-dashboard-user",password:"wrong-password"})});
+  assert.equal(rejected.status,401);
+  const accepted=await nativeFetch(baseUrl + "/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"test-dashboard-user",password:"test-dashboard-password-long"})});
+  assert.equal(accepted.status,200);
+  sessionCookie=(accepted.headers.get("set-cookie") || "").split(";")[0];
+  globalThis.fetch=(input,init={})=>{const headers=new Headers(init.headers || {});if(sessionCookie && !String(input).includes("/api/auth/login") && !String(input).includes("/api/auth/register"))headers.set("Cookie",sessionCookie);return nativeFetch(input,{...init,headers});};
 });
 
-after(() => {
+after(async () => {
   if (child && child.exitCode === null) child.kill();
+  await rm(usersFile, { force: true });
 });
 
 test("dashboard session protects pages and APIs until valid sign-in", async () => {
