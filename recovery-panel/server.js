@@ -64,7 +64,7 @@ app.use(session({
 }));
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 8, standardHeaders: "draft-7", legacyHeaders: false });
 const intakeLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 6, standardHeaders: "draft-7", legacyHeaders: false });
-const allowedIntakeFields = new Set(["accountId","display","oldDisplay","email","oldEmail","firstName","lastName","country","incident","error","date","firstSeen","details","mfaAccess","twoStepMethods","connectedAccounts","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome","changeRequestType","requestedEmail","requestedUsername"]);
+const allowedIntakeFields = new Set(["accountId","display","oldDisplay","email","oldEmail","firstName","lastName","country","incident","error","date","firstSeen","details","mfaAccess","twoStepMethods","connectedAccounts","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome","changeRequestType","requestedEmail","requestedUsername","requestedDisplayName"]);
 function encryptPayload(value) {
   const iv = crypto.randomBytes(12), cipher = crypto.createCipheriv("aes-256-gcm", Buffer.from(dataKeyHex, "hex"), iv);
   const encrypted = Buffer.concat([cipher.update(JSON.stringify(value), "utf8"), cipher.final()]);
