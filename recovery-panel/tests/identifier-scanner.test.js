@@ -16,7 +16,7 @@ test("counts labelled Fortnite display-name and username fields", () => {
   assert.equal(result.fortnite, 2);
 });
 
-test("counts labelled Epic account IDs and UUID-shaped IDs", () => {
+test("counts labelled Epic account IDs and ignores unlabelled UUIDs", () => {
   const labelled = identifierCounts("Epic Account ID: 12345678-1234-4234-8234-123456789abc");
   assert.equal(labelled.epic, 1);
   const bare = identifierCounts("Reference: 12345678-1234-4234-8234-123456789abc");
