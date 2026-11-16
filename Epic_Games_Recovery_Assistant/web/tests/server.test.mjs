@@ -109,6 +109,18 @@ test("main page is served with browser security headers", async () => {
   assert.match(await response.text(), /Recovery Assistant/i);
 });
 
+test("recovery form exposes structured non-secret customer and linked-platform fields", async () => {
+  const response = await fetch(baseUrl);
+  assert.equal(response.status, 200);
+  const body = await response.text();
+  for (const field of ["firstName", "lastName", "connectedAccounts", "changeRequestType", "submitForAdminReview"]) {
+    assert.ok(body.includes('id="' + field + '"'), "Missing recovery field: " + field);
+  }
+  assert.match(body, /public platform names, usernames, and profile IDs/i);
+  assert.match(body, /Never paste passwords, cookies, tokens, or recovery codes/i);
+  assert.match(body, /administrator review/i);
+});
+
 test("DigitalOcean network lab page is served with restrictive browser security headers", async () => {
   const response = await fetch(`${baseUrl}/network-lab.html`);
   assert.equal(response.status, 200);
@@ -170,4 +182,13 @@ test("central dashboard lists every independently selectable browser tool", asyn
     assert.ok(body.includes('data-open-page="' + page + '"'), "Missing launcher target: " + page);
     assert.ok(body.includes(label), "Missing visible launcher label: " + label);
   }
+});
+
+test("browser PDF evidence scanner enforces bounded local-only scan limits", async () => {
+  const response = await fetch(baseUrl);
+  const body = await response.text();
+  assert.match(body, /10 files per batch, 20 MB each, and 500 pages per file/);
+  assert.match(body, /Select no more than 10 PDFs per scan batch/);
+  assert.match(body, /Scans run manually when you press the button/);
+  assert.match(body, /No document text or matched secret values are included/);
 });

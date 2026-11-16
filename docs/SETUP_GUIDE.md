@@ -44,7 +44,7 @@ This is a separate app from the native desktop dashboard.
 4. On the same PC, open http://127.0.0.1:8080.
 5. To stop the server, return to PowerShell and press Ctrl+C.
 
-The default server port is 8080; set the `PORT` environment variable before launch to use a different port. Optional DeepSeek chat and Telegram features require their own server-side environment settings. Do not put API keys or bot tokens in browser HTML/JavaScript or commit them to Git.
+The default server port is 8080; set the PORT environment variable before launch to use a different port. Optional DeepSeek chat and Telegram features require their own server-side environment settings. For administrator-reviewed recovery intake, also set RECOVERY_PANEL_INTAKE_URL to the Recovery Panel HTTPS base URL and RECOVERY_INTAKE_TOKEN to the shared random bearer secret. Configure the same token on the panel. Do not put API keys, intake tokens, or bot tokens in browser HTML/JavaScript or commit them to Git.
 
 The Dockerfile is optional and is only for users who deliberately want a container deployment. The container listens on HTTP; public hosting requires HTTPS termination and appropriate network controls.
 
@@ -69,18 +69,22 @@ The Recovery Panel is not the same server as the main browser multitool.
    - `ADMIN_PASSWORD_SCRYPT`: generated `salt:hash` value.
    - `SESSION_SECRET`: random secret of at least 32 characters. Generate with `node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))"`.
    - `NODE_ENV=development` for local use.
-   - `PORT=3000` (optional; default is 3000).
+   - PORT=3000 (optional; default is 3000).
+   - RECOVERY_DATA_KEY: exactly 64 hexadecimal characters for AES-256-GCM encryption. Generate with: node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))".
+   - RECOVERY_INTAKE_TOKEN: shared server-to-server secret of at least 32 characters. Generate with: node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))".
+   - RECOVERY_DB_PATH: optional path for the SQLite database; default is recovery-panel/data/recovery-requests.sqlite.
+   - Keep the same RECOVERY_INTAKE_TOKEN on the main web server and Recovery Panel. On the main web server also set RECOVERY_PANEL_INTAKE_URL to the panel base URL. Production URLs must use HTTPS.
 6. Start the panel:
    ```sh
    npm start
    ```
 7. Open http://localhost:3000 on that computer.
 
-The panel has Recovery Records and PDF Evidence Scanner tabs and links to both network lab workspaces: DigitalOcean/private network administration and machine-specific server package setup. The package guide is also available at `recovery-panel/public/server-network-lab.html`. Records are saved in that browser's local storage, not in a central server database. Export your records before clearing browser data or changing devices.
+The panel has Recovery Records, PDF Evidence Scanner, and Fast Recovery Progress tabs. Existing manually created Recovery Records remain in browser local storage on that device. Incoming browser-tool submissions are stored separately in the panel's server-side SQLite database, encrypted at rest with the configured RECOVERY_DATA_KEY. The Fast Recovery Progress tab lets the administrator inspect incoming requests, request more information, approve or reject them, and record an official Epic reference after manual submission. Back up the SQLite database and its encryption key separately and securely. The panel also links to both network lab workspaces.
 
-**Production warning:** the panel currently uses Express MemoryStore for sessions and is not production-ready. Do not expose it publicly until a maintained persistent session store, HTTPS, network restrictions, secure deployment secrets, backups, and logging have been configured and reviewed. No production deployment is included in this setup.
+**Production warning:** administrator sessions now persist in a separate SQLite database across process restarts. This is a single-instance store, not a distributed multi-host session service. The panel is not certified production-ready. Before public deployment, enforce HTTPS, restrict network access, protect both SQLite databases and the encryption key with secure backups, review hosting logs, and arrange an independent security review. No production deployment is included in this setup.
 
-The current package pins direct dependency versions but does not include a committed `package-lock.json`; CI uses `npm install`, not `npm ci`. Transitive dependency versions are therefore not fully locked yet.
+The Recovery Panel uses Node's built-in node:sqlite module (Node 26+) for both the encrypted request database and persistent session database; no additional SQLite npm package is required. Run `npm test` to exercise synthetic intake, validation, administrator review, approved export, audit history, logout, and session persistence across a restart. Direct dependencies remain pinned and no package-lock.json is committed; CI uses npm install, not npm ci, so transitive dependency versions are not fully locked yet.
 
 ## 5. iPhone / mobile browser
 
@@ -88,13 +92,14 @@ The current package pins direct dependency versions but does not include a commi
 - For same-Wi-Fi access, the PC firewall and server network binding must allow the phone to reach the PC's LAN address and configured port. Use a trusted private network only.
 - Do not expose the development HTTP server directly to the public internet. Use a properly configured HTTPS deployment for remote access.
 - The native Windows `.exe` files do not run on iPhone.
-- Recovery Panel records are local to the browser/device. Use the panel's export function to back up records; there is no automatic phone/PC sync.
+- Manually created Recovery Records remain local to the browser/device. Consented intake submissions are stored in the separate server-side encrypted database and are visible in Fast Recovery Progress after administrator sign-in.
 
 ## 6. PDF evidence scanner
 
 - Native Windows scanner: `paf_evidence_scanner.c++` compiled to `paf_evidence_scanner.exe`; uses Poppler `pdftotext.exe` for text extraction.
 - Browser scanners: PDF.js is loaded from a CDN, so the browser needs internet access to load the library.
 - Neither path performs OCR on image-only pages. A PDF with scanned images may show no readable text.
+- Browser and native PDF scanners run only when started by the user. The PDF scanners limit a run to 10 files, 20 MiB per file, and 500 pages per file; extracted text is processed in memory and not written to the report.
 - Review evidence yourself. Scanner indicators are not proof of account ownership or credential validity.
 - Keep sensitive source PDFs and exported reports private.
 

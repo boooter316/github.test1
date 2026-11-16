@@ -35,7 +35,9 @@ github.test1/
 │   ├── server.js                         # Separate Express administrator panel server
 │   ├── package.json                      # Direct Node.js dependencies and scripts
 │   ├── public/
-│   │   └── index.html                    # Panel UI: Recovery Records + PDF Evidence Scanner
+│   │   └── index.html                    # Panel UI: Recovery Records + Fast Recovery Progress + PDF Evidence Scanner
+│   ├── tests/
+│   │   └── panel.integration.test.js      # Synthetic intake/review/export/session persistence tests
 │   └── README.md                         # Panel setup, environment, and limitations
 └── GRABBERS/
     └── README.md                         # Safety note; no credential grabber should be activated
@@ -55,7 +57,7 @@ These browser scanners operate on user-selected text/files in the browser. They 
 
 ### 3. Separate Recovery Panel
 
-The Recovery Panel is a different Express app. It currently exposes two main tabs: Recovery Records and PDF Evidence Scanner. It uses environment variables for administrator authentication. Its records are browser-local and do not automatically sync to the main browser multitool.
+The Recovery Panel is a different Express app. It exposes Recovery Records, Fast Recovery Progress, and PDF Evidence Scanner tabs, plus links to the network-lab pages. Manually created records remain in browser local storage; consented recovery-intake submissions are forwarded server-to-server and stored separately in an AES-256-GCM encrypted SQLite database. Administrator sessions use a separate persistent SQLite store. These are separate data paths and do not provide automatic synchronization for local records.
 
 ### 4. CI workflows
 
@@ -68,5 +70,6 @@ CI coverage is targeted. It does not replace interactive browser testing, Window
 
 - Recovery Panel direct dependencies are pinned, but a lockfile is not currently committed; transitive dependency resolution can change.
 - PDF.js is still loaded as version 3.11.174 from a CDN in both browser interfaces. Upgrading it should be a separately tested migration of the library and worker integration, not a blind URL edit.
-- Recovery Panel Express MemoryStore is not suitable for production or multi-instance hosting.
+- The Recovery Panel uses a single-instance SQLite session store. It survives process restarts but is not a distributed/multi-host session service; public deployment still requires HTTPS, network restrictions, secure backups, and an independent security review.
+- The browser and native PDF scanners are manual/on-demand and enforce bounded scan limits. Image-only PDFs are not OCR-scanned.
 - The browser app and Recovery Panel have separate data storage; there is no automatic cross-device synchronization.

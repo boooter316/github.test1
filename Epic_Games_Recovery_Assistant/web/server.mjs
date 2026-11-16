@@ -9,6 +9,8 @@ const API_KEY = process.env.DEEPSEEK_API_KEY || "";
 const CHAT_PASSWORD = process.env.CHAT_ACCESS_PASSWORD || "";
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const TELEGRAM_BOT_USERNAME = (process.env.TELEGRAM_BOT_USERNAME || "").replace(/^@/, "");
+const RECOVERY_PANEL_INTAKE_URL = process.env.RECOVERY_PANEL_INTAKE_URL || "";
+const RECOVERY_INTAKE_TOKEN = process.env.RECOVERY_INTAKE_TOKEN || "";
 const TELEGRAM_CONFIGURED = Boolean(TELEGRAM_BOT_TOKEN && /^[A-Za-z0-9_]{5,32}$/.test(TELEGRAM_BOT_USERNAME));
 const files = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
@@ -102,6 +104,43 @@ const server = http.createServer(async (req, res) => {
         lastName: typeof input.last_name === "string" ? input.last_name.slice(0, 128) : ""
       }
     });
+  }
+  if (req.method === "POST" && url.pathname === "/api/recovery-intake") {
+    if (!RECOVERY_PANEL_INTAKE_URL || RECOVERY_INTAKE_TOKEN.length < 32) {
+      return json(res, 503, { error: "Administrator-reviewed recovery intake is not configured on this server." });
+    }
+    if (!allowedRate(req.socket.remoteAddress || "unknown")) {
+      return json(res, 429, { error: "Too many recovery submissions. Please wait before trying again." });
+    }
+    let input;
+    try { input = await readBody(req); }
+    catch (e) { return json(res, 400, { error: e.message === "Request too large" ? e.message : "Invalid recovery submission." }); }
+    if (!input || input.consent !== true || !input.payload || typeof input.payload !== "object" || Array.isArray(input.payload)) {
+      return json(res, 400, { error: "Review the privacy notice and confirm consent before submitting." });
+    }
+    const allowedRecoveryFields = new Set(["accountId","display","oldDisplay","email","oldEmail","firstName","lastName","country","incident","error","date","firstSeen","details","mfaAccess","twoStepMethods","connectedAccounts","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome","changeRequestType","requestedEmail","requestedDisplayName"]);
+    const unknownRecoveryFields = Object.keys(input.payload).filter(key => !allowedRecoveryFields.has(key));
+    if (unknownRecoveryFields.length) return json(res, 400, { error: "Unsupported recovery field(s): " + unknownRecoveryFields.join(", ") });
+    let endpoint;
+    try {
+      endpoint = new URL("/api/intake", RECOVERY_PANEL_INTAKE_URL);
+      if (endpoint.protocol !== "https:" && process.env.NODE_ENV === "production") {
+        return json(res, 503, { error: "The recovery panel intake endpoint must use HTTPS in production." });
+      }
+    } catch { return json(res, 503, { error: "The recovery panel intake URL is invalid." }); }
+    let upstream;
+    try {
+      upstream = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + RECOVERY_INTAKE_TOKEN },
+        body: JSON.stringify({ consent: true, payload: input.payload, website: input.website || "" }),
+        signal: AbortSignal.timeout(15000)
+      });
+    } catch { return json(res, 502, { error: "The private recovery panel could not be reached. No request was confirmed as saved." }); }
+    let result = {};
+    try { result = await upstream.json(); } catch {}
+    if (!upstream.ok) return json(res, upstream.status, { error: result.error || "The private recovery panel rejected the request." });
+    return json(res, 201, result);
   }
   if (req.method === "GET" && url.pathname === "/api/health") {
     return json(res, 200, { provider: "DeepSeek", apiKeyConfigured: Boolean(API_KEY), accessPasswordConfigured: Boolean(CHAT_PASSWORD), configured: Boolean(API_KEY && CHAT_PASSWORD) });

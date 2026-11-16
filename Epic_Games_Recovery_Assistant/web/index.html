@@ -11,7 +11,7 @@ input,textarea,select{box-sizing:border-box;width:100%;padding:10px;border:1px s
 .checks{display:flex;flex-wrap:wrap;gap:12px}.checks label{font-weight:400}.check{display:flex;gap:7px;align-items:center}.check input{width:auto}
 .actions{display:flex;gap:10px;flex-wrap:wrap}button{border:0;border-radius:9px;padding:11px 16px;background:#175cd3;color:white;font-weight:650;font-size:1rem}button.secondary{background:#e8edf4;color:#1c2b40}
 small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wrap{max-width:none;padding:0}header,.panel{border:0;break-inside:avoid;padding:8px;margin:0 0 8px}.actions,.no-print{display:none!important}input,textarea,select{border:0;padding:2px;appearance:none}.notice{background:#fff}}
-.tabs{display:flex;gap:8px;margin:0 0 16px}.tabs .tab{flex:1}.tabs .tab[aria-selected="false"]{background:#e8edf4;color:#1c2b40}.tabs .tab[aria-selected="true"]{background:#175cd3;color:#fff}.scanner-result{white-space:pre-wrap;background:#f5f7fa;border:1px solid #dce2ea;border-radius:8px;padding:12px;min-height:80px}.risk{border-left:4px solid #b7791f;background:#fff8e8;padding:10px 14px}.hidden{display:none!important}
+.tabs{display:flex;gap:8px;margin:0 0 16px}.tabs .tab{flex:1}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #2563eb;outline-offset:2px}.tab:disabled,button:disabled{opacity:.55;cursor:not-allowed}.tabs .tab[aria-selected="false"]{background:#e8edf4;color:#1c2b40}.tabs .tab[aria-selected="true"]{background:#175cd3;color:#fff}.scanner-result{white-space:pre-wrap;background:#f5f7fa;border:1px solid #dce2ea;border-radius:8px;padding:12px;min-height:80px}.risk{border-left:4px solid #b7791f;background:#fff8e8;padding:10px 14px}.hidden{display:none!important}
 
 .tool-subnav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px;padding-bottom:10px;border-bottom:1px solid #dce2ea}
 .tool-subnav button{flex:1 1 150px;min-width:0}
@@ -36,6 +36,16 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 .dashboard-hero{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:center;padding:24px;background:linear-gradient(135deg,#111827,#312e81 58%,#701a3b);color:#fff;border:1px solid rgba(255,255,255,.18)}
 .dashboard-hero h2{font-size:1.55rem;margin:0 0 8px;color:#fff}.dashboard-hero p{color:#e5e7eb;margin:0}.dashboard-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dashboard-stat{padding:14px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}.dashboard-stat strong{display:block;font-size:1.45rem;color:#fff}.dashboard-stat span{font-size:.82rem;color:#e5e7eb}
 .dashboard-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:18px 0 12px}.dashboard-toolbar input{flex:1 1 240px;min-width:0}.dashboard-grid{grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px}.dashboard-grid .tool-card{margin:0;padding:17px;border:1px solid #d7deea;box-shadow:0 5px 16px rgba(15,23,42,.07);display:flex;flex-direction:column;min-height:185px;transition:transform .15s ease,box-shadow .15s ease}.dashboard-grid .tool-card:hover{transform:translateY(-2px);box-shadow:0 9px 22px rgba(15,23,42,.12)}.dashboard-grid .tool-card h3{margin:0 0 7px;font-size:1.02rem}.dashboard-grid .tool-card p{flex:1;margin:0 0 14px}.dashboard-grid .tool-card button{width:100%}.dashboard-section-title{margin:22px 0 10px}.dashboard-empty{display:none;padding:14px;border:1px dashed #94a3b8;border-radius:10px;color:#526174}@media(max-width:650px){.dashboard-hero{grid-template-columns:1fr;padding:18px}.dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}}
+
+/* Dashboard and tab navigation refresh: visual-only, with existing tool behavior preserved. */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:4;padding:10px;margin:12px 0 18px;border:1px solid rgba(148,163,184,.35);border-radius:14px;background:rgba(12,16,28,.94);backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.tabs .tab{min-height:42px;padding:10px 14px;border:1px solid rgba(148,163,184,.28);border-radius:10px;font-weight:650;transition:background .15s ease,border-color .15s ease,transform .15s ease}
+.tabs .tab:hover{transform:translateY(-1px);border-color:#94a3b8}
+.tabs .tab:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
+.tabs .tab[aria-selected="true"],.tabs .tab.active{background:#1d4ed8;color:#fff;border-color:#60a5fa}
+.tool-card{transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.tool-card:hover{transform:translateY(-2px);border-color:#64748b;box-shadow:0 12px 28px rgba(0,0,0,.18)}
+@media(max-width:640px){.tabs{position:relative;top:auto;padding:8px}.tabs .tab{flex:1 1 calc(50% - 8px);font-size:.88rem}.wrap{padding-left:12px;padding-right:12px}}
 </style></head><body><main class="wrap">
 <header><h1>Account Recovery Request Assistant</h1><p>Prepare a factual support request for Epic Games or another platform. This is an independent organizer, not an official support tool.</p>
 <div class="notice"><strong>Privacy:</strong> Recovery-form entries and local scanner results stay in this browser tab. If you use Faze Jarvis, your chat messages are sent to DeepSeek through this server’s API proxy. The DeepSeek API key remains server-side. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, tokens, or private keys.</div></header>
@@ -140,12 +150,14 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div class="hidden" id="recoveryTab">
 <form id="packet">
 <section class="panel"><h2>Account and contact details</h2><div class="grid">
+<div><label for="firstName">Customer first name</label><input id="firstName" autocomplete="given-name" maxlength="100"></div>
+<div><label for="lastName">Customer last name</label><input id="lastName" autocomplete="family-name" maxlength="100"></div>
 <div><label for="name">Name used on purchases (optional)</label><input id="name" autocomplete="name"></div>
 <div><label for="accountId">Epic Account ID</label><input id="accountId"></div>
 <div><label for="display">Current display name</label><input id="display"></div>
 <div><label for="oldDisplay">Previous display name(s)</label><input id="oldDisplay"></div>
 <div><label for="email">Current or original account email</label><input id="email" type="email" autocomplete="email"></div>
-<div><label for="oldEmail">Previous account email(s)</label><input id="oldEmail" type="email"></div><div><label for="desiredDisplay">Requested Epic display name (planning only)</label><input id="desiredDisplay"></div><div><label for="desiredEmail">Requested Epic email (planning only)</label><input id="desiredEmail" type="email"></div>
+<div><label for="oldEmail">Previous account email(s)</label><input id="oldEmail" type="email"></div><div><label for="desiredDisplay">Requested Epic display name (planning only)</label><input id="desiredDisplay"></div><div><label for="desiredEmail">Requested Epic email (planning only)</label><input id="desiredEmail" type="email"></div><div><label for="changeRequestType">Requested account change</label><select id="changeRequestType"><option value="">No change requested</option><option>Email change</option><option>Display-name change</option><option>Linked-account disconnect review</option><option>Other account correction</option></select></div>
 <div><label for="country">Country/region on account</label><input id="country"></div>
 <div><label for="creator">Support-A-Creator code (if applicable)</label><input id="creator"></div></div></section>
 <section class="panel"><h2>Recovery incident</h2><div class="grid">
@@ -166,11 +178,16 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div><label for="vpn">VPN/proxy provider and region previously used</label><input id="vpn"></div></div>
 <p class="hint">Do not spoof an IP or use a proxy to impersonate a prior location. An IP address or VPN history is not proof of account ownership.</p></section>
 <section class="panel"><h2>Linked platforms and restrictions</h2><p class="hint">Prepare separate, truthful recovery or appeal details for Epic, Xbox, PlayStation, Steam, and Nintendo. Only each platform can review or change its own restrictions or account settings.</p><div class="grid">
-<div><label for="linked">Linked services / public profile IDs</label><textarea id="linked" placeholder="Xbox, PlayStation, Nintendo, Steam, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other"></textarea></div>
+<div><label for="connectedAccounts">Connected platforms (one per line)</label><textarea id="connectedAccounts" maxlength="2000" placeholder="Platform | public username | public profile ID&#10;Xbox | ExampleGamertag | 123456"></textarea><p class="hint">Only public platform names, usernames, and profile IDs. Never paste passwords, cookies, tokens, or recovery codes.</p></div>
+<div><label for="linked">Other linked services / public profile IDs</label><textarea id="linked" placeholder="Xbox, PlayStation, Nintendo, Steam, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other"></textarea></div>
 <div><label for="appeal">Restriction or appeal details</label><textarea id="appeal" placeholder="Platform, notice date, case/reference number, notice wording, and what you are appealing"></textarea></div><div><label for="platform">Platform needing recovery or appeal</label><select id="platform"><option>Epic Games</option><option>Xbox</option><option>PlayStation</option><option>Steam</option><option>Nintendo</option><option>GeForce NOW</option><option>Roblox</option><option>Minecraft</option><option>GTA</option><option>Disney</option><option>Twitch</option><option>YouTube</option><option>TikTok</option><option>More than one platform</option></select></div><div><label for="platformId">Public gamertag / Online ID / Steam profile / Nintendo nickname</label><input id="platformId"></div><div><label for="caseId">Support case or enforcement reference</label><input id="caseId"></div><div><label for="noticeDate">Notice date (if known)</label><input id="noticeDate" type="date"></div><div><label for="requestedOutcome">Requested outcome</label><select id="requestedOutcome"><option>Account recovery guidance</option><option>Review or appeal of restriction</option><option>Correct account email or display name</option><option>Review linked-account issue</option><option>Understand enforcement notice</option></select></div></div></section>
 <section class="panel"><h2>Review and export</h2><p class="hint">Check details for accuracy before sharing through the platform's official secure support form.</p>
 <div class="actions no-print"><button type="button" id="json">Download JSON packet</button><button type="button" class="secondary" id="pdf">Print / Save as PDF</button><button type="button" class="secondary" id="draft">Create support-request draft</button></div>
-<textarea id="draftText" class="no-print" placeholder="Your support request draft will appear here." style="margin-top:12px"></textarea></section></form>
+<textarea id="draftText" class="no-print" placeholder="Your support request draft will appear here." style="margin-top:12px"></textarea>
+<div class="notice no-print" style="margin-top:14px"><strong>Private administrator review:</strong> If you choose to submit, the selected non-secret details are encrypted in the Recovery Panel database for administrator review. This does not submit anything to Epic. Do not include passwords, verification codes, backup codes, tokens, cookies, full payment-card details, or IP/VPN history.</div>
+<label class="check no-print" style="display:flex;gap:8px;align-items:flex-start"><input id="adminReviewConsent" type="checkbox" style="width:auto;margin-top:4px"><span>I consent to sending the selected recovery details to this tool's private administrator database for review. I understand that an administrator must approve the request and submit it separately through Epic's official process.</span></label>
+<input id="recoveryWebsite" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px">
+<div class="actions no-print"><button type="button" id="submitForAdminReview">Send to administrator for review</button><span id="adminReviewResult" class="scanner-result" role="status" aria-live="polite">Not submitted.</span></div></section></form>
 <section class="panel" id="ticketManager">
 <h2>Support Ticket Manager &amp; Recovery Retry Guard</h2>
 <p class="hint">Prepare one clear support request and keep track of an existing case. This assistant never submits tickets or reports automatically. Use the platform's official support channel and do not open duplicate cases for the same issue.</p>
@@ -354,9 +371,9 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 
 <section class="panel hidden" id="pdfEvidenceTab">
 <h2>Local PDF Evidence Scanner</h2>
-<p class="hint">Scan text-based PDFs selected from this device. The browser extracts text locally and displays only page numbers and indicator categories—not document text or matched secret values.</p>
+<p class="hint">Scan text-based PDFs selected from this device. Scans run manually when you press the button; there is no background or recurring scan. The browser extracts text locally and displays only page numbers and indicator categories—not document text or matched secret values.</p>
 <div class="risk"><strong>Privacy and limitations:</strong> PDF contents are not uploaded by this scanner. Image-only/scanned PDFs are not OCR-scanned. Encrypted, damaged, oversized, or very large documents may be skipped or only partially inspected. Findings are indicators only and do not verify account ownership or document authenticity.</div>
-<p><label for="pdfEvidenceFiles">Choose PDF files (maximum 50 MB each; up to 2,000 pages)</label><input id="pdfEvidenceFiles" type="file" accept="application/pdf,.pdf" multiple></p>
+<p><label for="pdfEvidenceFiles">Choose PDF files (maximum 10 files per batch, 20 MB each, and 500 pages per file)</label><input id="pdfEvidenceFiles" type="file" accept="application/pdf,.pdf" multiple></p>
 <div class="actions no-print"><button type="button" id="runPdfEvidenceScan">Scan PDFs locally</button><button type="button" class="secondary" id="clearPdfEvidenceScan">Clear</button><button type="button" class="secondary" id="downloadPdfEvidenceReport" disabled>Download TXT report</button></div>
 <pre id="pdfEvidenceResult" class="scanner-result" role="status" aria-live="polite">No PDF scan has been run.</pre>
 </section>
@@ -502,12 +519,32 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 </section>
 </main>
 <script>
-const ids=["name","accountId","display","oldDisplay","email","oldEmail","desiredDisplay","desiredEmail","country","creator","incident","error","date","firstSeen","details","mfaAccess","invoice","provider","last4","billingCity","ip","vpn","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"];
+const ids=["name","firstName","lastName","accountId","display","oldDisplay","email","oldEmail","desiredDisplay","desiredEmail","changeRequestType","connectedAccounts","country","creator","incident","error","date","firstSeen","details","mfaAccess","invoice","provider","last4","billingCity","ip","vpn","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"];
 function collect(){const o={app:"Account Recovery Request Assistant",schemaVersion:1,createdAt:new Date().toISOString(),fields:{}};ids.forEach(id=>o.fields[id]=document.getElementById(id).value.trim());o.fields.twoStepMethods=[...document.querySelectorAll('input[name="mfa"]:checked')].map(x=>x.value);return o}
 function makeDraft(o){const f=o.fields;return ["Hello Support Team,","","I am requesting help with my account. Please review the information below and let me know what additional evidence is required through your official secure process.","","Account ID: "+f.accountId,"Current display name: "+f.display,"Current/original email: "+f.email,"Requested display name (planning only): "+f.desiredDisplay,"Requested email (planning only): "+f.desiredEmail,"Platform: "+f.platform,"Public profile ID: "+f.platformId,"Support/enforcement reference: "+f.caseId,"Notice date: "+f.noticeDate,"Requested outcome: "+f.requestedOutcome,"Appeal details: "+f.appeal,"Issue: "+f.incident,"Date issue began: "+f.date,"Error message: "+f.error,"Two-step methods used: "+f.twoStepMethods.join(", "),"Methods I can still access: "+f.mfaAccess,"Purchase reference: "+f.invoice,"","What happened:",f.details,"","Thank you."].join("\n")}
 document.getElementById("json").addEventListener("click",()=>{const b=new Blob([JSON.stringify(collect(),null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="recovery-request.json";a.click();URL.revokeObjectURL(a.href)});
 document.getElementById("pdf").addEventListener("click",()=>window.print());
 document.getElementById("draft").addEventListener("click",()=>document.getElementById("draftText").value=makeDraft(collect()));
+document.getElementById("submitForAdminReview").addEventListener("click",async()=>{
+ const result=document.getElementById("adminReviewResult");
+ if(!document.getElementById("adminReviewConsent").checked){result.textContent="Please confirm consent before sending details for administrator review.";return;}
+ const all=collect().fields;
+ const allowed=["accountId","display","oldDisplay","email","oldEmail","firstName","lastName","country","incident","error","date","firstSeen","details","mfaAccess","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome","changeRequestType","requestedEmail","requestedDisplayName","connectedAccounts"];
+ const payload={};allowed.forEach(key=>payload[key]=String(all[key]||"").slice(0,key==="details"||key==="appeal"?3000:500));
+ payload.twoStepMethods=Array.isArray(all.twoStepMethods)?all.twoStepMethods.slice(0,8):[];
+ payload.requestedEmail=String(all.desiredEmail||"").slice(0,254);
+ payload.requestedDisplayName=String(all.desiredDisplay||"").slice(0,100);
+ payload.connectedAccounts=String(all.connectedAccounts||"").split(/\r?\n/).map(line=>line.split("|").map(part=>part.trim())).filter(parts=>parts.some(Boolean)).slice(0,12).map(parts=>({platform:parts[0]||"",username:parts[1]||"",publicId:parts[2]||""}));
+ if(!payload.accountId&&!payload.display&&!payload.email&&!payload.oldEmail){result.textContent="Enter an account ID, display name, or account email first.";return;}
+ const button=document.getElementById("submitForAdminReview");button.disabled=true;result.textContent="Sending securely to the private review queue…";
+ try{
+  const response=await fetch("/api/recovery-intake",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({consent:true,payload,website:document.getElementById("recoveryWebsite").value})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"The request could not be submitted.");
+  result.textContent="Received. Reference: "+data.reference+". Status: Pending administrator review. This has NOT been sent to Epic.";
+ }catch(error){result.textContent="Not confirmed as saved: "+error.message;}
+ finally{button.disabled=false;}
+});
 
  // Local-only ticket pacing. This is a client-side convenience, not an Epic enforcement mechanism.
 const ticketLimitKey="recoveryAssistant.ticketPacing.v1";
@@ -978,25 +1015,28 @@ function pdfEvidenceCategories(text){
  return rules.filter(([,re])=>re.test(text)).map(([label])=>label);
 }
 document.getElementById("runPdfEvidenceScan").addEventListener("click",async()=>{
- const files=[...document.getElementById("pdfEvidenceFiles").files],out=["LOCAL PDF EVIDENCE INDICATOR REPORT","Generated: "+new Date().toISOString(),"Selected files: "+files.length,"","No document text or matched secret values are included."];
+ const files=[...document.getElementById("pdfEvidenceFiles").files],out=["LOCAL PDF EVIDENCE INDICATOR REPORT","Generated: "+new Date().toISOString(),"Selected files: "+files.length,"Limits: 10 PDFs per batch; 20 MB per PDF; 500 pages per PDF.","","No document text or matched secret values are included."];
  const result=document.getElementById("pdfEvidenceResult");
  if(!files.length){result.textContent="Choose one or more PDF files first.";return}
+ if(files.length>10){result.textContent="Select no more than 10 PDFs per scan batch.";return}
  if(!window.pdfjsLib){result.textContent="PDF engine did not load. Check the internet connection and reload this page.";return}
  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
  for(const file of files){
   out.push("FILE: "+file.name);
-  if(file.size>50*1024*1024){out.push("Skipped: file exceeds 50 MB.","");continue}
+  if(!file.name.toLowerCase().endsWith(".pdf")){out.push("Skipped: file name does not end in .pdf.","");continue}
+  if(file.size>20*1024*1024){out.push("Skipped: file exceeds 20 MB.","");continue}
   try{
    const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
-   const maxPages=Math.min(doc.numPages,2000);let readable=0,indicators=0;
+   const maxPages=Math.min(doc.numPages,500);let readable=0,indicators=0;
    for(let pageNo=1;pageNo<=maxPages;pageNo++){
+    result.textContent="Scanning "+file.name+" · page "+pageNo+" of "+maxPages+" (local only)…";
     const page=await doc.getPage(pageNo),content=await page.getTextContent(),pageText=content.items.map(x=>x.str||"").join(" ");
     if(!pageText.trim()){out.push("Page "+pageNo+": no extractable text (possibly image-only; OCR not included).");continue}
     readable++;const labels=pdfEvidenceCategories(pageText);
     if(labels.length){indicators+=labels.length;out.push("Page "+pageNo+": "+labels.join("; "))}
    }
    out.push("Pages: "+doc.numPages+" | Text-readable pages: "+readable+" | Indicator matches: "+indicators);
-   if(doc.numPages>maxPages)out.push("Only first "+maxPages+" pages checked; remaining pages not inspected.");
+   if(doc.numPages>maxPages)out.push("Page limit reached: first "+maxPages+" of "+doc.numPages+" pages checked; remaining pages not inspected.");
   }catch(_){out.push("Not inspected: PDF may be encrypted, damaged, or unreadable.")}
   out.push("");
  }
