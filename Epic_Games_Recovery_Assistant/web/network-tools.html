@@ -66,4 +66,4 @@ $("removeTaskCommand").onclick=()=>{$("helperCommand").textContent="powershell -
 $("downloadReport").onclick=()=>{const b=new Blob([reportText()],{type:"text/plain;charset=utf-8"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="local-ip-network-notes.txt";a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
 $("printReport").onclick=()=>{const w=window.open("","_blank");if(!w){alert("Allow pop-ups to print or save as PDF.");return}const s=reportText().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");w.document.write("<!doctype html><meta charset='utf-8'><title>Network notes</title><pre style='white-space:pre-wrap;font:13px system-ui'>"+s+"</pre><script>window.onload=()=>window.print()<\/script>");w.document.close()};
 refresh();
-</script></body></html>
+</script><script src="workspace-controls.js"></script></body></html>
