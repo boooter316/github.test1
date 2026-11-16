@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#111827"><title>Recovery Assistant Panel</title><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-:root{color-scheme:dark;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#08060a;color:#e5e7eb}*{box-sizing:border-box}body{margin:0;background:#08060a url('ghostface-bg.jpg') center center/cover fixed no-repeat;min-height:100vh;position:relative;padding-bottom:72px}body:before{content:"";position:fixed;inset:0;background:rgba(4,0,6,.52);pointer-events:none;z-index:0}body:after{content:"RECOVERY ASSISTANT  •  PRIVATE ADMIN REVIEW";position:fixed;z-index:5;left:0;right:0;bottom:0;padding:12px 8px;text-align:center;font-size:clamp(11px,2vw,14px);font-weight:700;letter-spacing:2px;background:rgba(8,12,22,.94);border-top:1px solid #334155;color:#cbd5e1;pointer-events:none}header,main{position:relative;z-index:1}header{padding:22px 18px;border-bottom:1px solid #263244;background:rgba(8,12,22,.88);backdrop-filter:blur(5px);display:flex;justify-content:space-between;align-items:center;gap:12px}h1{font-size:1.25rem;margin:0}main{width:min(1180px,100%);margin:auto;padding:24px 18px 64px}.card{background:rgba(21,31,48,.94);backdrop-filter:blur(5px);border:1px solid #2b394e;border-radius:16px;padding:18px;margin:16px 0}h2{font-size:1.05rem;margin:0 0 14px}label{display:block;font-size:.9rem;color:#cbd5e1;margin:12px 0 6px}input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #40516b;background:#0d1727;color:#f8fafc;font:inherit}textarea{min-height:92px;resize:vertical}button{border:0;border-radius:10px;padding:11px 15px;background:#2563eb;color:white;font-weight:650;font-size:.95rem;cursor:pointer;margin:6px 6px 0 0}.secondary{background:#334155}.danger{background:#991b1b}.muted{color:#9ca3af;font-size:.88rem;line-height:1.5}.hidden{display:none!important}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.case{border:1px solid #334155;border-radius:12px;padding:14px;margin:10px 0;background:#101a2a}a{color:#93c5fd}.panel-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.panel-tabs button[aria-selected="false"]{background:#334155}.panel-tabs button[aria-selected="true"]{background:#2563eb}.scan-output{white-space:pre-wrap;overflow-wrap:anywhere;background:#0d1727;border:1px solid #40516b;border-radius:10px;padding:12px;min-height:90px;color:#e5e7eb}#notice{padding:10px;border-radius:10px;background:#172554;color:#bfdbfe;margin:12px 0}.warning{border-left:3px solid #f59e0b;padding:10px 12px;background:#2a2112;color:#fde68a;border-radius:8px}@media(max-width:600px){.grid{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}main{padding:14px 12px 40px}.card{padding:15px}}
+:root{color-scheme:dark;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#08060a;color:#e5e7eb}*{box-sizing:border-box}body{margin:0;background:#08060a url('ghostface-bg.jpg') center center/cover fixed no-repeat;min-height:100vh;position:relative;padding-bottom:72px}body:before{content:"";position:fixed;inset:0;background:rgba(4,0,6,.52);pointer-events:none;z-index:0}body:after{content:"RECOVERY ASSISTANT  •  PRIVATE ADMIN REVIEW";position:fixed;z-index:5;left:0;right:0;bottom:0;padding:12px 8px;text-align:center;font-size:clamp(11px,2vw,14px);font-weight:700;letter-spacing:2px;background:rgba(8,12,22,.94);border-top:1px solid #334155;color:#cbd5e1;pointer-events:none}header,main{position:relative;z-index:1}header{padding:22px 18px;border-bottom:1px solid #263244;background:rgba(8,12,22,.88);backdrop-filter:blur(5px);display:flex;justify-content:space-between;align-items:center;gap:12px}h1{font-size:1.25rem;margin:0}main{width:min(1180px,100%);margin:auto;padding:24px 18px 64px}.card{background:rgba(21,31,48,.94);backdrop-filter:blur(5px);border:1px solid #2b394e;border-radius:16px;padding:18px;margin:16px 0}h2{font-size:1.05rem;margin:0 0 14px}label{display:block;font-size:.9rem;color:#cbd5e1;margin:12px 0 6px}input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #40516b;background:#0d1727;color:#f8fafc;font:inherit}textarea{min-height:92px;resize:vertical}button{border:0;border-radius:10px;padding:11px 15px;background:#2563eb;color:white;font-weight:650;font-size:.95rem;cursor:pointer;margin:6px 6px 0 0}.secondary{background:#334155}.danger{background:#991b1b}.muted{color:#9ca3af;font-size:.88rem;line-height:1.5}.hidden{display:none!important}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.case{border:1px solid #334155;border-radius:12px;padding:14px;margin:10px 0;background:#101a2a}a{color:#93c5fd}.panel-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.panel-tabs button[aria-selected="false"]{background:#334155}.panel-tabs button[aria-selected="true"]{background:#2563eb}.scan-output{white-space:pre-wrap;overflow-wrap:anywhere;background:#0d1727;border:1px solid #40516b;border-radius:10px;padding:12px;min-height:90px;color:#e5e7eb}#notice{padding:10px;border-radius:10px;background:#172554;color:#bfdbfe;margin:12px 0}.warning{border-left:3px solid #f59e0b;padding:10px 12px;background:#2a2112;color:#fde68a;border-radius:8px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}button:disabled{opacity:.55;cursor:not-allowed}.panel-tabs{padding:6px;background:rgba(8,12,22,.7);border:1px solid #334155;border-radius:14px}.panel-tabs button{min-height:44px}.case{transition:border-color .15s ease,transform .15s ease}.case:hover{border-color:#64748b}.scan-output{max-height:420px;overflow:auto}.status-pill{display:inline-block;border:1px solid #475569;border-radius:999px;padding:3px 9px;font-size:.78rem;color:#cbd5e1;text-transform:capitalize}@media(max-width:600px){.grid{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}main{padding:14px 12px 40px}.card{padding:15px}}
 
 
 .project-checklist{margin:24px auto;padding:18px;max-width:920px;border:1px solid #64748b;border-radius:14px;background:rgba(10,15,25,.92);color:#f8fafc}.project-checklist h2{margin:0 0 10px}.project-checklist p{color:#cbd5e1}.project-checklist label{display:flex;gap:10px;align-items:center;margin:10px 0;color:#f8fafc}.project-checklist input{width:auto;min-width:18px;min-height:18px;accent-color:#22c55e}
@@ -17,13 +17,14 @@
 <div><label for="emailAccess">Email verification access</label><select id="emailAccess"><option>Unknown</option><option>Available</option><option>Unavailable</option><option>Needs update</option></select></div><div><label for="phoneAccess">Phone / SMS verification access</label><select id="phoneAccess"><option>Unknown</option><option>Available</option><option>Unavailable</option><option>Needs update</option></select></div><div><label for="authAccess">Authenticator app access</label><select id="authAccess"><option>Unknown</option><option>Available</option><option>Unavailable</option><option>Needs update</option></select></div><div><label for="ticketNumber">Epic support reference number</label><input id="ticketNumber" maxlength="100"></div></div>
 <label for="errorMessage">Error message / failed step</label><textarea id="errorMessage" maxlength="4000" placeholder="Enter non-secret error text only."></textarea><label for="notes">Recovery notes and next steps</label><textarea id="notes" maxlength="8000"></textarea>
 <div class="warning muted">Use Epic’s official recovery process. This organizer cannot verify ownership, retrieve Epic account records, reset credentials, or bypass verification.</div><div class="row"><button type="submit">Save record on this device</button><button type="button" id="cancelEdit" class="secondary">Cancel</button></div></form>
-<div class="card"><h2>Official Epic Games links</h2><p><a href="https://www.epicgames.com/id/login" target="_blank" rel="noopener noreferrer">Epic Games official sign-in page</a></p><p><a href="https://www.epicgames.com/help/en-US/" target="_blank" rel="noopener noreferrer">Epic Games Player Support</a></p><p class="muted">Sign in only on the official epicgames.com domain. This dashboard never asks for your Epic password or verification codes.</p></div></section><section id="pdfScannerTabPanel" class="hidden" role="tabpanel" aria-labelledby="pdfScannerTabButton"><div class="card"><h2>Local PDF Evidence Scanner</h2><p class="muted">Choose PDF files from this device. Text extraction and pattern checks run in this browser tab. The scanner reports page numbers and indicator categories only; it never displays or saves extracted document text or matched secret values.</p><div class="warning muted">This is an evidence organizer, not an ownership verifier. Image-only/scanned PDFs are not OCR-scanned. Encrypted or oversized PDFs may be skipped. Do not upload evidence or enter passwords, tokens, cookies, verification codes, or full payment-card details.</div><label for="panelPdfFiles">Select PDF files (maximum 50 MB each; up to 2,000 pages)</label><input id="panelPdfFiles" type="file" accept="application/pdf,.pdf" multiple><div class="row"><button type="button" id="runPanelPdfScan">Scan PDFs locally</button><button type="button" id="clearPanelPdfScan" class="secondary">Clear</button><button type="button" id="downloadPanelPdfReport" class="secondary" disabled>Download TXT report</button></div><pre id="panelPdfResult" class="scan-output" role="status" aria-live="polite">No PDF scan has been run.</pre></div></section>
+<div class="card"><h2>Official Epic Games links</h2><p><a href="https://www.epicgames.com/id/login" target="_blank" rel="noopener noreferrer">Epic Games official sign-in page</a></p><p><a href="https://www.epicgames.com/help/en-US/" target="_blank" rel="noopener noreferrer">Epic Games Player Support</a></p><p class="muted">Sign in only on the official epicgames.com domain. This dashboard never asks for your Epic password or verification codes.</p></div></section><section id="pdfScannerTabPanel" class="hidden" role="tabpanel" aria-labelledby="pdfScannerTabButton"><div class="card"><h2>Local PDF Evidence Scanner</h2><p class="muted">Choose PDF files from this device. Scans run manually when you press the button; there is no background or recurring scan. Text extraction and pattern checks run in this browser tab. The scanner reports page numbers and indicator categories only; it never displays or saves extracted document text or matched secret values.</p><div class="warning muted">This is an evidence organizer, not an ownership verifier. Image-only/scanned PDFs are not OCR-scanned. Encrypted or oversized PDFs may be skipped. Do not upload evidence or enter passwords, tokens, cookies, verification codes, or full payment-card details.</div><label for="panelPdfFiles">Select PDF files (maximum 10 files per batch, 20 MB each, and 500 pages per file)</label><input id="panelPdfFiles" type="file" accept="application/pdf,.pdf" multiple><div class="row"><button type="button" id="runPanelPdfScan">Scan PDFs locally</button><button type="button" id="clearPanelPdfScan" class="secondary">Clear</button><button type="button" id="downloadPanelPdfReport" class="secondary" disabled>Download TXT report</button></div><pre id="panelPdfResult" class="scan-output" role="status" aria-live="polite">No PDF scan has been run.</pre></div></section>
 <section id="requestsTabPanel" class="hidden" role="tabpanel" aria-labelledby="requestsTabButton">
 <div class="card"><h2>Fast Recovery Progress</h2><p class="muted">New browser-tool submissions arrive here for your review. Approving a request only prepares it for manual submission through Epic's official recovery form; it does not contact Epic or access Epic's private database.</p>
 <div id="requestConfigNotice" class="warning muted">Encrypted database status will appear after loading.</div>
 <div class="grid" id="requestCounts"><div class="case"><strong id="countPending">—</strong><p class="muted">Pending review</p></div><div class="case"><strong id="countNeedsInfo">—</strong><p class="muted">Needs information</p></div><div class="case"><strong id="countApproved">—</strong><p class="muted">Approved for manual submission</p></div><div class="case"><strong id="countWaiting">—</strong><p class="muted">Submitted / waiting for Epic</p></div></div>
 <div class="row"><button type="button" id="refreshRequests">Refresh requests</button></div>
-<div class="grid"><div class="card"><h2>Incoming requests</h2><div id="requestList" class="muted">Select Refresh requests.</div></div>
+<div class="grid"><div><label for="requestSearch">Search request reference or status</label><input id="requestSearch" type="search" maxlength="100" placeholder="Search reference or status"></div><div><label for="requestStatusFilter">Filter by review status</label><select id="requestStatusFilter"><option value="all">All statuses</option><option value="pending-review">Pending review</option><option value="needs-information">Needs information</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="submitted-to-epic">Submitted to Epic</option><option value="waiting-for-epic">Waiting for Epic</option><option value="resolved">Resolved</option></select></div></div>
+<div class="grid"><div class="card"><h2>Incoming requests</h2><div id="requestList" class="muted" aria-live="polite">Select Refresh requests.</div></div>
 <div class="card"><h2>Request details</h2><div id="requestMeta" class="muted">Select a request to review it.</div><pre id="requestPayload" class="scan-output" style="white-space:pre-wrap;overflow-wrap:anywhere">No request selected.</pre>
 <label for="adminReviewNote">Administrator review note</label><textarea id="adminReviewNote" maxlength="2000" placeholder="Record review notes or the missing information requested."></textarea>
 <label for="epicRecoveryReference">Official Epic recovery reference (only after manual submission)</label><input id="epicRecoveryReference" maxlength="120" placeholder="Enter the reference supplied by Epic"><div class="row"><button type="button" id="exportApprovedRequest" class="secondary" disabled>Export approved record (JSON)</button></div>
@@ -83,27 +84,38 @@ panelTabButtons.records.addEventListener("click",()=>showPanelTab("records"));
 panelTabButtons.pdf.addEventListener("click",()=>showPanelTab("pdf"));
 panelTabButtons.requests.addEventListener("click",()=>showPanelTab("requests"));
 let selectedRequestId=null;
+let requestCache=[];
+function renderRequestList(){
+ const list=$("requestList");list.replaceChildren();
+ const query=($("requestSearch").value||"").trim().toLowerCase();
+ const status=$("requestStatusFilter").value;
+ const visible=requestCache.filter(item=>(status==="all"||item.status===status)&&[item.reference,item.status,item.created_at].join(" ").toLowerCase().includes(query));
+ if(!visible.length){list.textContent=requestCache.length?"No requests match the selected search and filter.":"No incoming recovery requests yet.";return;}
+ visible.forEach(item=>{
+  const card=document.createElement("article");card.className="case";
+  const title=document.createElement("strong");title.textContent=item.reference;
+  const pill=document.createElement("span");pill.className="status-pill";pill.textContent=item.status.replaceAll("-"," ");
+  const meta=document.createElement("p");meta.className="muted";meta.textContent="Received "+item.created_at+" · Updated "+item.updated_at;
+  const button=document.createElement("button");button.type="button";button.textContent="Review request";button.addEventListener("click",()=>openRequest(item.id));
+  card.append(title,document.createTextNode(" "),pill,meta,button);list.appendChild(card);
+ });
+}
 async function loadRequests(){
  const list=$("requestList");list.textContent="Loading requests…";
  try{
   const data=await api("/api/recovery-requests");
-  $("requestConfigNotice").textContent="Encrypted SQLite database connected. Requests are stored server-side; sensitive form fields are encrypted at rest.";
+  $("requestConfigNotice").textContent="Encrypted SQLite database connected. Requests are stored server-side; administrator sessions persist across server restarts.";
   const counts=Object.fromEntries((data.counts||[]).map(x=>[x.status,Number(x.count)]));
   $("countPending").textContent=counts["pending-review"]||0;
   $("countNeedsInfo").textContent=counts["needs-information"]||0;
   $("countApproved").textContent=counts.approved||0;
   $("countWaiting").textContent=(counts["submitted-to-epic"]||0)+(counts["waiting-for-epic"]||0);
-  list.replaceChildren();
-  if(!data.requests.length){list.textContent="No incoming recovery requests yet.";return;}
-  data.requests.forEach(item=>{
-   const card=document.createElement("article");card.className="case";
-   const title=document.createElement("strong");title.textContent=item.reference+" · "+item.status;
-   const meta=document.createElement("p");meta.className="muted";meta.textContent="Received "+item.created_at+" · Updated "+item.updated_at;
-   const button=document.createElement("button");button.type="button";button.textContent="Review request";button.addEventListener("click",()=>openRequest(item.id));
-   card.append(title,meta,button);list.appendChild(card);
-  });
+  requestCache=Array.isArray(data.requests)?data.requests:[];
+  renderRequestList();
  }catch(e){list.textContent=e.message;$("requestConfigNotice").textContent="Recovery intake is unavailable. Check RECOVERY_DATA_KEY, RECOVERY_INTAKE_TOKEN, and server logs.";}
 }
+$("requestSearch").addEventListener("input",renderRequestList);
+$("requestStatusFilter").addEventListener("change",renderRequestList);
 async function openRequest(id){
  try{
   const data=await api("/api/recovery-requests/"+encodeURIComponent(id));const r=data.request;selectedRequestId=r.id;
@@ -156,15 +168,18 @@ function classifyPdfPage(text){
 $("runPanelPdfScan").addEventListener("click",async()=>{
  const files=[...$("panelPdfFiles").files],out=["LOCAL PDF EVIDENCE INDICATOR REPORT","Generated: "+new Date().toISOString(),"Selected files: "+files.length,"","No document text or matched secret values are included."];
  if(!files.length){$("panelPdfResult").textContent="Choose one or more PDF files first.";return}
+ if(files.length>10){$("panelPdfResult").textContent="Select no more than 10 PDFs per scan batch.";return}
  if(!window.pdfjsLib){$("panelPdfResult").textContent="PDF engine did not load. Check the internet connection and reload this page.";return}
  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
  for(const file of files){
   out.push("FILE: "+file.name);
-  if(file.size>50*1024*1024){out.push("Skipped: file exceeds 50 MB.","");continue}
+  if(!file.name.toLowerCase().endsWith(".pdf")){out.push("Skipped: file name does not end in .pdf.","");continue}
+  if(file.size>20*1024*1024){out.push("Skipped: file exceeds 20 MB.","");continue}
   try{
    const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
-   const maxPages=Math.min(doc.numPages,2000);let readable=0,indicators=0;
+   const maxPages=Math.min(doc.numPages,500);let readable=0,indicators=0;
    for(let pageNo=1;pageNo<=maxPages;pageNo++){
+    $("panelPdfResult").textContent="Scanning "+file.name+" · page "+pageNo+" of "+maxPages+" (local only)…";
     const page=await doc.getPage(pageNo),content=await page.getTextContent();
     const text=content.items.map(x=>x.str||"").join(" ");
     if(!text.trim()){out.push("Page "+pageNo+": no extractable text (possibly image-only; OCR not included).");continue}
@@ -172,7 +187,7 @@ $("runPanelPdfScan").addEventListener("click",async()=>{
     if(labels.length){indicators+=labels.length;out.push("Page "+pageNo+": "+labels.join("; "))}
    }
    out.push("Pages: "+doc.numPages+" | Text-readable pages: "+readable+" | Indicator matches: "+indicators);
-   if(doc.numPages>maxPages)out.push("Only first "+maxPages+" pages checked; remaining pages not inspected.");
+   if(doc.numPages>maxPages)out.push("Page limit reached: first "+maxPages+" of "+doc.numPages+" pages checked; remaining pages not inspected.");
   }catch(e){out.push("Not inspected: PDF may be encrypted, damaged, or unreadable.")}
   out.push("");
  }
