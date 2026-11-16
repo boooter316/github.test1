@@ -62,10 +62,28 @@ $("pickFolder").addEventListener("click",async()=>{
 $("folderFallback").addEventListener("change",e=>importFiles([...e.target.files],null));
 async function openEntry(entry) {
   selected=entry;renderFiles($("fileFilter").value);$("openSelected").disabled=false;
-  if(!isText(entry.name)){ $("projectName").textContent=entry.path+" — binary or unsupported file";return; }
-  if(entry.file.size>2*1024*1024){$("projectName").textContent=entry.path+" — larger than 2 MiB; not loaded into editor";return;}
-  try{originalText=await entry.file.text();$("sourceEditor").value=originalText;$("sourceEditor").disabled=false;$("saveSource").disabled=false;$("discardEdit").disabled=false;$("editorFileName").textContent=entry.path;$("editorStatus").textContent="Loaded locally";$("projectName").textContent=entry.path;go("editor");}
-  catch(e){$("projectName").textContent="Could not read file: "+e.message;}
+  originalText="";
+  $("sourceEditor").value="";
+  $("sourceEditor").disabled=true;
+  $("saveSource").disabled=true;
+  $("discardEdit").disabled=true;
+  $("editorFileName").textContent=entry.path;
+  $("editorStatus").textContent="Select a supported text file to edit.";
+  if(!isText(entry.name)){ $("projectName").textContent=entry.path+" — binary or unsupported file; editing is disabled";return; }
+  if(entry.file.size>2*1024*1024){$("projectName").textContent=entry.path+" — larger than 2 MiB; not loaded into editor";$("editorStatus").textContent="This file exceeds the 2 MiB editor limit.";return;}
+  try{
+    originalText=await entry.file.text();
+    $("sourceEditor").value=originalText;
+    $("sourceEditor").disabled=false;
+    $("saveSource").disabled=false;
+    $("discardEdit").disabled=false;
+    $("editorStatus").textContent="Loaded locally";
+    $("projectName").textContent=entry.path;
+    go("editor");
+  } catch(e) {
+    $("projectName").textContent="Could not read file: "+e.message;
+    $("editorStatus").textContent="Read failed; editing is disabled.";
+  }
 }
 $("openSelected").addEventListener("click",()=>{if(selected)openEntry(selected);});
 $("fileFilter").addEventListener("input",e=>renderFiles(e.target.value));

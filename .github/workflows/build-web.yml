@@ -69,6 +69,18 @@ jobs:
           node --check /tmp/web-index-inline.js
           node --check /tmp/web-network-tools-inline.js
           node --check /tmp/public-index-inline.js
+          node --check DISCORD-SERVER-DASHBOARD/dashboard.js
+          node --test DISCORD-SERVER-DASHBOARD/tests/dashboard.test.js
+          node - <<'NODE'
+          const fs = require("node:fs");
+          const source = fs.readFileSync("DISCORD-SERVER-DASHBOARD/dashboard.js", "utf8");
+          const html = fs.readFileSync("DISCORD-SERVER-DASHBOARD/index.html", "utf8");
+          const referencedIds = [...source.matchAll(/\$\("([^"]+)"\)/g)].map((match) => match[1]);
+          const declaredIds = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
+          const missing = [...new Set(referencedIds)].filter((id) => !declaredIds.has(id));
+          if (missing.length) throw new Error("Companion dashboard is missing required elements: " + missing.join(", "));
+          console.log("Companion dashboard JavaScript syntax and DOM ID checks passed.");
+          NODE
           node --check Epic_Games_Recovery_Assistant/web/workspace-controls.js
           node --check recovery-panel/public/workspace-controls.js
           node -e "const fs=require('node:fs');const h=fs.readFileSync('Epic_Games_Recovery_Assistant/web/index.html','utf8');for(const id of ['sbPythonTab','sbCppTab','sbCustomTab','sbOpenEditor','sbStop','sbSave','sbTest','sbRun','sbBuild'])if(!h.includes(id))throw new Error('Missing Script Builder control: '+id);const n=fs.readFileSync('Epic_Games_Recovery_Assistant/web/network-tools.html','utf8');for(const id of ['hostScanTab','vulnerabilityScanTab','makeAuditCommand','copyAuditCommand'])if(!n.includes(id))throw new Error('Missing network security control: '+id)"
