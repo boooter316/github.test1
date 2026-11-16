@@ -76,8 +76,30 @@ function decryptPayload(value) {
   decipher.setAuthTag(Buffer.from(tagHex, "hex"));
   return JSON.parse(Buffer.concat([decipher.update(Buffer.from(dataHex, "hex")), decipher.final()]).toString("utf8"));
 }
+const SECRET_VALUE_PATTERNS = [
+  /\\b(?:password|passwd|passcode|token|cookie|authorization|bearer|api[\\s_-]?key|secret|2fa|two[\\s-]?factor|verification[\\s_-]?(?:code|otp)|backup[\\s_-]?codes?|recovery[\\s_-]?codes?|authenticator[\\s_-]?(?:code|secret)|cvv|cvc)\\b\\s*[:=]/i,
+  /\\bBearer\\s+[A-Za-z0-9._~+\\/-]{12,}/i,
+  /\\beyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\b/,
+  /\\b(?:mfa|otp)[\\s:_-]*[0-9]{6,8}\\b/i
+];
+function assertNoSecretLikeValues(value) {
+  if (typeof value === "string") {
+    if (SECRET_VALUE_PATTERNS.some(pattern => pattern.test(value))) {
+      throw new Error("Secret-like values are not accepted. Enter only non-secret account and recovery details.");
+    }
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) assertNoSecretLikeValues(item);
+    return;
+  }
+  if (value && typeof value === "object") {
+    for (const item of Object.values(value)) assertNoSecretLikeValues(item);
+  }
+}
 function cleanIntakePayload(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("Invalid recovery details.");
+  assertNoSecretLikeValues(input);
   const unknown = Object.keys(input).filter(key => !allowedIntakeFields.has(key));
   if (unknown.length) throw new Error("Unsupported recovery field(s): " + unknown.join(", "));
   const output = {};
@@ -127,10 +149,17 @@ app.post("/api/intake", intakeLimiter, (req,res) => {
   const now = new Date().toISOString(), id = crypto.randomUUID();
   const reference = "RR-" + now.slice(0,10).replace(/-/g,"") + "-" + crypto.randomBytes(4).toString("hex").toUpperCase();
   try {
-    recoveryDb.prepare("INSERT INTO recovery_requests (id,reference,created_at,updated_at,status,encrypted_payload) VALUES (?,?,?,?,?,?)")
-      .run(id,reference,now,now,"pending-review",encryptPayload(payload));
-    recoveryDb.prepare("INSERT INTO recovery_events (request_id,event_type,actor,note,created_at) VALUES (?,?,?,?,?)")
-      .run(id,"submitted","customer","New request received for administrator review.",now);
+    recoveryDb.exec("BEGIN IMMEDIATE");
+    try {
+      recoveryDb.prepare("INSERT INTO recovery_requests (id,reference,created_at,updated_at,status,encrypted_payload) VALUES (?,?,?,?,?,?)")
+        .run(id,reference,now,now,"pending-review",encryptPayload(payload));
+      recoveryDb.prepare("INSERT INTO recovery_events (request_id,event_type,actor,note,created_at) VALUES (?,?,?,?,?)")
+        .run(id,"submitted","customer","New request received for administrator review.",now);
+      recoveryDb.exec("COMMIT");
+    } catch (transactionError) {
+      try { recoveryDb.exec("ROLLBACK"); } catch (_) {}
+      throw transactionError;
+    }
     return res.status(201).json({ok:true,reference,status:"pending-review",message:"Your request was received for administrator review. This does not submit it to Epic."});
   } catch (e) { console.error("Recovery intake save failed:",e.message); return res.status(500).json({error:"The recovery request could not be saved. Please try again later."}); }
 });
@@ -183,8 +212,16 @@ app.patch("/api/recovery-requests/:id", auth, (req,res) => {
   if (status === "resolved" && !["submitted-to-epic","waiting-for-epic","resolved"].includes(row.status)) return res.status(409).json({error:"Record the official submission before resolving this request."});
   if (status === "submitted-to-epic" && !epicReference) return res.status(400).json({error:"Enter the official Epic recovery reference after you submit it."});
   const now = new Date().toISOString(), submittedAt = status === "submitted-to-epic" ? (row.submitted_at || now) : row.submitted_at;
-  recoveryDb.prepare("UPDATE recovery_requests SET updated_at=?,status=?,admin_note=?,epic_reference=?,submitted_at=? WHERE id=?").run(now,status,note,epicReference,submittedAt,row.id);
-  recoveryDb.prepare("INSERT INTO recovery_events (request_id,event_type,actor,note,created_at) VALUES (?,?,?,?,?)").run(row.id,status,req.session.adminEmail || "administrator",note || "Status updated by administrator.",now);
+  recoveryDb.exec("BEGIN IMMEDIATE");
+  try {
+    recoveryDb.prepare("UPDATE recovery_requests SET updated_at=?,status=?,admin_note=?,epic_reference=?,submitted_at=? WHERE id=?").run(now,status,note,epicReference,submittedAt,row.id);
+    recoveryDb.prepare("INSERT INTO recovery_events (request_id,event_type,actor,note,created_at) VALUES (?,?,?,?,?)").run(row.id,status,req.session.adminEmail || "administrator",note || "Status updated by administrator.",now);
+    recoveryDb.exec("COMMIT");
+  } catch (transactionError) {
+    try { recoveryDb.exec("ROLLBACK"); } catch (_) {}
+    console.error("Recovery review transaction failed:",transactionError.message);
+    return res.status(500).json({error:"The recovery review update could not be saved. No partial update was kept."});
+  }
   res.json({ok:true,status,updated_at:now});
 });
 app.post("/api/login",loginLimiter,(req,res,next)=>{
