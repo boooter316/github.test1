@@ -140,12 +140,14 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div class="hidden" id="recoveryTab">
 <form id="packet">
 <section class="panel"><h2>Account and contact details</h2><div class="grid">
+<div><label for="firstName">Customer first name</label><input id="firstName" autocomplete="given-name" maxlength="100"></div>
+<div><label for="lastName">Customer last name</label><input id="lastName" autocomplete="family-name" maxlength="100"></div>
 <div><label for="name">Name used on purchases (optional)</label><input id="name" autocomplete="name"></div>
 <div><label for="accountId">Epic Account ID</label><input id="accountId"></div>
 <div><label for="display">Current display name</label><input id="display"></div>
 <div><label for="oldDisplay">Previous display name(s)</label><input id="oldDisplay"></div>
 <div><label for="email">Current or original account email</label><input id="email" type="email" autocomplete="email"></div>
-<div><label for="oldEmail">Previous account email(s)</label><input id="oldEmail" type="email"></div><div><label for="desiredDisplay">Requested Epic display name (planning only)</label><input id="desiredDisplay"></div><div><label for="desiredEmail">Requested Epic email (planning only)</label><input id="desiredEmail" type="email"></div>
+<div><label for="oldEmail">Previous account email(s)</label><input id="oldEmail" type="email"></div><div><label for="desiredDisplay">Requested Epic display name (planning only)</label><input id="desiredDisplay"></div><div><label for="desiredEmail">Requested Epic email (planning only)</label><input id="desiredEmail" type="email"></div><div><label for="changeRequestType">Requested account change</label><select id="changeRequestType"><option value="">No change requested</option><option>Email change</option><option>Display-name change</option><option>Linked-account disconnect review</option><option>Other account correction</option></select></div>
 <div><label for="country">Country/region on account</label><input id="country"></div>
 <div><label for="creator">Support-A-Creator code (if applicable)</label><input id="creator"></div></div></section>
 <section class="panel"><h2>Recovery incident</h2><div class="grid">
@@ -166,7 +168,8 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div><label for="vpn">VPN/proxy provider and region previously used</label><input id="vpn"></div></div>
 <p class="hint">Do not spoof an IP or use a proxy to impersonate a prior location. An IP address or VPN history is not proof of account ownership.</p></section>
 <section class="panel"><h2>Linked platforms and restrictions</h2><p class="hint">Prepare separate, truthful recovery or appeal details for Epic, Xbox, PlayStation, Steam, and Nintendo. Only each platform can review or change its own restrictions or account settings.</p><div class="grid">
-<div><label for="linked">Linked services / public profile IDs</label><textarea id="linked" placeholder="Xbox, PlayStation, Nintendo, Steam, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other"></textarea></div>
+<div><label for="connectedAccounts">Connected platforms (one per line)</label><textarea id="connectedAccounts" maxlength="2000" placeholder="Platform | public username | public profile ID&#10;Xbox | ExampleGamertag | 123456"></textarea><p class="hint">Only public platform names, usernames, and profile IDs. Never paste passwords, cookies, tokens, or recovery codes.</p></div>
+<div><label for="linked">Other linked services / public profile IDs</label><textarea id="linked" placeholder="Xbox, PlayStation, Nintendo, Steam, Apple, Google, LEGO, GeForce NOW, Disney, Twitch, YouTube, TikTok, Facebook, other"></textarea></div>
 <div><label for="appeal">Restriction or appeal details</label><textarea id="appeal" placeholder="Platform, notice date, case/reference number, notice wording, and what you are appealing"></textarea></div><div><label for="platform">Platform needing recovery or appeal</label><select id="platform"><option>Epic Games</option><option>Xbox</option><option>PlayStation</option><option>Steam</option><option>Nintendo</option><option>GeForce NOW</option><option>Roblox</option><option>Minecraft</option><option>GTA</option><option>Disney</option><option>Twitch</option><option>YouTube</option><option>TikTok</option><option>More than one platform</option></select></div><div><label for="platformId">Public gamertag / Online ID / Steam profile / Nintendo nickname</label><input id="platformId"></div><div><label for="caseId">Support case or enforcement reference</label><input id="caseId"></div><div><label for="noticeDate">Notice date (if known)</label><input id="noticeDate" type="date"></div><div><label for="requestedOutcome">Requested outcome</label><select id="requestedOutcome"><option>Account recovery guidance</option><option>Review or appeal of restriction</option><option>Correct account email or display name</option><option>Review linked-account issue</option><option>Understand enforcement notice</option></select></div></div></section>
 <section class="panel"><h2>Review and export</h2><p class="hint">Check details for accuracy before sharing through the platform's official secure support form.</p>
 <div class="actions no-print"><button type="button" id="json">Download JSON packet</button><button type="button" class="secondary" id="pdf">Print / Save as PDF</button><button type="button" class="secondary" id="draft">Create support-request draft</button></div>
@@ -506,7 +509,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 </section>
 </main>
 <script>
-const ids=["name","accountId","display","oldDisplay","email","oldEmail","desiredDisplay","desiredEmail","country","creator","incident","error","date","firstSeen","details","mfaAccess","invoice","provider","last4","billingCity","ip","vpn","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"];
+const ids=["name","firstName","lastName","accountId","display","oldDisplay","email","oldEmail","desiredDisplay","desiredEmail","changeRequestType","connectedAccounts","country","creator","incident","error","date","firstSeen","details","mfaAccess","invoice","provider","last4","billingCity","ip","vpn","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"];
 function collect(){const o={app:"Account Recovery Request Assistant",schemaVersion:1,createdAt:new Date().toISOString(),fields:{}};ids.forEach(id=>o.fields[id]=document.getElementById(id).value.trim());o.fields.twoStepMethods=[...document.querySelectorAll('input[name="mfa"]:checked')].map(x=>x.value);return o}
 function makeDraft(o){const f=o.fields;return ["Hello Support Team,","","I am requesting help with my account. Please review the information below and let me know what additional evidence is required through your official secure process.","","Account ID: "+f.accountId,"Current display name: "+f.display,"Current/original email: "+f.email,"Requested display name (planning only): "+f.desiredDisplay,"Requested email (planning only): "+f.desiredEmail,"Platform: "+f.platform,"Public profile ID: "+f.platformId,"Support/enforcement reference: "+f.caseId,"Notice date: "+f.noticeDate,"Requested outcome: "+f.requestedOutcome,"Appeal details: "+f.appeal,"Issue: "+f.incident,"Date issue began: "+f.date,"Error message: "+f.error,"Two-step methods used: "+f.twoStepMethods.join(", "),"Methods I can still access: "+f.mfaAccess,"Purchase reference: "+f.invoice,"","What happened:",f.details,"","Thank you."].join("\n")}
 document.getElementById("json").addEventListener("click",()=>{const b=new Blob([JSON.stringify(collect(),null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="recovery-request.json";a.click();URL.revokeObjectURL(a.href)});
@@ -516,9 +519,12 @@ document.getElementById("submitForAdminReview").addEventListener("click",async()
  const result=document.getElementById("adminReviewResult");
  if(!document.getElementById("adminReviewConsent").checked){result.textContent="Please confirm consent before sending details for administrator review.";return;}
  const all=collect().fields;
- const allowed=["accountId","display","oldDisplay","email","oldEmail","country","incident","error","date","firstSeen","details","mfaAccess","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"];
+ const allowed=["accountId","display","oldDisplay","email","oldEmail","firstName","lastName","country","incident","error","date","firstSeen","details","mfaAccess","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome","changeRequestType","requestedEmail","requestedDisplayName","connectedAccounts"];
  const payload={};allowed.forEach(key=>payload[key]=String(all[key]||"").slice(0,key==="details"||key==="appeal"?3000:500));
  payload.twoStepMethods=Array.isArray(all.twoStepMethods)?all.twoStepMethods.slice(0,8):[];
+ payload.requestedEmail=String(all.desiredEmail||"").slice(0,254);
+ payload.requestedDisplayName=String(all.desiredDisplay||"").slice(0,100);
+ payload.connectedAccounts=String(all.connectedAccounts||"").split(/\\r?\\n/).map(line=>line.split("|").map(part=>part.trim())).filter(parts=>parts.some(Boolean)).slice(0,12).map(parts=>({platform:parts[0]||"",username:parts[1]||"",publicId:parts[2]||""}));
  if(!payload.accountId&&!payload.display&&!payload.email&&!payload.oldEmail){result.textContent="Enter an account ID, display name, or account email first.";return;}
  const button=document.getElementById("submitForAdminReview");button.disabled=true;result.textContent="Sending securely to the private review queue…";
  try{
