@@ -64,7 +64,7 @@ app.use(session({
 }));
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 8, standardHeaders: "draft-7", legacyHeaders: false });
 const intakeLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 6, standardHeaders: "draft-7", legacyHeaders: false });
-const allowedIntakeFields = new Set(["accountId","display","oldDisplay","email","oldEmail","country","incident","error","date","firstSeen","details","mfaAccess","twoStepMethods","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"]);
+const allowedIntakeFields = new Set(["accountId","display","oldDisplay","email","oldEmail","firstName","lastName","country","incident","error","date","firstSeen","details","mfaAccess","twoStepMethods","connectedAccounts","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome","changeRequestType","requestedEmail","requestedUsername"]);
 function encryptPayload(value) {
   const iv = crypto.randomBytes(12), cipher = crypto.createCipheriv("aes-256-gcm", Buffer.from(dataKeyHex, "hex"), iv);
   const encrypted = Buffer.concat([cipher.update(JSON.stringify(value), "utf8"), cipher.final()]);
@@ -78,12 +78,26 @@ function decryptPayload(value) {
 }
 function cleanIntakePayload(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("Invalid recovery details.");
+  const unknown = Object.keys(input).filter(key => !allowedIntakeFields.has(key));
+  if (unknown.length) throw new Error("Unsupported recovery field(s): " + unknown.join(", "));
   const output = {};
   for (const [key, value] of Object.entries(input)) {
-    if (!allowedIntakeFields.has(key)) continue;
     if (key === "twoStepMethods") {
-      if (!Array.isArray(value) || value.length > 8 || value.some(v => typeof v !== "string" || v.length > 80)) throw new Error("Invalid authentication-method list.");
-      output[key] = value.map(v => v.trim());
+      if (!Array.isArray(value) || value.length > 8 || value.some(v => typeof v !== "string" || v.length > 80)) throw new Error("Invalid recovery-method list.");
+      output[key] = [...new Set(value.map(v => v.trim()).filter(Boolean))];
+    } else if (key === "connectedAccounts") {
+      if (!Array.isArray(value) || value.length > 12) throw new Error("Connected accounts must be a list of at most 12 entries.");
+      output[key] = value.map(item => {
+        if (!item || typeof item !== "object" || Array.isArray(item) || Object.keys(item).some(k => !["platform","username","publicId"].includes(k))) throw new Error("Connected-account entries may contain only platform, username, and public ID.");
+        const clean = {};
+        for (const k of ["platform","username","publicId"]) {
+          const v = item[k] ?? "";
+          if (typeof v !== "string" || v.length > 120) throw new Error("A connected-account field is invalid or too long.");
+          clean[k] = v.trim();
+        }
+        if (!clean.platform || (!clean.username && !clean.publicId)) throw new Error("Each connected account needs a platform and a username or public ID.");
+        return clean;
+      });
     } else {
       if (typeof value !== "string" || value.length > (key === "details" || key === "appeal" ? 3000 : 500)) throw new Error("A recovery field is too long or invalid.");
       output[key] = value.trim();
@@ -134,6 +148,20 @@ app.get("/api/recovery-requests/:id", auth, (req,res) => {
   const events = recoveryDb.prepare("SELECT event_type,actor,note,created_at FROM recovery_events WHERE request_id=? ORDER BY id DESC").all(row.id);
   res.set("Cache-Control","no-store").json({request:{id:row.id,reference:row.reference,created_at:row.created_at,updated_at:row.updated_at,status:row.status,payload,admin_note:row.admin_note,epic_reference:row.epic_reference,submitted_at:row.submitted_at,events}});
 });
+app.get("/api/recovery-requests/:id/export", auth, (req,res) => {
+  if (!recoveryDb) return res.status(503).json({error:"Encrypted recovery database is not configured."});
+  const row = recoveryDb.prepare("SELECT * FROM recovery_requests WHERE id=?").get(req.params.id);
+  if (!row) return res.status(404).json({error:"Recovery request not found."});
+  if (!["approved","submitted-to-epic","waiting-for-epic","resolved"].includes(row.status)) return res.status(409).json({error:"Only approved recovery records can be exported."});
+  let payload;
+  try { payload = decryptPayload(row.encrypted_payload); } catch (_) { return res.status(500).json({error:"This request could not be decrypted. Check the configured data key."}); }
+  const events = recoveryDb.prepare("SELECT event_type,actor,note,created_at FROM recovery_events WHERE request_id=? ORDER BY id").all(row.id);
+  const now = new Date().toISOString();
+  recoveryDb.prepare("INSERT INTO recovery_events (request_id,event_type,actor,note,created_at) VALUES (?,?,?,?,?)")
+    .run(row.id,"approved-record-exported",req.session.adminEmail || "administrator","Approved recovery record exported as JSON.",now);
+  res.set({"Cache-Control":"no-store","Pragma":"no-cache","Content-Type":"application/json; charset=utf-8","Content-Disposition":'attachment; filename="recovery-'+row.reference+'.json"'});
+  return res.send(JSON.stringify({reference:row.reference,status:row.status,created_at:row.created_at,updated_at:row.updated_at,epic_reference:row.epic_reference,submitted_at:row.submitted_at,payload,events,exported_at:now},null,2));
+});
 app.patch("/api/recovery-requests/:id", auth, (req,res) => {
   if (!recoveryDb) return res.status(503).json({error:"Encrypted recovery database is not configured."});
   const row = recoveryDb.prepare("SELECT * FROM recovery_requests WHERE id=?").get(req.params.id);
@@ -148,7 +176,7 @@ app.patch("/api/recovery-requests/:id", auth, (req,res) => {
   if (status === "submitted-to-epic" && !epicReference) return res.status(400).json({error:"Enter the official Epic recovery reference after you submit it."});
   const now = new Date().toISOString(), submittedAt = status === "submitted-to-epic" ? (row.submitted_at || now) : row.submitted_at;
   recoveryDb.prepare("UPDATE recovery_requests SET updated_at=?,status=?,admin_note=?,epic_reference=?,submitted_at=? WHERE id=?").run(now,status,note,epicReference,submittedAt,row.id);
-  recoveryDb.prepare("INSERT INTO recovery_events (request_id,event_type,actor,note,created_at) VALUES (?,?,?,?,?)").run(row.id,status,"administrator",note || "Status updated by administrator.",now);
+  recoveryDb.prepare("INSERT INTO recovery_events (request_id,event_type,actor,note,created_at) VALUES (?,?,?,?,?)").run(row.id,status,req.session.adminEmail || "administrator",note || "Status updated by administrator.",now);
   res.json({ok:true,status,updated_at:now});
 });
 app.post("/api/login",loginLimiter,(req,res,next)=>{
@@ -157,7 +185,7 @@ app.post("/api/login",loginLimiter,(req,res,next)=>{
   let passwordMatches=false;
   try { passwordMatches=validPassword(password); } catch (_) {}
   if(!emailMatches||!passwordMatches){notify("unsuccessful panel sign-in attempt");return res.status(401).json({error:"Sign-in failed. Check your panel email and password."});}
-  req.session.regenerate(err=>{if(err)return next(err);req.session.authenticated=true;req.session.save(err2=>{if(err2)return next(err2);notify("panel sign-in successful");res.json({ok:true});});});
+  req.session.regenerate(err=>{if(err)return next(err);req.session.authenticated=true;req.session.adminEmail=email;req.session.save(err2=>{if(err2)return next(err2);notify("panel sign-in successful");res.json({ok:true});});});
 });
 app.get("/api/session",(req,res)=>res.json({authenticated:!!(req.session&&req.session.authenticated)}));
 app.post("/api/logout",auth,(req,res)=>req.session.destroy(()=>{res.clearCookie("recovery_panel_sid",{httpOnly:true,sameSite:"strict",secure:production});notify("panel sign-out");res.json({ok:true});}));
