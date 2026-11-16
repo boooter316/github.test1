@@ -116,7 +116,7 @@ Never paste passwords, one-time codes, recovery codes, session cookies, access t
 ## 9. Updating and troubleshooting
 
 - Read the change notes and review the PR before updating.
-- The Windows updater requires GitHub CLI, authenticated access to the private repository, and a successful main-branch build artifact. It verifies the artifact checksum and backs up local files before copying.
+- The Windows updater requires GitHub CLI, a signed-in GitHub account that can read this public repository and download its Actions artifacts, and a successful main-branch build artifact. It verifies the artifact checksum and backs up local files before copying.
 - Do not run an update while the application is open. Close it first, then reopen after the update.
 - If the build fails, capture the first meaningful error and the compiler/runtime versions. Remove personal information and secrets from logs before sharing.
 - Check GitHub Actions for the exact commit and workflow result. A green CI run means the configured automated checks passed; it does not prove every feature works on every device.
