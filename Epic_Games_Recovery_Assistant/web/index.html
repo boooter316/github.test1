@@ -10,7 +10,8 @@ input,textarea,select{box-sizing:border-box;width:100%;padding:10px;border:1px s
 .checks{display:flex;flex-wrap:wrap;gap:12px}.checks label{font-weight:400}.check{display:flex;gap:7px;align-items:center}.check input{width:auto}
 .actions{display:flex;gap:10px;flex-wrap:wrap}button{border:0;border-radius:9px;padding:11px 16px;background:#175cd3;color:white;font-weight:650;font-size:1rem}button.secondary{background:#e8edf4;color:#1c2b40}
 small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wrap{max-width:none;padding:0}header,.panel{border:0;break-inside:avoid;padding:8px;margin:0 0 8px}.actions,.no-print{display:none!important}input,textarea,select{border:0;padding:2px;appearance:none}.notice{background:#fff}}
-.tabs{display:flex;gap:8px;margin:0 0 16px}.tabs .tab{flex:1}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #2563eb;outline-offset:2px}.tab:disabled,button:disabled{opacity:.55;cursor:not-allowed}.tabs .tab[aria-selected="false"]{background:#e8edf4;color:#1c2b40}.tabs .tab[aria-selected="true"]{background:#175cd3;color:#fff}.scanner-result{white-space:pre-wrap;background:#f5f7fa;border:1px solid #dce2ea;border-radius:8px;padding:12px;min-height:80px}.risk{border-left:4px solid #b7791f;background:#fff8e8;padding:10px 14px}.hidden{display:none!important}
+.tabs{display:flex;gap:8px;margin:0 0 16px}.tabs a.tab{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.tabs a.tab:hover{transform:translateY(-1px);border-color:#94a3b8}
+.tabs .tab{flex:1}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #2563eb;outline-offset:2px}.tab:disabled,button:disabled{opacity:.55;cursor:not-allowed}.tabs .tab[aria-selected="false"]{background:#e8edf4;color:#1c2b40}.tabs .tab[aria-selected="true"]{background:#175cd3;color:#fff}.scanner-result{white-space:pre-wrap;background:#f5f7fa;border:1px solid #dce2ea;border-radius:8px;padding:12px;min-height:80px}.risk{border-left:4px solid #b7791f;background:#fff8e8;padding:10px 14px}.hidden{display:none!important}
 
 .tool-subnav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px;padding-bottom:10px;border-bottom:1px solid #dce2ea}
 .tool-subnav button{flex:1 1 150px;min-width:0}
@@ -66,7 +67,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <button type="button" class="tab secondary" id="scriptBuilderTabButton" aria-selected="false">Script Builder</button>
 <button type="button" class="tab secondary" id="serverNetworkLabTabButton" aria-selected="false">Server &amp; Networking Lab</button>
 <button type="button" class="tab secondary" id="discordDashboardTabButton" aria-selected="false">DISCORD Server Dashboard</button>
-</nav><div id="globalTaskControls" class="panel no-print" style="position:sticky;top:8px;z-index:20;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px">
+<a class="tab project-downloads-link" href="project-downloads.html" aria-label="Open separate project downloads">Project Downloads</a></nav><div id="globalTaskControls" class="panel no-print" style="position:sticky;top:8px;z-index:20;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px">
 <strong>Task controls</strong><button type="button" id="globalStopButton" class="secondary">Stop current task</button><span id="globalStopStatus" class="hint" role="status">No stop request active.</span>
 </div>
 <section class="panel hidden" id="statusCenterTab">
