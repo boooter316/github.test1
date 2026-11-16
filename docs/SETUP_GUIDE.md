@@ -113,7 +113,7 @@ Use network checks only on systems and networks you own or are authorized to adm
 
 Never paste passwords, one-time codes, recovery codes, session cookies, access tokens, API keys, webhook URLs, or private keys into the project or support messages. The project must not be used to harvest browser tokens, activate token grabbers, bypass account verification, or exfiltrate credentials.
 
-## 8. Updating and troubleshooting
+## 9. Updating and troubleshooting
 
 - Read the change notes and review the PR before updating.
 - The Windows updater requires GitHub CLI, authenticated access to the private repository, and a successful main-branch build artifact. It verifies the artifact checksum and backs up local files before copying.
