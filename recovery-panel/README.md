@@ -43,6 +43,10 @@ The main browser web server also needs RECOVERY_PANEL_INTAKE_URL set to the priv
 
 Never commit passwords, password hashes, session secrets, or webhook URLs. Never send Epic account data, IP addresses, email addresses, recovery notes, evidence, or submitted error text to Discord.
 
+## Dependency maintenance
+
+The direct runtime dependencies are pinned to the reviewed stable releases: Express 5.3.0, express-rate-limit 8.7.4, express-session 1.19.0, Helmet 8.3.0, and dotenv 18.0.10. These versions were checked against the npm registry on 2026-11-16; no direct dependency bump was indicated. CI installs the committed dependency tree with `npm ci`, runs the panel tests, and audits production dependencies. When updating packages, update `package.json` and `package-lock.json` together, then run the same checks before merging.
+
 ## Run locally
 
 Requirements:
