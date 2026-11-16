@@ -153,6 +153,8 @@ test("main page is served with browser security headers", async () => {
   const response = await fetch(baseUrl);
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-security-policy") || "", /default-src 'self'/);
+  assert.match(response.headers.get("content-security-policy") || "", /script-src[^;]*cdn\\.jsdelivr\\.net/);
+  assert.match(response.headers.get("content-security-policy") || "", /worker-src[^;]*cdn\\.jsdelivr\\.net/);
   assert.equal(response.headers.get("x-frame-options"), "SAMEORIGIN");
   assert.ok((response.headers.get("content-security-policy") || "").includes("frame-ancestors 'self'"));
   assert.equal(response.headers.get("x-content-type-options"), "nosniff");
