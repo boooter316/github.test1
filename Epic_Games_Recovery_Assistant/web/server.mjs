@@ -35,6 +35,9 @@ const files = new Map([
   ["/discord-server-dashboard/bot-builder.html", ["../../DISCORD-SERVER-DASHBOARD/bot-builder.html", "text/html; charset=utf-8"]],
   ["/discord-server-dashboard/cpp-bot/main.cpp", ["../../DISCORD-SERVER-DASHBOARD/cpp-bot/main.cpp", "text/plain; charset=utf-8"]],
   ["/discord-server-dashboard/cpp-bot/CMakeLists.txt", ["../../DISCORD-SERVER-DASHBOARD/cpp-bot/CMakeLists.txt", "text/plain; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/network-tools.html", ["network-tools.html", "text/html; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/network-lab.html", ["network-lab.html", "text/html; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/server-network-lab.html", ["server-network-lab.html", "text/html; charset=utf-8"]],
   ["/network_tools.ps1", ["network_tools.ps1", "text/plain; charset=utf-8"]],
   ["/network_security_snapshot.ps1", ["network_security_snapshot.ps1", "text/plain; charset=utf-8"]],
   ["/project_vulnerability_audit.ps1", ["project_vulnerability_audit.ps1", "text/plain; charset=utf-8"]],
@@ -165,7 +168,7 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(303, { "Location": "/login.html", "Cache-Control": "no-store" });
     return res.end();
   }
-  if (req.method === "GET" && url.pathname === "/recovery-panel") {
+  if (req.method === "GET" && ["/recovery-panel", "/recovery-panel/public/index.html"].includes(url.pathname)) {
     let target = null;
     try { target = new URL(RECOVERY_PANEL_URL); } catch {}
     const localHttp = target && target.protocol === "http:" &&
