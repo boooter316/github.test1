@@ -25,7 +25,7 @@
 <div class="row"><button type="button" id="refreshRequests">Refresh requests</button></div>
 <div class="grid"><div><label for="requestSearch">Search request reference or status</label><input id="requestSearch" type="search" maxlength="100" placeholder="Search reference or status"></div><div><label for="requestStatusFilter">Filter by review status</label><select id="requestStatusFilter"><option value="all">All statuses</option><option value="pending-review">Pending review</option><option value="needs-information">Needs information</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="submitted-to-epic">Submitted to Epic</option><option value="waiting-for-epic">Waiting for Epic</option><option value="resolved">Resolved</option></select></div></div>
 <div class="grid"><div class="card"><h2>Incoming requests</h2><div id="requestList" class="muted" aria-live="polite">Select Refresh requests.</div></div>
-<div class="card"><h2>Request details</h2><div id="requestMeta" class="muted">Select a request to review it.</div><pre id="requestPayload" class="scan-output" style="white-space:pre-wrap;overflow-wrap:anywhere">No request selected.</pre>
+<div class="card"><h2>Request details</h2><div id="requestMeta" class="muted">Select a request to review it.</div><pre id="requestPayload" class="scan-output" style="white-space:pre-wrap;overflow-wrap:anywhere">No request selected.</pre><h3 style="margin:16px 0 8px">Review audit history</h3><ol id="requestAudit" class="muted"><li>No request selected.</li></ol>
 <label for="adminReviewNote">Administrator review note</label><textarea id="adminReviewNote" maxlength="2000" placeholder="Record review notes or the missing information requested."></textarea>
 <label for="epicRecoveryReference">Official Epic recovery reference (only after manual submission)</label><input id="epicRecoveryReference" maxlength="120" placeholder="Enter the reference supplied by Epic"><div class="row"><button type="button" id="exportApprovedRequest" class="secondary" disabled>Export approved record (JSON)</button></div>
 <div class="row"><button type="button" id="requestNeedsInfo" class="secondary">Request information</button><button type="button" id="requestApprove">Approve</button><button type="button" id="requestReject" class="danger">Reject</button><button type="button" id="requestMarkSubmitted" class="secondary">Mark submitted to Epic</button><button type="button" id="requestWaiting" class="secondary">Waiting for Epic</button><button type="button" id="requestResolve" class="secondary">Mark resolved</button></div>
@@ -121,6 +121,9 @@ async function openRequest(id){
   const data=await api("/api/recovery-requests/"+encodeURIComponent(id));const r=data.request;selectedRequestId=r.id;
   $("requestMeta").textContent=r.reference+" · "+r.status+" · received "+r.created_at;
   $("requestPayload").textContent=JSON.stringify(r.payload,null,2);
+  const audit=$("requestAudit");audit.replaceChildren();
+  (r.events||[]).forEach(event=>{const item=document.createElement("li");item.textContent=[event.created_at,event.event_type,event.actor,event.note].filter(Boolean).join(" · ");audit.appendChild(item);});
+  if(!audit.childElementCount){const item=document.createElement("li");item.textContent="No audit events recorded.";audit.appendChild(item);}
   $("adminReviewNote").value=r.admin_note||"";$("epicRecoveryReference").value=r.epic_reference||"";
   $("requestActionStatus").textContent="Review the details carefully. Approval does not submit to Epic.";
   $("exportApprovedRequest").disabled=!["approved","submitted-to-epic","waiting-for-epic","resolved"].includes(r.status);
