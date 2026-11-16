@@ -48,3 +48,18 @@ The editor accepts text source only and limits the in-browser editor to files up
 The original dashboard remains available separately and now includes a **DISCORD Server Dashboard** tab that opens this companion workspace. The companion dashboard links back to the main dashboard in a separate tab to avoid recursive iframe embedding. Existing server-dependent functions (for example optional AI or provider integrations) still need their original Node.js backend and configuration; the static LAN viewer does not start that backend. Existing tools remain in their original folders and are not copied or deleted.
 
 This dashboard intentionally does not reproduce credential theft, token/session extraction, crypto clipping, injection, stress attacks, RAT/C2 command execution, or remote script execution.
+
+
+## Private Access and approved-device allowlist
+
+The **Private Access** navigation page explains offline same-LAN viewing, VPN limits for away-from-home access, and consent-based remote support. The local host now reads `approved_devices.json` and checks the exact connecting IP address on every request.
+
+- Default configuration is fail-closed: `"allowed_ips": []` permits localhost only.
+- To approve a personal phone/tablet, edit the JSON file locally in Windows Notepad and add that device's exact private IP.
+- Remove an address to revoke it. The host reloads the allowlist on each request.
+- Use a DHCP reservation if the router supports it, so your phone's private IP does not change unexpectedly.
+- Do not use a wildcard or an entire subnet. IP allowlisting is not strong device identity or encryption.
+- The configuration file is deliberately not served by the static web host.
+- The viewer remains HTTP/read-only. Do not enter secrets, expose the port publicly, or port-forward it.
+
+See [PRIVATE_ACCESS_GUIDE.md](PRIVATE_ACCESS_GUIDE.md) for step-by-step iPhone and Windows instructions and the distinction between offline LAN access and encrypted VPN access across networks.
