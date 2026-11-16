@@ -39,7 +39,8 @@ before(async () => {
       CHAT_ACCESS_PASSWORD: "",
       DASHBOARD_USERS_FILE: usersFile,
       TELEGRAM_BOT_TOKEN: "",
-      TELEGRAM_BOT_USERNAME: ""
+      TELEGRAM_BOT_USERNAME: "",
+      RECOVERY_PANEL_URL: "https://panel.example.test/"
     },
     stdio: ["ignore", "pipe", "pipe"]
   });
@@ -104,6 +105,13 @@ test("dashboard session protects pages and APIs until valid sign-in", async () =
   assert.equal(status.status, 200);
 });
 
+test("separate Recovery Panel link redirects to its configured HTTPS application", async () => {
+  const response = await fetch(baseUrl + "/recovery-panel", { redirect: "manual" });
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("location"), "https://panel.example.test/");
+  assert.equal(response.headers.get("cache-control"), "no-store");
+});
+
 test("health endpoint returns a no-store success response", async () => {
   const response = await fetch(`${baseUrl}/healthz`);
   assert.equal(response.status, 200);
@@ -166,6 +174,11 @@ test("main dashboard opens the companion dashboard through same-origin static ro
   const js = await fetch(baseUrl + "/discord-server-dashboard/dashboard.js");
   assert.equal(js.status, 200);
   assert.ok((js.headers.get("content-type") || "").includes("javascript"));
+  const dashboardHtml = await page.text();
+  assert.match(dashboardHtml, /href="\/network-tools\.html"/);
+  assert.match(dashboardHtml, /href="\/network-lab\.html"/);
+  assert.match(dashboardHtml, /href="\/server-network-lab\.html"/);
+  assert.match(dashboardHtml, /href="\/recovery-panel"/);
 });
 test("recovery form exposes structured non-secret customer and linked-platform fields", async () => {
   const response = await fetch(baseUrl);
