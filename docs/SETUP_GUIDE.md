@@ -82,9 +82,9 @@ The Recovery Panel is not the same server as the main browser multitool.
 
 The panel has Recovery Records, PDF Evidence Scanner, and Fast Recovery Progress tabs. Existing manually created Recovery Records remain in browser local storage on that device. Incoming browser-tool submissions are stored separately in the panel's server-side SQLite database, encrypted at rest with the configured RECOVERY_DATA_KEY. The Fast Recovery Progress tab lets the administrator inspect incoming requests, request more information, approve or reject them, and record an official Epic reference after manual submission. Back up the SQLite database and its encryption key separately and securely. The panel also links to both network lab workspaces.
 
-**Production warning:** the panel currently uses Express MemoryStore for sessions and is not production-ready. Do not expose it publicly until a maintained persistent session store, HTTPS, network restrictions, secure deployment secrets, backups, and logging have been configured and reviewed. No production deployment is included in this setup.
+**Production warning:** administrator sessions now persist in a separate SQLite database across process restarts. This is a single-instance store, not a distributed multi-host session service. The panel is not certified production-ready. Before public deployment, enforce HTTPS, restrict network access, protect both SQLite databases and the encryption key with secure backups, review hosting logs, and arrange an independent security review. No production deployment is included in this setup.
 
-The Recovery Panel uses Node's built-in node:sqlite module (Node 26+) for the encrypted request database; no additional SQLite npm package is required. The current package pins direct dependency versions but does not include a committed package-lock.json; CI uses npm install, not npm ci. Transitive dependency versions are therefore not fully locked yet.
+The Recovery Panel uses Node's built-in node:sqlite module (Node 26+) for both the encrypted request database and persistent session database; no additional SQLite npm package is required. Run `npm test` to exercise synthetic intake, validation, administrator review, approved export, audit history, logout, and session persistence across a restart. Direct dependencies remain pinned and no package-lock.json is committed; CI uses npm install, not npm ci, so transitive dependency versions are not fully locked yet.
 
 ## 5. iPhone / mobile browser
 
@@ -99,6 +99,7 @@ The Recovery Panel uses Node's built-in node:sqlite module (Node 26+) for the en
 - Native Windows scanner: `paf_evidence_scanner.c++` compiled to `paf_evidence_scanner.exe`; uses Poppler `pdftotext.exe` for text extraction.
 - Browser scanners: PDF.js is loaded from a CDN, so the browser needs internet access to load the library.
 - Neither path performs OCR on image-only pages. A PDF with scanned images may show no readable text.
+- Browser and native PDF scanners run only when started by the user. The PDF scanners limit a run to 10 files, 20 MiB per file, and 500 pages per file; extracted text is processed in memory and not written to the report.
 - Review evidence yourself. Scanner indicators are not proof of account ownership or credential validity.
 - Keep sensitive source PDFs and exported reports private.
 
