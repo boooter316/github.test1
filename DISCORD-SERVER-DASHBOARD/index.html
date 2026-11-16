@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090d18">
+<title>DISCORD SERVER DASHBOARD</title>
+<link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+<div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><div class="brand-mark">DS</div><div><strong>DISCORD SERVER</strong><span>PRIVATE WORKSPACE</span></div></div>
+  <button class="mobile-close" id="closeSidebar" aria-label="Close navigation">×</button>
+  <nav aria-label="Main navigation">
+    <p class="nav-heading">OVERVIEW</p>
+    <button class="nav-link active" data-page="home"><span>◈</span> Dashboard</button>
+    <button class="nav-link" data-page="legacy"><span>▦</span> Existing Main Tools</button>
+    <p class="nav-heading">PROJECT WORKSPACE</p>
+    <button class="nav-link" data-page="projects"><span>▣</span> Import Projects</button>
+    <button class="nav-link" data-page="editor"><span>⌘</span> Source Code Editor</button>
+    <button class="nav-link" data-page="python"><span>Py</span> Python Workspace</button>
+    <button class="nav-link" data-page="cpp"><span>C+</span> C++ Workspace</button>
+    <button class="nav-link" data-page="scripts"><span>$_</span> Custom Scripts</button>
+    <p class="nav-heading">DEVELOPMENT & SECURITY</p>
+    <button class="nav-link" data-page="security"><span>⬡</span> Security Center</button>
+    <button class="nav-link" data-page="network"><span>⌁</span> Host & Network</button>
+    <button class="nav-link" data-page="build"><span>⚒</span> Build & Downloads</button>
+    <button class="nav-link" data-page="help"><span>ⓘ</span> Setup & Help</button>
+  </nav>
+  <div class="sidebar-foot"><span class="status-dot"></span> LOCAL PRIVATE MODE <small>Read-only LAN sharing</small></div>
+</aside>
+<div class="scrim" id="scrim"></div>
+<main class="main">
+  <header class="topbar"><button id="menuButton" class="icon-button" aria-label="Open navigation">☰</button><div class="crumb">Workspace <span>/</span> <strong id="pageCrumb">Dashboard</strong></div><div class="top-actions"><span class="secure-pill"><i></i> PRIVATE LAN</span><a class="top-link" href="https://github.com/boooter316/github.test1" target="_blank" rel="noopener">GitHub ↗</a></div></header>
+  <section class="page active" id="page-home">
+    <div class="hero"><div><div class="eyebrow">YOUR PROJECTS. ONE WORKSPACE.</div><h1>Welcome to your <em>command center.</em></h1><p>A refreshed home for your existing recovery tools, project files, code workspaces and defensive diagnostics.</p><div class="hero-actions"><button class="primary" data-go="projects">＋ Import a project</button><button class="outline" data-go="legacy">Open existing tools ↗</button></div></div><div class="orb-wrap"><div class="orb"><span>DS</span></div><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div></div></div>
+    <div class="stat-grid"><article class="stat-card"><span>WORKSPACE</span><strong>Local-first</strong><small>Files stay on the device you import them from</small></article><article class="stat-card"><span>PROJECT LANGUAGES</span><strong>Python · C++</strong><small>Separate source editing areas</small></article><article class="stat-card"><span>NETWORK MODE</span><strong>Private LAN</strong><small>No public hosting or internet dependency</small></article><article class="stat-card"><span>EXISTING TOOLS</span><strong>Preserved</strong><small>Original dashboard remains available</small></article></div>
+    <div class="section-head"><div><div class="eyebrow">QUICK ACCESS</div><h2>Your workspaces</h2></div></div>
+    <div class="tile-grid">
+      <button class="tile" data-go="legacy"><span class="tile-icon">▦</span><b>Existing Main Tools</b><small>Open the current dashboard and its existing tabs</small><span class="tile-arrow">↗</span></button>
+      <button class="tile" data-go="projects"><span class="tile-icon">▣</span><b>Project Library</b><small>Import folders and browse project files</small><span class="tile-arrow">↗</span></button>
+      <button class="tile" data-go="editor"><span class="tile-icon">⌘</span><b>Source Editor</b><small>Edit text-based source and save a copy</small><span class="tile-arrow">↗</span></button>
+      <button class="tile" data-go="security"><span class="tile-icon">⬡</span><b>Security Center</b><small>Open local defensive scanners and audits</small><span class="tile-arrow">↗</span></button>
+    </div>
+    <div class="notice"><b>Private mode:</b> the optional LAN host serves static dashboard pages only. It does not expose a remote terminal, execute scripts, accept uploads, or control your PC from another device.</div>
+  </section>
+  <section class="page" id="page-legacy">
+    <div class="page-heading"><div class="eyebrow">PRESERVED WORKSPACE</div><h1>Existing Main Tools</h1><p>Your original dashboard remains a separate workspace. Open it in a new tab to use its existing recovery, scanner, account-support, networking and script tools.</p></div>
+    <div class="embed-toolbar"><span class="status-dot"></span> Original project dashboard <a href="../index.html" target="_blank" rel="noopener">Open the main dashboard ↗</a></div>
+    <div class="notice">The main dashboard is kept separate to prevent nested dashboard frames. Its original server-dependent features still require their existing Node.js backend configuration.</div>
+  </section>
+  <section class="page" id="page-projects">
+    <div class="page-heading"><div class="eyebrow">PROJECT LIBRARY</div><h1>Bring your projects together.</h1><p>Import a folder from this device. Files are read in your browser and are not uploaded to a server.</p></div>
+    <div class="panel-card import-card"><div class="drop-icon">⇧</div><h3>Import a project folder</h3><p>Choose a project directory to browse its source files in this workspace.</p><div class="button-row"><button class="primary" id="pickFolder">Choose project folder</button><label class="file-button" for="folderFallback">Choose files instead</label><input id="folderFallback" type="file" webkitdirectory multiple hidden></div><small id="importStatus" class="status-text" role="status">No project imported yet.</small></div>
+    <div class="project-layout"><div class="panel-card"><div class="card-title"><h3>Project files</h3><span id="fileCount" class="count">0 files</span></div><input id="fileFilter" class="search" type="search" placeholder="Filter files…"><div id="fileList" class="file-list empty-state">Import a folder to see its files.</div></div><div class="panel-card project-info"><h3>Project details</h3><p id="projectName">No project selected</p><p class="muted">Select a text file to open it in the editor. Binary files are listed but cannot be edited here.</p><button class="outline full" id="openSelected" disabled>Open selected file in editor</button><button class="outline full" id="downloadProjectIndex" disabled>Download project file list</button></div></div>
+  </section>
+  <section class="page" id="page-editor">
+    <div class="page-heading"><div class="eyebrow">SOURCE CODE EDITOR</div><h1>Edit your source.</h1><p>Changes remain in this browser until you save or download them. Original project files are not overwritten automatically.</p></div>
+    <div class="editor-toolbar"><span id="editorFileName">No file selected</span><div class="button-row"><button class="outline" id="discardEdit" disabled>Revert</button><button class="primary" id="saveSource" disabled>Save / Download</button></div></div>
+    <textarea id="sourceEditor" class="code-editor" spellcheck="false" placeholder="Import a project and choose a text file to edit…" disabled></textarea>
+    <div class="editor-foot"><span id="editorStatus" role="status">Ready</span><span>Text files only · local browser editing</span></div>
+  </section>
+  <section class="page" id="page-python">
+    <div class="page-heading"><div class="eyebrow">PYTHON WORKSPACE</div><h1>Python projects</h1><p>Import a Python project, select a <code>.py</code> file and edit it in the source editor.</p></div>
+    <div class="language-card"><div class="language-mark python-mark">Py</div><div><h3>Python source workspace</h3><p>Open an existing Python file, make changes, then download the updated source. For execution and dependency installation, use your own local Python environment.</p></div></div>
+    <div class="button-row"><button class="primary" data-go="projects">Import Python project</button><button class="outline" data-go="editor">Open source editor</button><a class="outline link-button" href="https://www.python.org/downloads/" target="_blank" rel="noopener">Python downloads ↗</a></div>
+    <div class="notice">This browser workspace edits source only. It does not remotely run scripts or install packages on your Windows computer.</div>
+  </section>
+  <section class="page" id="page-cpp">
+    <div class="page-heading"><div class="eyebrow">C++ WORKSPACE</div><h1>C++ projects</h1><p>Browse and edit C++ source files with the same local-first workflow.</p></div>
+    <div class="language-card"><div class="language-mark cpp-mark">C+</div><div><h3>C++17 source workspace</h3><p>Choose a <code>.cpp</code>, <code>.c++</code> or header file from your imported project. Save a revised copy and compile it using your local toolchain.</p></div></div>
+    <div class="button-row"><button class="primary" data-go="projects">Import C++ project</button><button class="outline" data-go="editor">Open source editor</button><a class="outline link-button" href="https://www.msys2.org/" target="_blank" rel="noopener">MSYS2 toolchain ↗</a></div>
+    <div class="notice">The browser does not execute C++ code. Use the Windows project build scripts on your own computer for trusted source projects.</div>
+  </section>
+  <section class="page" id="page-scripts">
+    <div class="page-heading"><div class="eyebrow">CUSTOM SCRIPTS</div><h1>Your script notes.</h1><p>Draft and save source snippets locally. This editor intentionally does not execute pasted scripts.</p></div>
+    <div class="panel-card"><label for="scratchName">File name</label><input id="scratchName" class="search" value="my-notes.py"><label for="scratchEditor">Script source</label><textarea id="scratchEditor" class="code-editor scratch" spellcheck="false" placeholder="# Write or paste source code here"></textarea><div class="button-row"><button class="primary" id="downloadScratch">Download script</button><button class="outline" id="clearScratch">Clear editor</button></div><p class="muted">For a runnable build, open the existing Script Builder in the preserved workspace. Review source before running anything locally.</p><button class="outline" data-go="legacy">Open existing Script Builder ↗</button></div>
+  </section>
+  <section class="page" id="page-security">
+    <div class="page-heading"><div class="eyebrow">DEFENSIVE DEVELOPMENT</div><h1>Security Center</h1><p>Local code hygiene, dependency review and document evidence tools from the existing project.</p></div>
+    <div class="tile-grid">
+      <a class="tile" href="../Epic_Games_Recovery_Assistant/web/network-tools.html" target="_blank" rel="noopener"><span class="tile-icon">⬡</span><b>Network Security Tools</b><small>Defensive checks and network evidence review</small><span class="tile-arrow">↗</span></a>
+      <a class="tile" href="../Epic_Games_Recovery_Assistant/web/network-lab.html" target="_blank" rel="noopener"><span class="tile-icon">⌁</span><b>Network Lab</b><small>Private network and VPN learning materials</small><span class="tile-arrow">↗</span></a>
+      <a class="tile" href="../recovery-panel/public/index.html" target="_blank" rel="noopener"><span class="tile-icon">▤</span><b>Recovery Panel</b><small>Local records and evidence scanner interface</small><span class="tile-arrow">↗</span></a>
+      <a class="tile" href="../Epic_Games_Recovery_Assistant/web/server-network-lab.html" target="_blank" rel="noopener"><span class="tile-icon">⌘</span><b>Server & Networking Lab</b><small>System administration learning workspace</small><span class="tile-arrow">↗</span></a>
+    </div>
+    <div class="notice">These tools are for systems and files you own or are authorized to assess. This dashboard does not include credential theft, token extraction, injection, stress attacks or remote-control payloads.</div>
+  </section>
+  <section class="page" id="page-network">
+    <div class="page-heading"><div class="eyebrow">PRIVATE CONNECTIVITY</div><h1>Host & Network</h1><p>Use your own trusted Wi-Fi/LAN for private viewing. No public hosting is configured.</p></div>
+    <div class="panel-card"><div class="card-title"><h3>Private LAN access</h3><span class="secure-pill"><i></i> LOCAL SUBNET ONLY</span></div><p>The optional Python host serves static pages to devices on the same private network. It has no remote command endpoint, no file-upload route and no script execution feature.</p><ul class="check-list"><li>Use a trusted home or office Wi-Fi network.</li><li>Keep the Windows network profile set to Private.</li><li>Allow inbound TCP 8765 only for the Windows Private firewall profile and LocalSubnet.</li><li>Stop the host with Ctrl+C when finished.</li><li>For devices outside your Wi-Fi, do not port-forward this host.</li></ul><button class="outline" id="showLanHelp">Show connection instructions</button><p id="lanHelp" class="muted hidden">Start_PRIVATE_DASHBOARD.cmd on your Windows PC, note the displayed private IPv4 address, then open http://YOUR-PRIVATE-IP:8765/DISCORD-SERVER-DASHBOARD/ on another device connected to the same Wi-Fi. This can work without internet access.</p></div>
+    <div class="panel-card"><h3>Existing network diagnostics</h3><div class="button-row"><a class="outline link-button" href="../Epic_Games_Recovery_Assistant/web/network-tools.html" target="_blank" rel="noopener">Open network tools ↗</a><a class="outline link-button" href="../Epic_Games_Recovery_Assistant/web/network-lab.html" target="_blank" rel="noopener">Open network lab ↗</a></div></div>
+  </section>
+  <section class="page" id="page-build">
+    <div class="page-heading"><div class="eyebrow">BUILD & DOWNLOADS</div><h1>Package your work.</h1><p>Use the existing project build workflow on Windows. This page provides clear links and does not pretend a browser preview is a compiled executable.</p></div>
+    <div class="download-card"><div class="download-icon">⌘</div><div><h3>Existing Windows project builder</h3><p>Open the preserved Script Builder or native desktop setup to build supported project artifacts locally.</p><button class="primary" data-go="legacy">Open existing Script Builder ↗</button></div></div>
+    <div class="download-card"><div class="download-icon">↓</div><div><h3>Current source repository</h3><p>Download the latest source ZIP from GitHub. Use Windows to extract and run the desktop launcher.</p><a class="outline link-button" href="https://github.com/boooter316/github.test1/archive/refs/heads/main.zip">Download main source ZIP</a></div></div>
+    <div class="download-card"><div class="download-icon">▣</div><div><h3>Windows desktop artifacts</h3><p>Find successful Windows build artifacts on the repository's Actions page. Artifact availability depends on GitHub retention.</p><a class="outline link-button" href="https://github.com/boooter316/github.test1/actions">Open GitHub Actions ↗</a></div></div>
+  </section>
+  <section class="page" id="page-help">
+    <div class="page-heading"><div class="eyebrow">SETUP & HELP</div><h1>Getting started</h1><p>Quick steps for the new dashboard and private LAN host.</p></div>
+    <div class="panel-card"><ol class="steps"><li>Download or clone the repository on your Windows computer.</li><li>Install Python 3.10 or newer from python.org if it is not already installed.</li><li>Double-click <code>START_PRIVATE_DASHBOARD.cmd</code>.</li><li>Open the local address printed in the console.</li><li>For another device, use the displayed private IPv4 address on the same Wi-Fi.</li><li>Import a project folder from the Project Library. Source editing happens in the browser on that device.</li></ol></div>
+    <div class="notice warning"><b>Compatibility note:</b> folder picking and in-place file saving work best in desktop Chrome or Edge on localhost. iPhone Safari can browse the dashboard and download individual edited files, but it may not support direct folder access or writing back to a selected folder.</div>
+    <div class="button-row"><a class="outline link-button" href="https://github.com/boooter316/github.test1" target="_blank" rel="noopener">Repository ↗</a><a class="outline link-button" href="https://www.python.org/downloads/" target="_blank" rel="noopener">Get Python ↗</a></div>
+  </section>
+  <footer>DISCORD SERVER DASHBOARD <span>•</span> PRIVATE LOCAL WORKSPACE <span>•</span> NO PUBLIC CONTROL SERVER</footer>
+</main>
+<script src="dashboard.js"></script>
+</body></html>
