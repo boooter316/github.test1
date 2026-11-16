@@ -2,6 +2,7 @@ FROM node:26-alpine
 WORKDIR /app
 COPY server.mjs /app/server.mjs
 COPY index.html /app/index.html
+COPY login.html /app/login.html
 COPY network_security.js /app/network_security.js
 COPY network-tools.html /app/network-tools.html
 COPY network_tools.ps1 /app/network_tools.ps1

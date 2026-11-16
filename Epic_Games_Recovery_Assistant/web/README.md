@@ -2,6 +2,16 @@
 
 This folder contains the browser-based recovery-request builder, a Node.js web/API server for the optional DeepSeek chat, and the original C++17 static server source.
 
+## Dashboard sign-in
+
+The browser dashboard is protected by a server-checked username and password. Credentials are never placed in browser JavaScript or committed to GitHub.
+
+On Windows, run `START_WEB_DASHBOARD.bat`. It prompts for the dashboard username and password each time, then starts the protected web server. The password prompt is masked. Keep the terminal open while using the dashboard; press Ctrl+C to stop the server.
+
+For a hosted deployment, configure `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD` as private environment variables in the hosting provider before starting the server. Use HTTPS in production. Do not put real credentials in source files, GitHub commits, screenshots, or public issue comments. If a password has been shared in a chat or other place you do not fully control, rotate it before using the dashboard publicly.
+
+The server issues an HttpOnly, SameSite=Strict session cookie with an eight-hour lifetime and rate-limits sign-in attempts. The session store is in memory and is cleared when the server restarts; use a single server instance unless persistent/shared sessions are implemented.
+
 ## First-run Windows setup
 
 For Windows 10/11, extract the project and double-click
