@@ -137,9 +137,16 @@ jobs:
       - name: Package complete project and checksum
         shell: pwsh
         run: |
-          $project = "Epic_Games_Recovery_Assistant"
+          $project = "Windows-Project-Package"
           $zip = "Epic-Games-Recovery-Assistant-project.zip"
           if (Test-Path $zip) { Remove-Item $zip -Force }
+          if (Test-Path $project) { Remove-Item $project -Recurse -Force }
+          New-Item -ItemType Directory -Force $project | Out-Null
+          Copy-Item 'Epic_Games_Recovery_Assistant' $project -Recurse
+          Copy-Item 'DISCORD-SERVER-DASHBOARD' $project -Recurse
+          Copy-Item 'recovery-panel' $project -Recurse
+          Copy-Item 'docs' $project -Recurse
+          Copy-Item 'README.md' $project
           Compress-Archive -Path "$project/*" -DestinationPath $zip -CompressionLevel Optimal
           $hash = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
           "$hash  $zip" | Set-Content -Encoding ascii SHA256SUMS.txt
