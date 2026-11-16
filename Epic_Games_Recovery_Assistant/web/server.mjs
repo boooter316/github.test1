@@ -171,7 +171,7 @@ const server = http.createServer(async (req, res) => {
       webhook = new URL(DISCORD_WEBHOOK_URL);
       if (webhook.protocol !== "https:" ||
           !["discord.com", "discordapp.com"].includes(webhook.hostname) ||
-          !/^\\/api\\/webhooks\\/\\d+\\/[A-Za-z0-9._-]+$/.test(webhook.pathname) ||
+          !/^\/api\/webhooks\/\d+\/[A-Za-z0-9._-]+$/.test(webhook.pathname) ||
           webhook.search || webhook.hash || webhook.username || webhook.password) {
         return json(res, 503, { error: "DISCORD_WEBHOOK_URL must be a valid HTTPS Discord webhook URL." });
       }
