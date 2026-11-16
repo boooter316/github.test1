@@ -7,8 +7,8 @@ A separate, self-hosted dashboard. It is an independent organizer and is not aff
 - Server-side administrator sign-in; no public sign-up.
 - Persistent administrator sessions stored in a separate SQLite database, with HTTP-only/SameSite cookies, login rate limiting, security headers, and scrypt password verification.
 - Mobile-friendly dashboard for iPhone and desktop.
-- Recovery Records, PDF Evidence Scanner, and Fast Recovery Progress tabs, plus linked DigitalOcean/private-network and server package-setup lab pages.
-- Local PDF text inspection with page-level evidence indicators; document text and matched secret values are never displayed or included in reports.
+- Recovery Records, PDF Evidence Scanner, a local Account Identifier Evidence Scan tab, and Fast Recovery Progress, plus linked DigitalOcean/private-network and server package-setup lab pages.
+- Local PDF evidence indicators and a local identifier evidence index for selected PDF/TXT/CSV/JSON files. The identifier index counts email-address patterns, explicitly labelled Fortnite display-name/username fields, and explicitly labelled Epic Account ID fields; it reports counts and page/line locations only. Document text and matched values are never displayed or included in reports.
 - PDF scan reports can be downloaded as TXT from the panel.
 - Epic Account ID/account-number field, customer first and last name, display name, optional account email, case status, support reference, non-secret error text, and notes.
 - Structured linked-platform entries limited to platform name, public username, and public profile ID; requests to change an email/display name or review a linked-account disconnect are tracked for official provider support.
@@ -18,7 +18,7 @@ A separate, self-hosted dashboard. It is an independent organizer and is not aff
 - Optional generic Discord notifications for panel sign-in, sign-out, and general dashboard errors. No account data or error contents are sent.
 
 Manually created Recovery Records are stored in browser local storage on the device. Consented browser-tool intake requests are stored separately in the panel's encrypted server-side SQLite database and are never sent to Discord. Intake rejects unexpected fields and accepts only explicitly allowlisted non-secret account details.
-- Administrators can export an individual approved request as JSON from Fast Recovery Progress. Export is disabled until approval, uses a no-store download, and records an export event in the audit history. The PDF scanner also processes selected files in the browser; it does not upload evidence. It limits each scan batch to 10 PDFs, 20 MB per PDF, and 500 pages per PDF to keep memory use bounded. Image-only PDFs are not OCR-scanned, and encrypted or unreadable files may be skipped. PDF.js is loaded from its CDN, so the browser needs internet access to load the scanner engine. Export backups before clearing browser data or changing devices.
+- Administrators can export an individual approved request as JSON from Fast Recovery Progress. Export is disabled until approval, uses a no-store download, and records an export event in the audit history. The PDF and identifier scanners also process selected files in the browser; they do not upload evidence. The identifier scan is limited to 10 files per run and 20 MiB per file (text files have a 2 MiB decoded-text cap). It is a local document index, not an account lookup or ownership verification. It limits each scan batch to 10 PDFs, 20 MB per PDF, and 500 pages per PDF to keep memory use bounded. Image-only PDFs are not OCR-scanned, and encrypted or unreadable files may be skipped. Fortnite names and Epic IDs are counted only when their labels are explicit, to reduce false positives. PDF.js is loaded from its CDN, so the browser needs internet access to load the scanner engine. Export backups before clearing browser data or changing devices.
 
 ## Requirements and setup
 
