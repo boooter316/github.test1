@@ -10,13 +10,15 @@ A separate, self-hosted dashboard. It is an independent organizer and is not aff
 - Recovery Records, PDF Evidence Scanner, and Fast Recovery Progress tabs, plus linked DigitalOcean/private-network and server package-setup lab pages.
 - Local PDF text inspection with page-level evidence indicators; document text and matched secret values are never displayed or included in reports.
 - PDF scan reports can be downloaded as TXT from the panel.
-- Epic Account ID/account-number field, display name, optional account email, case status, support reference, non-secret error text, and notes.
+- Epic Account ID/account-number field, customer first and last name, display name, optional account email, case status, support reference, non-secret error text, and notes.
+- Structured linked-platform entries limited to platform name, public username, and public profile ID; requests to change an email/display name or review a linked-account disconnect are tracked for official provider support.
 - Tracks access status for email, phone/SMS, and authenticator-app recovery methods.
 - JSON and readable TXT exports downloadable on a phone or computer, plus validated JSON backup restore (with confirmation before replacing local records).
 - Instant local search across recovery-record fields; search stays in the browser and does not send record contents to the server.
 - Optional generic Discord notifications for panel sign-in, sign-out, and general dashboard errors. No account data or error contents are sent.
 
-Manually created Recovery Records are stored in browser local storage on the device. Consented browser-tool intake requests are stored separately in the panel's encrypted server-side SQLite database and are never sent to Discord. The PDF scanner also processes selected files in the browser; it does not upload evidence. Image-only PDFs are not OCR-scanned, and encrypted or unreadable files may be skipped. PDF.js is loaded from its CDN, so the browser needs internet access to load the scanner engine. Export backups before clearing browser data or changing devices.
+Manually created Recovery Records are stored in browser local storage on the device. Consented browser-tool intake requests are stored separately in the panel's encrypted server-side SQLite database and are never sent to Discord. Intake rejects unexpected fields and accepts only explicitly allowlisted non-secret account details.
+- Administrators can export an individual approved request as JSON from Fast Recovery Progress. Export is disabled until approval, uses a no-store download, and records an export event in the audit history. The PDF scanner also processes selected files in the browser; it does not upload evidence. Image-only PDFs are not OCR-scanned, and encrypted or unreadable files may be skipped. PDF.js is loaded from its CDN, so the browser needs internet access to load the scanner engine. Export backups before clearing browser data or changing devices.
 
 ## Requirements and setup
 
@@ -55,7 +57,7 @@ For the repository-wide component map and Windows/browser/mobile setup steps, se
 
 ## Production caution
 
-The panel currently uses Express MemoryStore for sessions. MemoryStore is not suitable for production or multi-instance hosting. Do not expose this panel publicly until you configure a maintained persistent session store, enforce HTTPS, restrict network access, and review hosting backups and logs. The app emits a production warning; this update does not certify the panel as production-ready. This is not a completed security audit.
+The panel currently uses Express MemoryStore for sessions. MemoryStore is not suitable for production or multi-instance hosting. Approved-record export is an administrator convenience, not an Epic submission integration; it does not update Epic systems or perform email/username changes or linked-account disconnections. Do not expose this panel publicly until you configure a maintained persistent session store, enforce HTTPS, restrict network access, and review hosting backups and logs. The app emits a production warning; this update does not certify the panel as production-ready. This is not a completed security audit.
 
 
 ## Administrator-reviewed recovery intake
