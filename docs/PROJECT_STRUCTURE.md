@@ -69,7 +69,7 @@ CI coverage is targeted. It does not replace interactive browser testing, Window
 ## Known maintenance items
 
 - Recovery Panel direct dependencies are pinned, but a lockfile is not currently committed; transitive dependency resolution can change.
-- PDF.js is still loaded as version 3.11.174 from a CDN in both browser interfaces. Upgrading it should be a separately tested migration of the library and worker integration, not a blind URL edit.
+- PDF.js is loaded as the pinned 6.5.438 ES module from jsDelivr in both browser interfaces; the worker is pinned to the matching module build. Upgrading it should be a separately tested migration of the library and worker integration, not a blind URL edit.
 - The Recovery Panel uses a single-instance SQLite session store. It survives process restarts but is not a distributed/multi-host session service; public deployment still requires HTTPS, network restrictions, secure backups, and an independent security review.
 - The browser and native PDF scanners are manual/on-demand and enforce bounded scan limits. Image-only PDFs are not OCR-scanned.
 - The browser app and Recovery Panel have separate data storage; there is no automatic cross-device synchronization.

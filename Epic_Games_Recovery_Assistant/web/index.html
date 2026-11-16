@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Account Recovery Assistant — Pro Local Security Scanner</title><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
-</script>
+<title>Account Recovery Assistant — Pro Local Security Scanner</title><script>import("https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.mjs").then(pdfjsLib=>{pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.mjs";window.pdfjsLib=pdfjsLib;}).catch(error=>{console.error("PDF.js failed to load",error);window.pdfjsLoadError=error;});</script>
 <style>
 :root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#18212f;background:#090609}body{margin:0;min-height:100vh;background:#090609 url('ghostface-bg.jpg') center center/cover fixed no-repeat;position:relative}body:before{content:"";position:fixed;inset:0;background:rgba(5,0,5,.48);pointer-events:none;z-index:0}.wrap{max-width:900px;margin:auto;padding:22px;position:relative;z-index:1;padding-bottom:76px}body:after{content:"✅✅✔️✔️😈😈";position:fixed;z-index:5;left:0;right:0;bottom:0;padding:12px 8px;text-align:center;font-size:clamp(24px,5vw,38px);letter-spacing:5px;background:rgba(8,0,8,.78);border-top:1px solid rgba(255,50,70,.65);text-shadow:0 0 12px #ff1744;pointer-events:none}
 header,.panel{background:rgba(255,255,255,.94);backdrop-filter:blur(5px);border:1px solid rgba(220,226,234,.9);border-radius:14px;padding:20px;margin:0 0 16px}h1{font-size:1.55rem;margin:0 0 8px}h2{font-size:1.12rem;margin:0 0 14px}
@@ -1032,7 +1031,7 @@ document.getElementById("runPdfEvidenceScan").addEventListener("click",async()=>
  if(!files.length){result.textContent="Choose one or more PDF files first.";return}
  if(files.length>10){result.textContent="Select no more than 10 PDFs per scan batch.";return}
  if(!window.pdfjsLib){result.textContent="PDF engine did not load. Check the internet connection and reload this page.";return}
- window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+ window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.mjs";
  for(const file of files){
   out.push("FILE: "+file.name);
   if(!file.name.toLowerCase().endsWith(".pdf")){out.push("Skipped: file name does not end in .pdf.","");continue}
@@ -1060,7 +1059,7 @@ document.getElementById("downloadPdfEvidenceReport").addEventListener("click",()
 
 async function extractPdfText(file){
   if(!window.pdfjsLib)throw new Error("PDF text engine did not load; connect to the internet and retry.");
-  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.mjs";
   const data=new Uint8Array(await file.arrayBuffer());
   const pdf=await window.pdfjsLib.getDocument({data}).promise;
   const pages=[];
