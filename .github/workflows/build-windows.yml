@@ -23,6 +23,24 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v7.0.1
+      - name: Build Discord C++ bot with pinned vcpkg dependencies
+        shell: pwsh
+        run: |
+          $vcpkgRoot = $env:VCPKG_INSTALLATION_ROOT
+          if (-not $vcpkgRoot -or -not (Test-Path (Join-Path $vcpkgRoot 'vcpkg.exe'))) {
+            $vcpkgRoot = Join-Path $env:RUNNER_TEMP 'vcpkg'
+            git clone https://github.com/microsoft/vcpkg $vcpkgRoot
+            if ($LASTEXITCODE -ne 0) { throw 'Unable to obtain vcpkg.' }
+            & (Join-Path $vcpkgRoot 'bootstrap-vcpkg.bat') -disableMetrics
+            if ($LASTEXITCODE -ne 0) { throw 'Unable to bootstrap vcpkg.' }
+          }
+          & (Join-Path $vcpkgRoot 'vcpkg.exe') version
+          if ($LASTEXITCODE -ne 0) { throw 'vcpkg version check failed.' }
+          $toolchain = Join-Path $vcpkgRoot 'scripts/buildsystems/vcpkg.cmake'
+          cmake -S 'DISCORD-SERVER-DASHBOARD/cpp-bot' -B 'build/discord-cpp-bot' -DCMAKE_TOOLCHAIN_FILE="$toolchain" -DVCPKG_TARGET_TRIPLET=x64-windows
+          if ($LASTEXITCODE -ne 0) { throw 'Discord C++ bot CMake configure failed.' }
+          cmake --build 'build/discord-cpp-bot' --config Release
+          if ($LASTEXITCODE -ne 0) { throw 'Discord C++ bot build failed.' }
       - name: Install native C++ and Poppler dependencies
         uses: msys2/setup-msys2@v2
         with:
