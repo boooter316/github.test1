@@ -304,3 +304,7 @@ A separate Wireshark & Ports page links to the official Wireshark download and u
 ## DigitalOcean & VPS Network Lab
 
 The browser multitool provides a separate **DigitalOcean & VPS Lab** navigation link. The tabbed guide covers manually creating a DigitalOcean Droplet, private WireGuard VPN, restricted Squid proxy, Kali Linux in VirtualBox, PuTTY/SSH administration, and server IP/firewall checks. It does not create paid cloud resources or handle DigitalOcean API credentials. Restrict SSH and proxy ports to trusted addresses, and never operate an open proxy. These are legitimate administration guides, not C2 instructions.
+
+## PDF scanner limits
+
+The browser evidence scanner runs only when the user starts it. Each run is limited to 10 PDF files, 20 MiB per file, and 500 pages per file. It reports indicator categories and page numbers only; it does not retain or export extracted text or matched secret values. Image-only PDFs are not OCR-scanned.
