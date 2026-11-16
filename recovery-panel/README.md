@@ -28,10 +28,15 @@ Set these environment secrets on your host:
 
 - ADMIN_EMAIL — administrator email for this panel.
 - ADMIN_PASSWORD_SCRYPT — generated salt:hash value.
-- SESSION_SECRET — random secret of at least 32 characters. Generate with: node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))"
+- SESSION_SECRET — random secret of at least 32 characters.
 - NODE_ENV=production
 - PORT — supplied by many hosts, otherwise defaults to 3000.
-- Optional DISCORD_WEBHOOK_URL — webhook URL for a Discord server you control.
+- RECOVERY_DATA_KEY — required to enable the encrypted SQLite request database; exactly 64 hexadecimal characters (32 random bytes). Generate with: node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))".
+- RECOVERY_INTAKE_TOKEN — shared server-to-server bearer secret, at least 32 random characters. Generate with: node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))". Configure the same value on the browser web server.
+- RECOVERY_DB_PATH — optional path for the SQLite database; defaults to recovery-panel/data/recovery-requests.sqlite. Keep the database and backups outside public/static folders.
+- Optional DISCORD_WEBHOOK_URL — generic event notifications only; request contents are never sent.
+
+The main browser web server also needs RECOVERY_PANEL_INTAKE_URL set to the private panel's HTTPS base URL (for example, https://panel.example.com) and the same RECOVERY_INTAKE_TOKEN. The browser posts to its same-origin /api/recovery-intake endpoint; the web server forwards the request to the panel. Do not put either secret in browser JavaScript or commit it to GitHub.
 
 Never commit passwords, password hashes, session secrets, or webhook URLs. Never send Epic account data, IP addresses, email addresses, recovery notes, evidence, or submitted error text to Discord.
 
@@ -51,6 +56,13 @@ For the repository-wide component map and Windows/browser/mobile setup steps, se
 ## Production caution
 
 The panel currently uses Express MemoryStore for sessions. MemoryStore is not suitable for production or multi-instance hosting. Do not expose this panel publicly until you configure a maintained persistent session store, enforce HTTPS, restrict network access, and review hosting backups and logs. The app emits a production warning; this update does not certify the panel as production-ready. This is not a completed security audit.
+
+
+## Administrator-reviewed recovery intake
+
+The browser Recovery Assistant can submit a consented, non-secret recovery summary to the private panel. The main web server forwards it server-to-server using RECOVERY_INTAKE_TOKEN. The panel encrypts the request payload with AES-256-GCM and stores it in a local SQLite database using Node's built-in node:sqlite module. The administrator can review requests in the Fast Recovery Progress tab, request more information, approve or reject, and record the official Epic recovery reference after manually submitting through Epic's official recovery form.
+
+Approval is an internal workflow state only. This project does not connect to, read from, or write to Epic's private databases and does not submit recovery requests to Epic automatically. Never collect or store passwords, one-time codes, backup codes, authenticator secrets, cookies, access tokens, full card numbers, CVV, or private account credentials. The web intake allowlist excludes IP/VPN history and payment credentials. The database key is not recoverable if lost; back up the key separately in a secure secrets manager and back up the database securely. Use HTTPS, access restrictions, secure backups, and a production-grade persistent session store before public deployment.
 
 ## Official Epic links
 
