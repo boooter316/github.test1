@@ -155,10 +155,10 @@ app.get("/api/recovery-requests/:id/export", auth, (req,res) => {
   if (!["approved","submitted-to-epic","waiting-for-epic","resolved"].includes(row.status)) return res.status(409).json({error:"Only approved recovery records can be exported."});
   let payload;
   try { payload = decryptPayload(row.encrypted_payload); } catch (_) { return res.status(500).json({error:"This request could not be decrypted. Check the configured data key."}); }
-  const events = recoveryDb.prepare("SELECT event_type,actor,note,created_at FROM recovery_events WHERE request_id=? ORDER BY id").all(row.id);
   const now = new Date().toISOString();
   recoveryDb.prepare("INSERT INTO recovery_events (request_id,event_type,actor,note,created_at) VALUES (?,?,?,?,?)")
     .run(row.id,"approved-record-exported",req.session.adminEmail || "administrator","Approved recovery record exported as JSON.",now);
+  const events = recoveryDb.prepare("SELECT event_type,actor,note,created_at FROM recovery_events WHERE request_id=? ORDER BY id").all(row.id);
   res.set({"Cache-Control":"no-store","Pragma":"no-cache","Content-Type":"application/json; charset=utf-8","Content-Disposition":'attachment; filename="recovery-'+row.reference+'.json"'});
   return res.send(JSON.stringify({reference:row.reference,status:row.status,created_at:row.created_at,updated_at:row.updated_at,epic_reference:row.epic_reference,submitted_at:row.submitted_at,payload,events,exported_at:now},null,2));
 });
@@ -167,12 +167,20 @@ app.patch("/api/recovery-requests/:id", auth, (req,res) => {
   const row = recoveryDb.prepare("SELECT * FROM recovery_requests WHERE id=?").get(req.params.id);
   if (!row) return res.status(404).json({error:"Recovery request not found."});
   const statuses = new Set(["needs-information","approved","rejected","submitted-to-epic","waiting-for-epic","resolved"]);
+  const unknownPatchFields = Object.keys(req.body || {}).filter(key => !["status","admin_note","epic_reference"].includes(key));
+  if (unknownPatchFields.length) return res.status(400).json({error:"Unsupported review field(s): " + unknownPatchFields.join(", ")});
   const status = String(req.body?.status || "");
-  const note = typeof req.body?.admin_note === "string" ? req.body.admin_note.trim().slice(0,2000) : row.admin_note;
-  const epicReference = typeof req.body?.epic_reference === "string" ? req.body.epic_reference.trim().slice(0,120) : row.epic_reference;
+  if (req.body?.admin_note !== undefined && (typeof req.body.admin_note !== "string" || req.body.admin_note.length > 2000)) return res.status(400).json({error:"Administrator notes must be text no longer than 2,000 characters."});
+  if (req.body?.epic_reference !== undefined && (typeof req.body.epic_reference !== "string" || req.body.epic_reference.length > 120)) return res.status(400).json({error:"The Epic reference must be text no longer than 120 characters."});
+  const note = req.body?.admin_note === undefined ? row.admin_note : req.body.admin_note.trim();
+  const epicReference = req.body?.epic_reference === undefined ? row.epic_reference : req.body.epic_reference.trim();
   if (!statuses.has(status)) return res.status(400).json({error:"Choose a valid review status."});
+  if (status === "needs-information" && !["pending-review","needs-information"].includes(row.status)) return res.status(409).json({error:"Only a pending request can be moved to needs-information."});
+  if (status === "approved" && !["pending-review","needs-information","approved"].includes(row.status)) return res.status(409).json({error:"Only a pending request can be approved."});
+  if (status === "rejected" && !["pending-review","needs-information","approved","rejected"].includes(row.status)) return res.status(409).json({error:"This request can no longer be rejected from its current status."});
   if (status === "submitted-to-epic" && row.status !== "approved" && row.status !== "submitted-to-epic") return res.status(409).json({error:"Approve the request before recording an Epic submission."});
   if (status === "waiting-for-epic" && row.status !== "submitted-to-epic" && row.status !== "waiting-for-epic") return res.status(409).json({error:"Record the official submission before marking it as waiting for Epic."});
+  if (status === "resolved" && !["submitted-to-epic","waiting-for-epic","resolved"].includes(row.status)) return res.status(409).json({error:"Record the official submission before resolving this request."});
   if (status === "submitted-to-epic" && !epicReference) return res.status(400).json({error:"Enter the official Epic recovery reference after you submit it."});
   const now = new Date().toISOString(), submittedAt = status === "submitted-to-epic" ? (row.submitted_at || now) : row.submitted_at;
   recoveryDb.prepare("UPDATE recovery_requests SET updated_at=?,status=?,admin_note=?,epic_reference=?,submitted_at=? WHERE id=?").run(now,status,note,epicReference,submittedAt,row.id);
