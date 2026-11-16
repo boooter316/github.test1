@@ -28,7 +28,7 @@ jobs:
       - name: Validate PowerShell scripts
         shell: pwsh
         run: |
-          $files = @('Epic_Games_Recovery_Assistant/update_project.ps1', 'Epic_Games_Recovery_Assistant/install_auto_update.ps1', 'Epic_Games_Recovery_Assistant/setup_dependencies.ps1', 'Epic_Games_Recovery_Assistant/first_run_setup.ps1', 'Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1', 'Epic_Games_Recovery_Assistant/web/network_tools.ps1')
+          $files = @('Epic_Games_Recovery_Assistant/update_project.ps1', 'Epic_Games_Recovery_Assistant/install_auto_update.ps1', 'Epic_Games_Recovery_Assistant/setup_dependencies.ps1', 'Epic_Games_Recovery_Assistant/first_run_setup.ps1', 'Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1', 'Epic_Games_Recovery_Assistant/web/network_tools.ps1', 'Epic_Games_Recovery_Assistant/web/project_vulnerability_audit.ps1')
           foreach ($file in $files) {
             $tokens = $null
             $errors = $null
@@ -60,7 +60,7 @@ jobs:
       - name: Validate Windows batch launchers
         shell: pwsh
         run: |
-          $required = @('OPEN_PROJECT.bat', 'FIRST_RUN_SETUP.bat', 'START_HERE.bat', 'build.bat', 'setup.bat', 'run.bat', 'PDF_EVIDENCE_SCANNER.bat')
+          $required = @('OPEN_DASHBOARD.cmd', 'OPEN_PROJECT.bat', 'FIRST_RUN_SETUP.bat', 'START_HERE.bat', 'build.bat', 'setup.bat', 'run.bat', 'PDF_EVIDENCE_SCANNER.bat')
           foreach ($name in $required) {
             $path = Join-Path $PWD "Epic_Games_Recovery_Assistant/$name"
             if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing launcher: $name" }
@@ -121,6 +121,7 @@ jobs:
           $bundle = "Windows-Desktop-Bundle"
           New-Item -ItemType Directory -Force $bundle | Out-Null
           Copy-Item 'Epic_Games_Recovery_Assistant/Epic_Games_Recovery_Assistant.exe' $bundle
+          Copy-Item 'Epic_Games_Recovery_Assistant/OPEN_DASHBOARD.cmd' $bundle
           Copy-Item 'Epic_Games_Recovery_Assistant/paf_evidence_scanner.exe' $bundle
           Copy-Item 'Epic_Games_Recovery_Assistant/paf_evidence_scanner.c++' $bundle
           Copy-Item 'Epic_Games_Recovery_Assistant/PDF_EVIDENCE_SCANNER.bat' $bundle
