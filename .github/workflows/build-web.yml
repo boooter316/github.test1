@@ -10,6 +10,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "DISCORD-SERVER-DASHBOARD/**"
       - "Epic_Games_Recovery_Assistant/web/**"
       - "recovery-panel/**"
       - ".github/workflows/build-web.yml"
