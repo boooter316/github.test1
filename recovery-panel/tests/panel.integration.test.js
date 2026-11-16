@@ -88,6 +88,12 @@ test("intake, administrator review, approved export, and persistent sessions wor
   };
   let base = await startServer(port, env);
 
+  const panelPage = await fetch(base + "/");
+  assert.equal(panelPage.status, 200);
+  const panelCsp = panelPage.headers.get("content-security-policy") || "";
+  assert.match(panelCsp, /script-src[^;]*cdn\.jsdelivr\.net/, "Recovery Panel must allow its PDF.js module CDN");
+  assert.match(panelCsp, /worker-src[^;]*cdn\.jsdelivr\.net/, "Recovery Panel must allow its PDF.js worker CDN");
+
   let result = await jsonRequest(base, "/api/recovery-requests");
   assert.equal(result.response.status, 401, "request queue must require administrator authentication");
   assert.equal(result.response.headers.get("cache-control"), "no-store");
