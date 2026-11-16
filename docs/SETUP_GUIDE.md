@@ -80,7 +80,7 @@ The Recovery Panel is not the same server as the main browser multitool.
    ```
 7. Open http://localhost:3000 on that computer.
 
-The panel has Recovery Records, PDF Evidence Scanner, and Fast Recovery Progress tabs. Existing manually created Recovery Records remain in browser local storage on that device. Incoming browser-tool submissions are stored separately in the panel's server-side SQLite database, encrypted at rest with the configured RECOVERY_DATA_KEY. The Fast Recovery Progress tab lets the administrator inspect incoming requests, request more information, approve or reject them, and record an official Epic reference after manual submission. Back up the SQLite database and its encryption key separately and securely. The panel also links to both network lab workspaces.
+The panel has Recovery Records, PDF Evidence Scanner, Account Identifier Evidence Scan, and Fast Recovery Progress tabs. Existing manually created Recovery Records remain in browser local storage on that device. Incoming browser-tool submissions are stored separately in the panel's server-side SQLite database, encrypted at rest with the configured RECOVERY_DATA_KEY. The Fast Recovery Progress tab lets the administrator inspect incoming requests, request more information, approve or reject them, and record an official Epic reference after manual submission. Back up the SQLite database and its encryption key separately and securely. The panel also links to both network lab workspaces.
 
 **Production warning:** administrator sessions now persist in a separate SQLite database across process restarts. This is a single-instance store, not a distributed multi-host session service. The panel is not certified production-ready. Before public deployment, enforce HTTPS, restrict network access, protect both SQLite databases and the encryption key with secure backups, review hosting logs, and arrange an independent security review. No production deployment is included in this setup.
 
@@ -103,13 +103,17 @@ The Recovery Panel uses Node's built-in node:sqlite module (Node 26+) for both t
 - Review evidence yourself. Scanner indicators are not proof of account ownership or credential validity.
 - Keep sensitive source PDFs and exported reports private.
 
-## 7. Network tools and multitool safety
+## 7. Account Identifier Evidence Scan
+
+The Recovery Panel's Account Identifier Evidence Scan accepts selected PDF, TXT, CSV, and JSON files. It runs locally in the browser and reports counts and page/line locations for email-address patterns, explicitly labelled Fortnite display-name/username fields, and explicitly labelled Epic Account ID fields. It does not display or export matched values, upload files, search the device, or query Epic. The scan is limited to 10 files per run and 20 MiB per file; text files have a 2 MiB decoded-text cap. Image-only PDFs are not OCR-scanned. Matching is heuristic and can miss unusual labels or produce false positives. Fortnite username counts require an explicit `Fortnite username` or `Fortnite display name` label; Epic ID counts require an explicit account-ID label. Unlabelled UUIDs and ordinary generic usernames are not treated as Epic/Fortnite identifiers.
+
+## 8. Network tools and multitool safety
 
 Use network checks only on systems and networks you own or are authorized to administer. The included Windows network helper is limited to local status information and bounded private IPv4 TCP checks. It does not upload scan files, reports, credentials, or secrets through a VPN or proxy.
 
 Never paste passwords, one-time codes, recovery codes, session cookies, access tokens, API keys, webhook URLs, or private keys into the project or support messages. The project must not be used to harvest browser tokens, activate token grabbers, bypass account verification, or exfiltrate credentials.
 
-## 8. Updating and troubleshooting
+## 9. Updating and troubleshooting
 
 - Read the change notes and review the PR before updating.
 - The Windows updater requires GitHub CLI, authenticated access to the private repository, and a successful main-branch build artifact. It verifies the artifact checksum and backs up local files before copying.
