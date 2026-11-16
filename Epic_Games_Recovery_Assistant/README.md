@@ -10,8 +10,9 @@ For the full Windows, browser, Recovery Panel, and mobile setup instructions, se
 
 1. Download and extract the complete project ZIP on Windows 10/11.
 2. Open the \`Epic_Games_Recovery_Assistant\` folder.
-3. Double-click **\`OPEN_PROJECT.bat\`**.
-4. The setup checks for GCC and Poppler, builds both native C++17 executables, and launches the dashboard.
+3. Double-click **\`OPEN_DASHBOARD.cmd\`** for the desktop launcher (or \`OPEN_PROJECT.bat\` for the original setup launcher).
+4. If the native executable is present, the CMD launcher opens it directly. On first run from the full source ZIP, it starts the compiler setup/build wizard and then opens the dashboard.
+5. The desktop launcher runs the native C++ command dashboard only. It does **not** start Node.js, a browser, or a web server.
 
 The main executable is \`Epic_Games_Recovery_Assistant.exe\`. The companion PDF scanner source is **\`paf_evidence_scanner.c++\`**, and its executable is \`paf_evidence_scanner.exe\`. Run \`PDF_EVIDENCE_SCANNER.bat\` and drag one or more PDF files onto it.
 
