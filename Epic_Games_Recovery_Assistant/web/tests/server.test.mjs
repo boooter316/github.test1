@@ -213,6 +213,20 @@ test("main navigation links to the separate DigitalOcean VPS lab", async () => {
   assert.match(body, /DigitalOcean &amp; VPS Lab/);
 });
 
+test("main dashboard image and PowerShell helper assets are served through explicit routes", async () => {
+  for (const [route, type] of [
+    ["/ghostface-bg.jpg", "image/jpeg"],
+    ["/network_security_snapshot.ps1", "text/plain"],
+    ["/project_vulnerability_audit.ps1", "text/plain"],
+    ["/network_tools.ps1", "text/plain"]
+  ]) {
+    const response = await fetch(baseUrl + route);
+    assert.equal(response.status, 200, route + " should be served");
+    assert.ok((response.headers.get("content-type") || "").includes(type), route + " content type");
+    assert.ok((await response.arrayBuffer()).byteLength > 0, route + " should not be empty");
+  }
+});
+
 test("server package setup guide is routed and exposes machine-specific instructions", async () => {
   const response = await fetch(`${baseUrl}/server-network-lab.html`);
   assert.equal(response.status, 200);
