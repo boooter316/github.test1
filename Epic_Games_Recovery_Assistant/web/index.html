@@ -838,7 +838,7 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
   }
   if(kind==="custom"){files["README_RUN.txt"]="Custom script export only. This file is not run by the package. Open it in Notepad++ or a suitable editor and use the official runtime/compiler for its language.\r\n";}else{files["README_RUN.md"]="# Run "+name+"\n\nReview the source before running. This package does not execute code when downloaded.\n\n1. Extract the ZIP on your Windows PC.\n2. Install the language runtime/compiler listed in the Script Builder instructions.\n3. Double-click RUN_SCRIPT.bat. For C++, build the EXE first with BUILD_EXE.bat.\n4. To stop a console program, press Ctrl+C in its terminal window.\n";}
   zipDownload(name+"_run_package.zip",files);
-  setStatus("Run package downloaded. Extract it on Windows, review the source, then double-click RUN_SCRIPT.bat. The browser does not execute the program.");
+  setStatus(kind==="custom"?"Custom source text downloaded. It is not executable; open it in Notepad++ or the editor for its actual language.":"Run package downloaded. Extract it on Windows, review the source, then double-click RUN_SCRIPT.bat. The browser does not execute the program.");
  });
  $("sbBuild").addEventListener("click",()=>{
   if(!source().trim()){setStatus("Paste or import source code first.");return;}
