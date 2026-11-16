@@ -47,7 +47,7 @@
     const upgrade = document.createElement("button");
     upgrade.type = "button"; upgrade.textContent = "Check for updates";
     upgrade.addEventListener("click", () => {
-      status.textContent = "This repository is private, so the browser cannot reliably query its GitHub API without your sign-in. Open the signed-in GitHub pages below to review the latest commits, releases, or source ZIP.";
+      status.textContent = "This is a public repository. GitHub API requests from the browser may still be rate-limited, so use the public GitHub pages below to review the latest commits, releases, or source ZIP.";
       bar.querySelectorAll("[data-update-link]").forEach(el => el.remove());
       const links = [
         ["View latest commits", "https://github.com/" + REPO + "/commits/main/"],
@@ -116,7 +116,7 @@
     buildStatus.type = "button"; buildStatus.textContent = "Build status";
     buildStatus.addEventListener("click", () => {
       window.open("https://github.com/" + REPO + "/actions", "_blank", "noopener,noreferrer");
-      status.textContent = "Opened the repository's GitHub Actions page. Sign in to view private build logs and artifacts.";
+      status.textContent = "Opened the public GitHub Actions page. GitHub requires sign-in to view workflow run details and logs.";
     });
 
     bar.append(stop, upgrade, build, download, diagnostics, buildStatus, status);
