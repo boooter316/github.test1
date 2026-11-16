@@ -170,7 +170,11 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <div><label for="appeal">Restriction or appeal details</label><textarea id="appeal" placeholder="Platform, notice date, case/reference number, notice wording, and what you are appealing"></textarea></div><div><label for="platform">Platform needing recovery or appeal</label><select id="platform"><option>Epic Games</option><option>Xbox</option><option>PlayStation</option><option>Steam</option><option>Nintendo</option><option>GeForce NOW</option><option>Roblox</option><option>Minecraft</option><option>GTA</option><option>Disney</option><option>Twitch</option><option>YouTube</option><option>TikTok</option><option>More than one platform</option></select></div><div><label for="platformId">Public gamertag / Online ID / Steam profile / Nintendo nickname</label><input id="platformId"></div><div><label for="caseId">Support case or enforcement reference</label><input id="caseId"></div><div><label for="noticeDate">Notice date (if known)</label><input id="noticeDate" type="date"></div><div><label for="requestedOutcome">Requested outcome</label><select id="requestedOutcome"><option>Account recovery guidance</option><option>Review or appeal of restriction</option><option>Correct account email or display name</option><option>Review linked-account issue</option><option>Understand enforcement notice</option></select></div></div></section>
 <section class="panel"><h2>Review and export</h2><p class="hint">Check details for accuracy before sharing through the platform's official secure support form.</p>
 <div class="actions no-print"><button type="button" id="json">Download JSON packet</button><button type="button" class="secondary" id="pdf">Print / Save as PDF</button><button type="button" class="secondary" id="draft">Create support-request draft</button></div>
-<textarea id="draftText" class="no-print" placeholder="Your support request draft will appear here." style="margin-top:12px"></textarea></section></form>
+<textarea id="draftText" class="no-print" placeholder="Your support request draft will appear here." style="margin-top:12px"></textarea>
+<div class="notice no-print" style="margin-top:14px"><strong>Private administrator review:</strong> If you choose to submit, the selected non-secret details are encrypted in the Recovery Panel database for administrator review. This does not submit anything to Epic. Do not include passwords, verification codes, backup codes, tokens, cookies, full payment-card details, or IP/VPN history.</div>
+<label class="check no-print" style="display:flex;gap:8px;align-items:flex-start"><input id="adminReviewConsent" type="checkbox" style="width:auto;margin-top:4px"><span>I consent to sending the selected recovery details to this tool's private administrator database for review. I understand that an administrator must approve the request and submit it separately through Epic's official process.</span></label>
+<input id="recoveryWebsite" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px">
+<div class="actions no-print"><button type="button" id="submitForAdminReview">Send to administrator for review</button><span id="adminReviewResult" class="scanner-result" role="status" aria-live="polite">Not submitted.</span></div></section></form>
 <section class="panel" id="ticketManager">
 <h2>Support Ticket Manager &amp; Recovery Retry Guard</h2>
 <p class="hint">Prepare one clear support request and keep track of an existing case. This assistant never submits tickets or reports automatically. Use the platform's official support channel and do not open duplicate cases for the same issue.</p>
@@ -508,6 +512,23 @@ function makeDraft(o){const f=o.fields;return ["Hello Support Team,","","I am re
 document.getElementById("json").addEventListener("click",()=>{const b=new Blob([JSON.stringify(collect(),null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="recovery-request.json";a.click();URL.revokeObjectURL(a.href)});
 document.getElementById("pdf").addEventListener("click",()=>window.print());
 document.getElementById("draft").addEventListener("click",()=>document.getElementById("draftText").value=makeDraft(collect()));
+document.getElementById("submitForAdminReview").addEventListener("click",async()=>{
+ const result=document.getElementById("adminReviewResult");
+ if(!document.getElementById("adminReviewConsent").checked){result.textContent="Please confirm consent before sending details for administrator review.";return;}
+ const all=collect().fields;
+ const allowed=["accountId","display","oldDisplay","email","oldEmail","country","incident","error","date","firstSeen","details","mfaAccess","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"];
+ const payload={};allowed.forEach(key=>payload[key]=String(all[key]||"").slice(0,key==="details"||key==="appeal"?3000:500));
+ payload.twoStepMethods=Array.isArray(all.twoStepMethods)?all.twoStepMethods.slice(0,8):[];
+ if(!payload.accountId&&!payload.display&&!payload.email&&!payload.oldEmail){result.textContent="Enter an account ID, display name, or account email first.";return;}
+ const button=document.getElementById("submitForAdminReview");button.disabled=true;result.textContent="Sending securely to the private review queue…";
+ try{
+  const response=await fetch("/api/recovery-intake",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({consent:true,payload,website:document.getElementById("recoveryWebsite").value})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"The request could not be submitted.");
+  result.textContent="Received. Reference: "+data.reference+". Status: Pending administrator review. This has NOT been sent to Epic.";
+ }catch(error){result.textContent="Not confirmed as saved: "+error.message;}
+ finally{button.disabled=false;}
+});
 
  // Local-only ticket pacing. This is a client-side convenience, not an Epic enforcement mechanism.
 const ticketLimitKey="recoveryAssistant.ticketPacing.v1";
