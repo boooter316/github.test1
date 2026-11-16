@@ -12,7 +12,7 @@ test("counts email patterns without returning matched addresses", () => {
 });
 
 test("counts labelled Fortnite display-name and username fields", () => {
-  const result = identifierCounts("Fortnite display name: PlayerOne; username=PlayerTwo");
+  const result = identifierCounts("Fortnite display name: PlayerOne; Fortnite username=PlayerTwo; username: unrelated");
   assert.equal(result.fortnite, 2);
 });
 
