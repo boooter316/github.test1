@@ -216,7 +216,7 @@ $("runIdentifierScan").addEventListener("click",async()=>{
  if(files.some(file=>file.name.toLowerCase().endsWith(".pdf"))&&!window.pdfjsLib){$("identifierResult").textContent="PDF engine did not load. Connect to the internet and reload to scan PDFs; TXT/CSV/JSON scans do not require the PDF engine.";return}
  if(window.pdfjsLib)window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
  for(const file of files){
-  out.push("FILE: "+file.name);
+  out.push("FILE "+(files.indexOf(file)+1)+" (."+file.name.split(".").pop().toLowerCase()+")");
   if(file.size>MAX_IDENTIFIER_BYTES){out.push("Skipped: file exceeds 20 MiB.","");continue}
   const ext=file.name.split(".").pop().toLowerCase();let total={email:0,fortnite:0,epic:0},scanned=0;
   try{
