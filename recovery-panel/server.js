@@ -77,10 +77,11 @@ function decryptPayload(value) {
   return JSON.parse(Buffer.concat([decipher.update(Buffer.from(dataHex, "hex")), decipher.final()]).toString("utf8"));
 }
 const SECRET_VALUE_PATTERNS = [
-  /\b(?:password|passwd|passcode|token|cookie|authorization|bearer|api[\s_-]?key|secret|2fa|two[\s-]?factor|verification[\s_-]?(?:code|otp)|backup[\s_-]?codes?|recovery[\s_-]?codes?|authenticator[\s_-]?(?:code|secret)|cvv|cvc)\b\s*[:=]/i,
+  /\b(?:password|passwd|passcode|token|cookie|authorization|bearer|api[\s_-]?key|secret|2fa|two[\s-]?factor|verification[\s_-]?(?:code|otp)|backup[\s_-]?codes?|recovery[\s_-]?codes?|authenticator[\s_-]?(?:code|secret)|cvv|cvc)\b/i,
   /\bBearer\s+[A-Za-z0-9._~+\/-]{12,}/i,
   /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/,
-  /\b(?:mfa|otp)[\s:_-]*[0-9]{6,8}\b/i
+  /\b(?:mfa|otp)[\s:_-]*[0-9]{6,8}\b/i,
+  /\b(?:gh[pousr]_[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,})\b/
 ];
 function assertNoSecretLikeValues(value) {
   if (typeof value === "string") {
