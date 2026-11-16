@@ -136,6 +136,8 @@ function decryptPayload(value) {
 }
 function cleanIntakePayload(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("Invalid recovery details.");
+  const secretAssignment = /(?:password|passwd|cookie|session(?:[_ -]?(?:id|token))?|access[_ -]?token|refresh[_ -]?token|authorization|2fa|backup[_ -]?code|verification[_ -]?code|one[_ -]?time[_ -]?code|authenticator[_ -]?secret|private[_ -]?key|cvv|card[_ -]?number)\s*[:=]\s*\S+/i;
+  const bearerCredential = /\bBearer\s+[A-Za-z0-9._~+\/-]{12,}/i;
   const unknown = Object.keys(input).filter(key => !allowedIntakeFields.has(key));
   if (unknown.length) throw new Error("Unsupported recovery field(s): " + unknown.join(", "));
   const output = {};
@@ -158,6 +160,7 @@ function cleanIntakePayload(input) {
       });
     } else {
       if (typeof value !== "string" || value.length > (key === "details" || key === "appeal" ? 3000 : 500)) throw new Error("A recovery field is too long or invalid.");
+      if (secretAssignment.test(value) || bearerCredential.test(value)) throw new Error("Do not include passwords, cookies, session values, tokens, verification codes, or other login secrets in recovery notes.");
       output[key] = value.trim();
     }
   }
