@@ -87,6 +87,65 @@ jobs:
           node --check Epic_Games_Recovery_Assistant/web/workspace-controls.js
           node --check recovery-panel/public/workspace-controls.js
           node -e "const fs=require('node:fs');const h=fs.readFileSync('Epic_Games_Recovery_Assistant/web/index.html','utf8');for(const id of ['sbPythonTab','sbCppTab','sbCustomTab','sbOpenEditor','sbStop','sbSave','sbTest','sbRun','sbBuild'])if(!h.includes(id))throw new Error('Missing Script Builder control: '+id);const n=fs.readFileSync('Epic_Games_Recovery_Assistant/web/network-tools.html','utf8');for(const id of ['hostScanTab','vulnerabilityScanTab','makeAuditCommand','copyAuditCommand'])if(!n.includes(id))throw new Error('Missing network security control: '+id)"
+      - name: Discover and syntax-check every HTML and JavaScript source
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import subprocess
+          import tempfile
+
+          SKIP = {".git", "node_modules", "dist", "build"}
+          def source_files(pattern):
+              return sorted(p for p in Path(".").rglob(pattern)
+                            if not any(part in SKIP for part in p.parts))
+
+          class InlineScripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.blocks = []
+                  self.current = None
+                  self.script_type = ""
+
+              def handle_starttag(self, tag, attrs):
+                  if tag.lower() == "script":
+                      attrs = dict(attrs)
+                      self.script_type = (attrs.get("type") or "").lower()
+                      self.current = []
+
+              def handle_data(self, data):
+                  if self.current is not None:
+                      self.current.append(data)
+
+              def handle_endtag(self, tag):
+                  if tag.lower() == "script" and self.current is not None:
+                      if self.script_type in ("", "text/javascript", "application/javascript", "module"):
+                          self.blocks.append((self.script_type, "".join(self.current)))
+                      self.current = None
+                      self.script_type = ""
+
+          html_count = 0
+          inline_count = 0
+          with tempfile.TemporaryDirectory(prefix="repo-inline-js-") as temp:
+              for html_path in source_files("*.html"):
+                  parser = InlineScripts()
+                  parser.feed(html_path.read_text(encoding="utf-8"))
+                  html_count += 1
+                  for index, (script_type, source) in enumerate(parser.blocks):
+                      if not source.strip():
+                          continue
+                      suffix = ".mjs" if script_type == "module" else ".js"
+                      check_path = Path(temp) / f"inline-{inline_count}-{index}{suffix}"
+                      check_path.write_text(source, encoding="utf-8")
+                      subprocess.run(["node", "--check", str(check_path)], check=True)
+                      inline_count += 1
+
+          js_files = source_files("*.js") + source_files("*.mjs")
+          for source_path in js_files:
+              subprocess.run(["node", "--check", str(source_path)], check=True)
+
+          print(f"Checked {html_count} HTML files, {inline_count} inline script blocks, and {len(js_files)} JavaScript source files.")
+          PY
       - name: Test private LAN dashboard host
         run: |
           python3 -m py_compile DISCORD-SERVER-DASHBOARD/private_lan_server.py
