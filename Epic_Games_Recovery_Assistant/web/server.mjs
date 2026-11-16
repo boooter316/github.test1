@@ -1,12 +1,16 @@
 import http from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
-import { timingSafeEqual, createHash, createHmac } from "node:crypto";
+import { timingSafeEqual, createHash, createHmac, randomBytes, scryptSync } from "node:crypto";
 
 const ROOT = process.env.WEB_ROOT || process.cwd();
 const PORT = Number(process.env.PORT || 8080);
 const API_KEY = process.env.DEEPSEEK_API_KEY || "";
 const CHAT_PASSWORD = process.env.CHAT_ACCESS_PASSWORD || "";
+const DASHBOARD_USERS_FILE = process.env.DASHBOARD_USERS_FILE || path.join(ROOT, ".dashboard-users.json");
+let registrationInProgress = false;
+const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
+const sessions = new Map();
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const TELEGRAM_BOT_USERNAME = (process.env.TELEGRAM_BOT_USERNAME || "").replace(/^@/, "");
 const RECOVERY_PANEL_INTAKE_URL = process.env.RECOVERY_PANEL_INTAKE_URL || "";
@@ -15,6 +19,7 @@ const TELEGRAM_CONFIGURED = Boolean(TELEGRAM_BOT_TOKEN && /^[A-Za-z0-9_]{5,32}$/
 const files = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
   ["/index.html", ["index.html", "text/html; charset=utf-8"]],
+  ["/login.html", ["login.html", "text/html; charset=utf-8"]],
   ["/project-downloads.html", ["project-downloads.html", "text/html; charset=utf-8"]],
   ["/network_security.js", ["network_security.js", "text/javascript; charset=utf-8"]],
   ["/network-tools.html", ["network-tools.html", "text/html; charset=utf-8"]],
@@ -52,6 +57,37 @@ function allowedRate(ip) {
   if (limits.size > 2000) for (const [key, times] of limits) if (!times.some(t => now - t < 60000)) limits.delete(key);
   return true;
 }
+function getSessionId(req) {
+  const cookie = String(req.headers.cookie || "");
+  const match = cookie.match(/(?:^|;\s*)dashboard_session=([a-f0-9]{64})(?:;|$)/);
+  return match ? match[1] : "";
+}
+function hasDashboardSession(req) {
+  const id = getSessionId(req);
+  const expires = sessions.get(id);
+  if (!id || !expires) return false;
+  if (expires <= Date.now()) { sessions.delete(id); return false; }
+  sessions.set(id, Date.now() + SESSION_TTL_MS);
+  return true;
+}
+function sessionCookie(id, maxAge = SESSION_TTL_MS / 1000) {
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  return "dashboard_session=" + id + "; HttpOnly; SameSite=Strict; Path=/; Max-Age=" + maxAge + secure;
+}
+async function readDashboardUsers() {
+  try {
+    const parsed = JSON.parse(await readFile(DASHBOARD_USERS_FILE, "utf8"));
+    return Array.isArray(parsed) ? parsed.filter(user => user && typeof user.username === "string" && typeof user.salt === "string" && typeof user.passwordHash === "string") : [];
+  } catch (error) { if (error.code === "ENOENT") return []; throw error; }
+}
+function passwordHash(password, salt) { return scryptSync(password, salt, 64).toString("hex"); }
+async function saveDashboardUser(username, password) {
+  const salt = randomBytes(16).toString("hex");
+  const user = { username, salt, passwordHash: passwordHash(password, salt), createdAt: new Date().toISOString() };
+  await mkdir(path.dirname(DASHBOARD_USERS_FILE), { recursive: true });
+  await writeFile(DASHBOARD_USERS_FILE, JSON.stringify([user], null, 2), { encoding: "utf8", mode: 0o600, flag: "wx" });
+  return user;
+}
 async function readBody(req) {
   let body = "";
   for await (const chunk of req) {
@@ -71,6 +107,56 @@ const server = http.createServer(async (req, res) => {
     return res.end("ok\n");
   }
 
+  if (req.method === "GET" && url.pathname === "/api/auth/status") {
+    try { const users = await readDashboardUsers(); return json(res, 200, { registrationAvailable: users.length === 0 }); }
+    catch { return json(res, 500, { error: "Dashboard account storage could not be read." }); }
+  }
+  if (req.method === "POST" && url.pathname === "/api/auth/register") {
+    if (!allowedRate("dashboard-register:" + (req.socket.remoteAddress || "unknown"))) return json(res, 429, { error: "Too many registration attempts. Wait a minute and try again." });
+    if (registrationInProgress) return json(res, 409, { error: "Initial account registration is already in progress." });
+    registrationInProgress = true;
+    try {
+      const users = await readDashboardUsers();
+      if (users.length) return json(res, 403, { error: "Registration is closed because the first dashboard account already exists." });
+      let input; try { input = await readBody(req); } catch { return json(res, 400, { error: "Enter a valid username and password." }); }
+      if (!input || typeof input.username !== "string" || typeof input.password !== "string") return json(res, 400, { error: "Enter a valid username and password." });
+      const username = input.username.trim();
+      if (!/^[^\u0000-\u001f\u007f]{3,64}$/.test(username)) return json(res, 400, { error: "Username must be 3–64 characters and cannot contain control characters." });
+      if (input.password.length < 12 || input.password.length > 256) return json(res, 400, { error: "Password must be at least 12 characters and no more than 256 characters." });
+      try { await saveDashboardUser(username, input.password); }
+      catch (error) { if (error.code === "EEXIST") return json(res, 403, { error: "A dashboard account has already been registered." }); throw error; }
+      const id = randomBytes(32).toString("hex"); sessions.set(id, Date.now() + SESSION_TTL_MS);
+      res.writeHead(201, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "Set-Cookie": sessionCookie(id), "X-Content-Type-Options": "nosniff" });
+      return res.end(JSON.stringify({ registered: true, authenticated: true }));
+    } catch { return json(res, 500, { error: "Could not create the dashboard account. Check the server's writable data folder." }); }
+    finally { registrationInProgress = false; }
+  }
+  if (req.method === "POST" && url.pathname === "/api/auth/login") {
+    if (!allowedRate("dashboard-login:" + (req.socket.remoteAddress || "unknown"))) return json(res, 429, { error: "Too many sign-in attempts. Wait a minute and try again." });
+    let input; try { input = await readBody(req); } catch { return json(res, 400, { error: "Enter a valid username and password." }); }
+    if (!input || typeof input.username !== "string" || typeof input.password !== "string") return json(res, 400, { error: "Enter a valid username and password." });
+    let users; try { users = await readDashboardUsers(); } catch { return json(res, 500, { error: "Dashboard account storage could not be read." }); }
+    const user = users.find(item => item.username.toLowerCase() === input.username.trim().toLowerCase());
+    const salt = user ? user.salt : "0".repeat(32);
+    const expected = user ? user.passwordHash : "0".repeat(128);
+    if (!user || !sameSecret(passwordHash(input.password, salt), expected)) return json(res, 401, { error: "The username or password is incorrect." });
+    const id = randomBytes(32).toString("hex"); sessions.set(id, Date.now() + SESSION_TTL_MS);
+    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "Set-Cookie": sessionCookie(id), "X-Content-Type-Options": "nosniff" });
+    return res.end(JSON.stringify({ authenticated: true }));
+  }
+  if (req.method === "POST" && url.pathname === "/api/auth/logout") {
+    const id = getSessionId(req);
+    if (id) sessions.delete(id);
+    res.writeHead(303, { "Location": "/login.html", "Cache-Control": "no-store", "Set-Cookie": sessionCookie("", 0), "X-Content-Type-Options": "nosniff" });
+    return res.end();
+  }
+  if (req.method === "GET" && url.pathname === "/login.html") {
+    // Login page is intentionally public; all dashboard content requires a session.
+  } else if (!hasDashboardSession(req)) {
+    if (url.pathname.startsWith("/api/")) return json(res, 401, { error: "Sign in to the dashboard to continue." });
+    res.writeHead(303, { "Location": "/login.html", "Cache-Control": "no-store" });
+    return res.end();
+  }
   if (req.method === "GET" && url.pathname === "/api/integrations/status") {
     return json(res, 200, {
       telegramConfigured: TELEGRAM_CONFIGURED,
@@ -207,7 +293,7 @@ const server = http.createServer(async (req, res) => {
   try {
     let body = await readFile(path.join(ROOT, entry[0]));
     if (url.pathname === "/" || url.pathname === "/index.html") {
-      body = Buffer.from(body.toString("utf8").replace("</nav>", '<a class="tab" href="/network-tools.html" style="display:inline-block;text-decoration:none;text-align:center">IP &amp; Network Tools</a><a class="tab" href="/network-lab.html" style="display:inline-block;text-decoration:none;text-align:center">DigitalOcean &amp; VPS Lab</a><a class="tab" href="/server-network-lab.html" style="display:inline-block;text-decoration:none;text-align:center">Server Setup &amp; Packages</a></nav>'));
+      body = Buffer.from(body.toString("utf8").replace('<main class="wrap">', '<main class="wrap"><form method="post" action="/api/auth/logout" style="display:flex;justify-content:flex-end;margin-bottom:12px"><button type="submit" class="secondary" style="background:#7f1d1d;color:#fff">Sign out</button></form>').replace("</nav>", '<a class="tab" href="/network-tools.html" style="display:inline-block;text-decoration:none;text-align:center">IP &amp; Network Tools</a><a class="tab" href="/network-lab.html" style="display:inline-block;text-decoration:none;text-align:center">DigitalOcean &amp; VPS Lab</a><a class="tab" href="/server-network-lab.html" style="display:inline-block;text-decoration:none;text-align:center">Server Setup &amp; Packages</a></nav>'));
     }
     res.writeHead(200, {
       "Content-Type": entry[1],
@@ -224,4 +310,5 @@ server.listen(PORT, "0.0.0.0", () => {
   console.log("Recovery Assistant web server listening on " + PORT);
   console.log("DeepSeek chat configured: " + Boolean(API_KEY && CHAT_PASSWORD));
   console.log("Telegram login configured: " + TELEGRAM_CONFIGURED);
+  console.log("Dashboard sign-in enabled; first-run registration is available when no account exists.");
 });

@@ -2,6 +2,16 @@
 
 This folder contains the browser-based recovery-request builder, a Node.js web/API server for the optional DeepSeek chat, and the original C++17 static server source.
 
+## Dashboard sign-in and first account registration
+
+The browser dashboard requires a server-verified account before any dashboard page or API route can be used. On first launch, choose **Register** to create the one owner account. Registration closes automatically as soon as that first account is saved; later visitors can only sign in. This avoids an unrestricted public registration page.
+
+Passwords are stored as salted scrypt hashes in a local `.dashboard-users.json` data file, never in browser JavaScript or the Git repository. Keep this file private and back it up securely. Deleting it while the server is stopped resets first-run registration; anyone with write access to the server's data folder could then claim the initial account.
+
+On Windows, run `START_WEB_DASHBOARD.bat`. It starts the protected server and opens first-run registration at `http://127.0.0.1:8080`. Keep the terminal open while using the dashboard; press Ctrl+C to stop the server. The data file stays in this `web/` folder.
+
+For hosted deployments, set `DASHBOARD_USERS_FILE` to a persistent, private writable path and mount persistent storage there. Use HTTPS in production. The Docker image runs as the unprivileged `node` user; mount a writable volume at `/data` and set `DASHBOARD_USERS_FILE=/data/dashboard-users.json`. Do not commit account data, passwords, session cookies, or secrets to GitHub. The session cookie is HttpOnly and SameSite=Strict, sessions expire after eight hours, and sign-in/registration attempts are rate-limited. Sessions are in memory and end when the server restarts.
+
 ## First-run Windows setup
 
 For Windows 10/11, extract the project and double-click
