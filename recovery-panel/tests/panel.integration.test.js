@@ -108,6 +108,13 @@ test("intake, administrator review, approved export, and persistent sessions wor
   result = await jsonRequest(base, "/api/intake", {
     method: "POST",
     headers: { authorization: "Bearer " + env.RECOVERY_INTAKE_TOKEN },
+    body: JSON.stringify({ consent: true, payload: { accountId: "synthetic-002", details: "password: test-only-value" } })
+  });
+  assert.equal(result.response.status, 400, "labelled login secrets inside free-text fields must be rejected");
+
+  result = await jsonRequest(base, "/api/intake", {
+    method: "POST",
+    headers: { authorization: "Bearer " + env.RECOVERY_INTAKE_TOKEN },
     body: JSON.stringify({
       consent: true,
       payload: {
