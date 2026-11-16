@@ -15,6 +15,7 @@ const TELEGRAM_CONFIGURED = Boolean(TELEGRAM_BOT_TOKEN && /^[A-Za-z0-9_]{5,32}$/
 const files = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
   ["/index.html", ["index.html", "text/html; charset=utf-8"]],
+  ["/project-downloads.html", ["project-downloads.html", "text/html; charset=utf-8"]],
   ["/network_security.js", ["network_security.js", "text/javascript; charset=utf-8"]],
   ["/network-tools.html", ["network-tools.html", "text/html; charset=utf-8"]],
   ["/network-lab.html", ["network-lab.html", "text/html; charset=utf-8"]],
