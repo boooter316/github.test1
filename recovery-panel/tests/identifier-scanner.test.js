@@ -20,7 +20,7 @@ test("counts labelled Epic account IDs and UUID-shaped IDs", () => {
   const labelled = identifierCounts("Epic Account ID: 12345678-1234-4234-8234-123456789abc");
   assert.equal(labelled.epic, 1);
   const bare = identifierCounts("Reference: 12345678-1234-4234-8234-123456789abc");
-  assert.equal(bare.epic, 1);
+  assert.equal(bare.epic, 0, "unlabelled UUIDs are not assumed to be Epic account IDs");
 });
 
 test("returns only line numbers and category counts", () => {
