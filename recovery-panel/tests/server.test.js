@@ -90,6 +90,8 @@ test("rejects secret-like values inside arrays and nested connected-account fiel
     connectedAccounts: [{ platform: "ExamplePlatform", username: "eyJabcdefghijk.eyJabcdefghijk.eyJabcdefghijk" }]
   });
   assert.equal(jwtResponse.status, 400);
+  const phraseResponse = await submit({ accountId: "123", details: "I can provide my password is hunter2 and backup code 123456." });
+  assert.equal(phraseResponse.status, 400);
   assert.equal(db.prepare("SELECT COUNT(*) AS count FROM recovery_requests").get().count, beforeCount);
 });
 
