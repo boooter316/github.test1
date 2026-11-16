@@ -63,3 +63,8 @@ The **Private Access** navigation page explains offline same-LAN viewing, VPN li
 - The viewer remains HTTP/read-only. Do not enter secrets, expose the port publicly, or port-forward it.
 
 See [PRIVATE_ACCESS_GUIDE.md](PRIVATE_ACCESS_GUIDE.md) for step-by-step iPhone and Windows instructions and the distinction between offline LAN access and encrypted VPN access across networks.
+
+
+## Linking the separately hosted Recovery Panel
+
+The companion dashboard opens the Recovery Panel through the main web server's `/recovery-panel` route. Because the Recovery Panel has its own authentication, database, and server process, it must be deployed separately. Set `RECOVERY_PANEL_URL` on the main dashboard server to the panel's public HTTPS URL (or a localhost HTTP URL for local development). The route redirects only to HTTPS, except for localhost development addresses. The main dashboard does not proxy or bypass the Recovery Panel's login.
