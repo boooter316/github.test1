@@ -4,14 +4,12 @@ on:
   pull_request:
     paths:
       - "DISCORD-SERVER-DASHBOARD/**"
-      - "DISCORD-SERVER-DASHBOARD/**"
       - "Epic_Games_Recovery_Assistant/**"
       - "recovery-panel/**"
       - ".github/workflows/build-windows.yml"
   push:
     branches: [main]
     paths:
-      - "DISCORD-SERVER-DASHBOARD/**"
       - "DISCORD-SERVER-DASHBOARD/**"
       - "Epic_Games_Recovery_Assistant/**"
       - ".github/workflows/build-windows.yml"
