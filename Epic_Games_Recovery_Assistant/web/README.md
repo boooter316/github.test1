@@ -308,3 +308,8 @@ The browser multitool provides a separate **DigitalOcean & VPS Lab** navigation 
 ## PDF scanner limits
 
 The browser evidence scanner runs only when the user starts it. Each run is limited to 10 PDF files, 20 MiB per file, and 500 pages per file. It reports indicator categories and page numbers only; it does not retain or export extracted text or matched secret values. Image-only PDFs are not OCR-scanned.
+
+
+## PDF & Account Tracker
+
+The main dashboard includes a separate **PDF & Account Tracker** tab. It records PDF scan metadata (filename, file size, outcome, and scan time) from the existing local PDF Evidence Scanner, plus user-entered account status updates and recovery-progress notes. The tracker stores only these records in the current browser's local storage, with bounded history; it does not synchronize across devices, verify provider account status, sign in, or perform recovery actions. Use non-secret labels and notes only. Clearing browser data removes the locally stored history.
