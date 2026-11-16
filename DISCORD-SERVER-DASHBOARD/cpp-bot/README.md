@@ -9,7 +9,19 @@ A minimal C++17 slash-command bot using [D++ (DPP)](https://dpp.dev/).
 ## Requirements
 - C++17 compiler (Visual Studio 2022 on Windows is supported)
 - CMake 3.20+
-- D++ / DPP installed and discoverable by CMake
+- vcpkg (the project manifest pins DPP 10.1.6 and its transitive dependency graph)
+
+## Install vcpkg on Windows
+
+If vcpkg is not already installed, clone and bootstrap it once:
+
+```powershell
+git clone https://github.com/microsoft/vcpkg "$env:USERPROFILE\vcpkg"
+& "$env:USERPROFILE\vcpkg\bootstrap-vcpkg.bat"
+$env:VCPKG_ROOT = "$env:USERPROFILE\vcpkg"
+```
+
+The committed `vcpkg.json` selects a fixed vcpkg registry baseline and DPP 10.1.6. vcpkg resolves the package and its native dependencies from that baseline.
 
 ## Configure token securely
 
@@ -23,12 +35,14 @@ Do not put the token in source files, commit it, or share it. Reset it immediate
 
 ## Build
 
+Run from this directory:
+
 ```powershell
-cmake -S . -B build
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows
 cmake --build build --config Release
 ```
 
-Run the generated executable from the same terminal session where the environment variable is set.
+The first configure downloads/builds the manifest dependencies. Run the generated executable from the same terminal session where the environment variable is set.
 
 ## Discord Developer Portal
 1. Create an application at https://discord.com/developers/applications.
