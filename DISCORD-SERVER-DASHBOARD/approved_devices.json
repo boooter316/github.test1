@@ -1,0 +1,4 @@
+{
+  "_instructions": "Add the exact private IP address of each device you personally approve. Keep this file private. An empty list allows only this Windows PC (localhost).",
+  "allowed_ips": []
+}
