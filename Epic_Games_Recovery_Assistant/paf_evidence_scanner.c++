@@ -15,9 +15,10 @@
 #include <vector>
 
 namespace fs = std::filesystem;
-static constexpr std::uintmax_t MAX_PDF_BYTES = 50ull * 1024ull * 1024ull;
-static constexpr std::size_t MAX_TEXT_BYTES = 80ull * 1024ull * 1024ull;
-static constexpr std::size_t MAX_PAGES = 2000;
+static constexpr std::uintmax_t MAX_PDF_BYTES = 20ull * 1024ull * 1024ull;
+static constexpr std::size_t MAX_TEXT_BYTES = 32ull * 1024ull * 1024ull;
+static constexpr std::size_t MAX_PAGES = 500;
+static constexpr std::size_t MAX_FILES = 10;
 
 std::wstring widen(const std::string& value) {
     if (value.empty()) return {};
@@ -128,12 +129,17 @@ int main(int argc, char** argv) {
         if ((arg == "-o" || arg == "--output") && i + 1 < argc) output = argv[++i];
         else if (arg == "-h" || arg == "--help") {
             std::cout << "Usage: paf_evidence_scanner.exe [PDF ...] [-o report.txt]\n"
-                         "Scans local PDFs for page-level evidence indicators. No document text or secret values are saved.\n";
+                         "Scans local PDFs for page-level evidence indicators. No document text or secret values are saved.\n"
+                         "Limits: 10 files per run, 20 MiB per PDF, 500 pages per PDF.\n";
             return 0;
         } else files.push_back(arg);
     }
     if (files.empty()) {
         std::cerr << "Select one or more PDF files. Drag PDF files onto PDF_EVIDENCE_SCANNER.bat, or pass their paths as arguments.\n";
+        return 2;
+    }
+    if (files.size() > MAX_FILES) {
+        std::cerr << "Select no more than 10 PDF files per scan.\n";
         return 2;
     }
     std::vector<std::string> report = {
@@ -152,7 +158,7 @@ int main(int argc, char** argv) {
             report.push_back(name + ": SKIPPED — not a PDF file"); continue;
         }
         auto size = fs::file_size(path, ec);
-        if (ec || size > MAX_PDF_BYTES) { report.push_back(name + ": SKIPPED — missing, unreadable, or exceeds 50 MiB"); continue; }
+        if (ec || size > MAX_PDF_BYTES) { report.push_back(name + ": SKIPPED — missing, unreadable, or exceeds 20 MiB"); continue; }
         std::string extracted;
         if (!extractPdfText(path, extracted)) {
             report.push_back(name + ": NOT INSPECTED — PDF extraction failed; check that Poppler pdftotext is installed and the PDF is not encrypted/corrupt.");
@@ -166,7 +172,7 @@ int main(int argc, char** argv) {
         if (start < extracted.size() || pages.empty()) pages.emplace_back(extracted.substr(start));
         if (!pages.empty() && pages.back().find_first_not_of(" \r\n\t") == std::string::npos) pages.pop_back();
         if (pages.size() > MAX_PAGES) {
-            report.push_back(name + ": SKIPPED — exceeds 2000 pages");
+            report.push_back(name + ": SKIPPED — exceeds 500 pages");
             wipeText(extracted); continue;
         }
         std::size_t readable = 0, hitPages = 0;
