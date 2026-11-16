@@ -167,14 +167,14 @@ test("main dashboard opens the companion dashboard through same-origin static ro
   const page = await fetch(baseUrl + "/discord-server-dashboard/index.html");
   assert.equal(page.status, 200);
   assert.ok((page.headers.get("content-type") || "").includes("text/html"));
-  assert.match(await page.text(), /DISCORD SERVER DASHBOARD/);
+  const dashboardHtml = await page.text();
+  assert.match(dashboardHtml, /DISCORD SERVER DASHBOARD/);
   const css = await fetch(baseUrl + "/discord-server-dashboard/dashboard.css");
   assert.equal(css.status, 200);
   assert.ok((css.headers.get("content-type") || "").includes("text/css"));
   const js = await fetch(baseUrl + "/discord-server-dashboard/dashboard.js");
   assert.equal(js.status, 200);
   assert.ok((js.headers.get("content-type") || "").includes("javascript"));
-  const dashboardHtml = await page.text();
   assert.match(dashboardHtml, /href="\/network-tools\.html"/);
   assert.match(dashboardHtml, /href="\/network-lab\.html"/);
   assert.match(dashboardHtml, /href="\/server-network-lab\.html"/);
