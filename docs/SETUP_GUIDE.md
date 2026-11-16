@@ -4,8 +4,8 @@ This guide reflects the actual launch scripts and application boundaries in the 
 
 ## 1. Download and extract
 
-1. Open the private GitHub repository in a browser and sign in with an account that has access.
-2. Download the current `main` source ZIP or the latest Windows build artifact.
+1. Open the GitHub repository in a browser. The repository is public, so you do not need to sign in to download the current source ZIP.
+2. Download the current `main` source ZIP. To inspect workflow runs or download Actions artifacts, open the repository's Actions page; GitHub may ask you to sign in.
 3. On Windows, right-click the ZIP and choose **Extract All**.
 4. Keep the extracted `Epic_Games_Recovery_Assistant` folder intact. Do not run scripts directly from inside the ZIP preview.
 
