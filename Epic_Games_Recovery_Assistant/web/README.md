@@ -95,11 +95,11 @@ The browser page also includes separate Discord and Fortnite/Epic text-scanning 
 
 ## Privacy and scope
 
-- Form data is processed in the browser tab only. The server serves the static page and has no form-submission endpoint or account database.
-- Users can export a JSON recovery packet or use the browser Print / Save as PDF feature. Fortnite/Epic scan findings can be downloaded as a plain-text `.txt` report or printed/saved as PDF.
+- Ordinary form editing and local exports are processed in the browser. If the user explicitly checks the consent box and selects Send to administrator for review, a limited allowlist of non-secret recovery details is sent to the same-origin web endpoint and forwarded server-to-server to the separate Recovery Panel. The panel stores the submitted payload encrypted in its private SQLite database. This submission is not sent to Epic.
+- Users can export a JSON recovery packet or use the browser Print / Save as PDF feature. A consented intake submission receives a reference and enters the administrator's pending-review queue. Fortnite/Epic scan findings can be downloaded as a plain-text `.txt` report or printed/saved as PDF.
 - The page does not request passwords, account PINs, full card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, or API keys.
 - Historical IP/VPN details are optional context only, never proof of ownership. No IP spoofing, proxy rotation, account dumps, platform bypass, or restriction removal.
-- It does not sign in to accounts, verify ownership, unlink services, change account details, lock accounts, submit tickets, or provide live agent chat.
+- It does not sign in to accounts, verify ownership, unlink services, change account details, lock accounts, submit tickets to Epic, access Epic's private database, or provide live agent chat. An administrator can approve or reject an intake request and later record an Epic reference after manual submission through Epic's official recovery form.
 - There is no hardcoded login or API key. Never put an API secret in browser JavaScript or a public repository.
 
 ## SellHub integration status
@@ -157,6 +157,20 @@ g++ -std=c++17 -O2 -Wall -Wextra -pedantic server.cpp -o recovery-web
 PORT=8080 ./recovery-web
 ```
 
+
+
+## Administrator-reviewed recovery intake
+
+The Recovery Assistant has an optional **Send to administrator for review** action. It is disabled until the user explicitly consents. Only a defined allowlist of non-secret fields is sent; historical IP/VPN notes, payment-card details, invoice/payment credentials, and uploaded evidence are not forwarded by this feature. The main web server forwards the request to the separately hosted Recovery Panel using private server environment variables:
+
+- RECOVERY_PANEL_INTAKE_URL — HTTPS base URL of the Recovery Panel in production.
+- RECOVERY_INTAKE_TOKEN — shared random bearer secret, at least 32 characters; configure the same value on both servers.
+
+The Recovery Panel also requires RECOVERY_DATA_KEY (64 hex characters) to enable AES-256-GCM encryption at rest for request payloads. See recovery-panel/README.md for generation and backup instructions. Never commit any of these values. If the intake is not configured, the browser reports that the request was not confirmed as saved.
+
+The Windows C++ desktop program remains a local organizer that exports files; it does not transmit its packet to the panel. The main browser form is the current remote-intake client. Do not store passwords, one-time codes, backup codes, authenticator secrets, cookies, access tokens, full card numbers, or CVV.
+
+Administrator approval is an internal review gate only. It does not contact Epic or change an account. After approval, an authorized person must manually submit through Epic's official recovery form and enter the recovery reference in the panel. Epic states that recovery requests are processed through its own multistep recovery form and its team verifies the request; this project has no Epic private-database integration or direct write access.
 
 ## Legal and authorized-use notice
 
