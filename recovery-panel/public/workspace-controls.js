@@ -116,7 +116,7 @@
     buildStatus.type = "button"; buildStatus.textContent = "Build status";
     buildStatus.addEventListener("click", () => {
       window.open("https://github.com/" + REPO + "/actions", "_blank", "noopener,noreferrer");
-      status.textContent = "Opened the public GitHub Actions page. Some artifact actions may still require GitHub sign-in.";
+      status.textContent = "Opened the public GitHub Actions page. GitHub requires sign-in to view workflow run details and logs.";
     });
 
     bar.append(stop, upgrade, build, download, diagnostics, buildStatus, status);
