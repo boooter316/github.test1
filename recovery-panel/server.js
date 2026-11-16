@@ -58,8 +58,66 @@ app.use(helmet({
   }
 }));
 app.use(express.json({ limit: "32kb" }));
+app.use("/api", (req, res, next) => {
+  res.set({ "Cache-Control": "no-store", "Pragma": "no-cache" });
+  next();
+});
+
+const sessionDbPath = path.resolve(process.env.RECOVERY_SESSION_DB_PATH || path.join(__dirname, "data", "panel-sessions.sqlite"));
+fs.mkdirSync(path.dirname(sessionDbPath), { recursive: true, mode: 0o700 });
+const sessionDb = new DatabaseSync(sessionDbPath, { timeout: 5000 });
+sessionDb.exec("PRAGMA busy_timeout=5000; CREATE TABLE IF NOT EXISTS panel_sessions (sid TEXT PRIMARY KEY, session_json TEXT NOT NULL, expires_at INTEGER NOT NULL);");
+try { fs.chmodSync(sessionDbPath, 0o600); } catch (_) {}
+
+class PersistentSqliteSessionStore extends session.Store {
+  constructor(db) { super(); this.db = db; }
+  expiry(sessionData) {
+    const cookie = sessionData?.cookie || {};
+    const expires = cookie.expires ? new Date(cookie.expires).getTime() : Date.now() + Number(cookie.maxAge || 7200000);
+    return Number.isFinite(expires) ? expires : Date.now() + 7200000;
+  }
+  get(sid, callback) {
+    try {
+      const row = this.db.prepare("SELECT session_json, expires_at FROM panel_sessions WHERE sid = ?").get(sid);
+      if (!row) return callback(null, null);
+      if (row.expires_at <= Date.now()) {
+        this.db.prepare("DELETE FROM panel_sessions WHERE sid = ?").run(sid);
+        return callback(null, null);
+      }
+      return callback(null, JSON.parse(row.session_json));
+    } catch (error) { return callback(error); }
+  }
+  set(sid, sessionData, callback = () => {}) {
+    try {
+      const expiresAt = this.expiry(sessionData);
+      this.db.prepare("INSERT INTO panel_sessions (sid, session_json, expires_at) VALUES (?, ?, ?) ON CONFLICT(sid) DO UPDATE SET session_json=excluded.session_json, expires_at=excluded.expires_at")
+        .run(sid, JSON.stringify(sessionData), expiresAt);
+      this.db.prepare("DELETE FROM panel_sessions WHERE expires_at <= ?").run(Date.now());
+      callback(null);
+    } catch (error) { callback(error); }
+  }
+  touch(sid, sessionData, callback = () => {}) {
+    try {
+      this.db.prepare("UPDATE panel_sessions SET expires_at = ? WHERE sid = ?").run(this.expiry(sessionData), sid);
+      callback(null);
+    } catch (error) { callback(error); }
+  }
+  destroy(sid, callback = () => {}) {
+    try { this.db.prepare("DELETE FROM panel_sessions WHERE sid = ?").run(sid); callback(null); }
+    catch (error) { callback(error); }
+  }
+  clear(callback = () => {}) {
+    try { this.db.prepare("DELETE FROM panel_sessions").run(); callback(null); }
+    catch (error) { callback(error); }
+  }
+  length(callback) {
+    try { callback(null, Number(this.db.prepare("SELECT COUNT(*) AS count FROM panel_sessions WHERE expires_at > ?").get(Date.now()).count)); }
+    catch (error) { callback(error); }
+  }
+}
 app.use(session({
-  name: "recovery_panel_sid", secret: sessionSecret, resave: false, saveUninitialized: false,
+  name: "recovery_panel_sid", secret: sessionSecret, store: new PersistentSqliteSessionStore(sessionDb),
+  resave: false, saveUninitialized: false, rolling: false,
   cookie: { httpOnly: true, sameSite: "strict", secure: production, maxAge: 2 * 60 * 60 * 1000 }
 }));
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 8, standardHeaders: "draft-7", legacyHeaders: false });
@@ -201,4 +259,4 @@ app.post("/api/client-error",auth,(req,res)=>{notify("a general dashboard error 
 app.use(express.static(path.join(__dirname,"public"),{index:false,etag:true,maxAge:production?"1h":0}));
 app.get("/",(req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
 app.use((err,req,res,next)=>{console.error("Panel server error:",err?.message||"unknown");if(res.headersSent)return next(err);res.status(500).json({error:"A server error occurred. Check server logs; no account data is sent to Discord."});});
-app.listen(port,()=>{console.log("Recovery Assistant panel listening on port "+port);console.log("Use HTTPS when exposing this panel to the internet.");if(production)console.warn("Replace MemoryStore with a persistent secure session store before production use.");});
+app.listen(port,()=>{console.log("Recovery Assistant panel listening on port "+port);console.log("Use HTTPS when exposing this panel to the internet.");console.log("Persistent SQLite administrator sessions enabled.");});
