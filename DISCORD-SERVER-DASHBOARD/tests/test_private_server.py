@@ -42,6 +42,26 @@ class PrivateHostSafetyTests(unittest.TestCase):
             handler.path = path
             self.assertIsNotNone(handler._safe_path(), path)
 
+    def test_dashboard_navigation_targets_are_available_on_the_private_lan_host(self):
+        handler = object.__new__(SERVER.Handler)
+        targets = (
+            "/Epic_Games_Recovery_Assistant/web/index.html",
+            "/Epic_Games_Recovery_Assistant/web/network-tools.html",
+            "/Epic_Games_Recovery_Assistant/web/network-lab.html",
+            "/Epic_Games_Recovery_Assistant/web/server-network-lab.html",
+            "/Epic_Games_Recovery_Assistant/web/workspace-controls.js",
+            "/recovery-panel/public/index.html",
+        )
+        for path in targets:
+            with self.subTest(path=path):
+                handler.path = path
+                self.assertIsNotNone(SERVER.Handler._safe_path(handler), path)
+
+        dashboard = (Path(__file__).resolve().parents[1] / "index.html").read_text(encoding="utf-8")
+        for target in targets[:4] + targets[5:]:
+            with self.subTest(link=target):
+                self.assertIn(target, dashboard)
+
     def test_blocks_source_scripts_and_repository_files(self):
         handler = object.__new__(SERVER.Handler)
         for path in (
