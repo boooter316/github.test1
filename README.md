@@ -29,7 +29,7 @@ A private, independently maintained recovery organizer and defensive diagnostics
 - The browser multitool and Recovery Panel are separate applications; both link to the network lab and package-setup guides, but they do not share a server or automatically synchronize records.
 - Recovery records in the Recovery Panel are stored in that browser's local storage. Export a backup before clearing browser data or changing devices.
 - The browser PDF scanner uses PDF.js from a CDN. The native Windows scanner uses Poppler for text extraction and does not OCR image-only PDFs.
-- The Recovery Panel currently uses Express MemoryStore. Do not expose it to the public internet or treat it as production-ready until a maintained persistent session store, HTTPS, network restrictions, and deployment controls are configured and tested.
+- The Recovery Panel uses a custom SQLite-backed session store that persists across process restarts. It is a single-instance store, not a distributed multi-host session service. Do not expose the panel to the public internet or treat it as production-ready without HTTPS, network restrictions, secure database/key backups, deployment controls, and an independent security review.
 - The project does not sign in to provider accounts, verify ownership, bypass account checks, or submit recovery requests on a user's behalf.
 - Scanner inputs and reports are local. The project must not collect browser credentials, steal tokens, or transmit passwords, cookies, session data, or recovery codes.
 - A successful GitHub Actions build proves only the checks in that workflow passed; it is not a complete security audit or a guarantee on every computer.
