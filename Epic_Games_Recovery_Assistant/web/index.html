@@ -534,7 +534,7 @@ document.getElementById("submitForAdminReview").addEventListener("click",async()
  payload.twoStepMethods=Array.isArray(all.twoStepMethods)?all.twoStepMethods.slice(0,8):[];
  payload.requestedEmail=String(all.desiredEmail||"").slice(0,254);
  payload.requestedDisplayName=String(all.desiredDisplay||"").slice(0,100);
- payload.connectedAccounts=String(all.connectedAccounts||"").split(/\\r?\\n/).map(line=>line.split("|").map(part=>part.trim())).filter(parts=>parts.some(Boolean)).slice(0,12).map(parts=>({platform:parts[0]||"",username:parts[1]||"",publicId:parts[2]||""}));
+ payload.connectedAccounts=String(all.connectedAccounts||"").split(/\r?\n/).map(line=>line.split("|").map(part=>part.trim())).filter(parts=>parts.some(Boolean)).slice(0,12).map(parts=>({platform:parts[0]||"",username:parts[1]||"",publicId:parts[2]||""}));
  if(!payload.accountId&&!payload.display&&!payload.email&&!payload.oldEmail){result.textContent="Enter an account ID, display name, or account email first.";return;}
  const button=document.getElementById("submitForAdminReview");button.disabled=true;result.textContent="Sending securely to the private review queue…";
  try{
