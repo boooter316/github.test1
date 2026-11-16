@@ -46,7 +46,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 .tool-card{transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
 .tool-card:hover{transform:translateY(-2px);border-color:#64748b;box-shadow:0 12px 28px rgba(0,0,0,.18)}
 @media(max-width:640px){.tabs{position:relative;top:auto;padding:8px}.tabs .tab{flex:1 1 calc(50% - 8px);font-size:.88rem}.wrap{padding-left:12px;padding-right:12px}}
-</style></head><body><main class="wrap">
+.sb-language-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.sb-language-tabs button{border:1px solid #cbd5e1;border-radius:9px;padding:10px 14px;background:#e8edf4;color:#1c2b40;font-weight:700}.sb-language-tabs button[aria-selected="true"]{background:#175cd3;color:#fff;border-color:#175cd3}.sb-language-tabs button:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}@media(max-width:560px){.sb-language-tabs{display:grid;grid-template-columns:1fr 1fr}.sb-language-tabs button{width:100%}}</style></head><body><main class="wrap">
 <header><h1>Account Recovery Request Assistant</h1><p>Prepare a factual support request for Epic Games or another platform. This is an independent organizer, not an official support tool.</p>
 <div class="notice"><strong>Privacy:</strong> Recovery-form entries and local scanner results stay in this browser tab. If you use Faze Jarvis, your chat messages are sent to DeepSeek through this server’s API proxy. The DeepSeek API key remains server-side. Do not enter passwords, account PINs, full payment-card numbers, CVV, 2FA codes, backup codes, authenticator secrets, cookies, tokens, or private keys.</div></header>
 <nav class="tabs no-print" aria-label="Application pages">
@@ -104,9 +104,10 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <h2>Script Builder &amp; Local EXE Workbench</h2>
 <p class="hint">Create and package scripts you own or are authorized to develop. Import a source file, edit it, choose Python, C++17, or C#, then download the source and Windows build/test files.</p>
 <div class="notice"><strong>Local-build safety:</strong> This browser page never executes uploaded code and never sends your source to a server. Build files run only after you download and review them on your Windows PC. Do not use this tool to create credential stealers, token grabbers, malware, unauthorized access tools, or code that hides activity or exfiltrates secrets.</div>
+<nav class="sb-language-tabs" role="tablist" aria-label="Script language workspaces"><button type="button" role="tab" id="sbPythonTab" data-script-language="python" aria-selected="true">Python</button><button type="button" role="tab" id="sbCppTab" data-script-language="cpp" aria-selected="false">C++17</button><button type="button" role="tab" id="sbCustomTab" data-script-language="custom" aria-selected="false">Custom Scripts</button></nav>
 <div class="grid">
 <div><label for="sbProjectName">Project name</label><input id="sbProjectName" value="my-script"></div>
-<div><label for="sbLanguage">Source language</label><select id="sbLanguage"><option value="python">Python</option><option value="cpp">C++17</option><option value="csharp">C# (.NET 8)</option></select></div>
+<div><label for="sbLanguage">Source language</label><select id="sbLanguage"><option value="python">Python</option><option value="cpp">C++17</option><option value="csharp">C# (.NET 10)</option><option value="custom">Custom / plain-text script</option></select></div>
 <div><label for="sbIde">Preferred editor / IDE</label><select id="sbIde"><option value="vscode">Visual Studio Code</option><option value="vs2022">Visual Studio 2026</option><option value="both">Both VS Code and Visual Studio</option></select></div>
 </div>
 <p><label for="sbFile">Import an existing source file</label><input id="sbFile" type="file" accept=".py,.pyw,.cpp,.cc,.cxx,.cs,.txt"></p>
@@ -115,7 +116,8 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <textarea id="sbCode" rows="16" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="Paste or write your own Python, C++, or C# source code here."></textarea>
 <div id="sbRequirementsWrap"><label for="sbRequirements">Python packages (one requirement per line)</label><textarea id="sbRequirements" rows="3" spellcheck="false">pyinstaller>=6.0</textarea><p class="hint">Add only packages you trust. The generated installer downloads packages from the configured Python package index when you run it.</p></div>
 <div class="actions no-print">
-<button type="button" id="sbStop" class="secondary">Stop</button>
+<button type="button" id="sbStop" class="secondary">Stop current work</button>
+<button type="button" id="sbOpenEditor" class="secondary">Open in Notepad++</button>
 <button type="button" id="sbDebug" class="secondary">Debug / Review</button>
 <button type="button" id="sbTest" class="secondary">Test</button>
 <button type="button" id="sbRun" class="secondary">Run on Windows</button>
@@ -736,7 +738,7 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
  const $=id=>document.getElementById(id);
  const language=$("sbLanguage"), editor=$("sbCode"), status=$("sbStatus"), reqWrap=$("sbRequirementsWrap");
  const projectName=()=>($("sbProjectName").value.trim()||"my-script").replace(/[^A-Za-z0-9_-]/g,"-").slice(0,48);
- const extension=()=>({python:"py",cpp:"cpp",csharp:"cs"}[language.value]);
+ const extension=()=>({python:"py",cpp:"cpp",csharp:"cs",custom:"txt"}[language.value]);
  const setStatus=message=>{status.textContent=message;};
  const download=(name,content,type="text/plain;charset=utf-8")=>{
   const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement("a");
@@ -769,9 +771,13 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
  const starter=kind=>({
   python:'"""A small starter script. Review before running."""\n\ndef main():\n    print("Hello from Python")\n\nif __name__ == "__main__":\n    main()\n',
   cpp:'#include <iostream>\n\nint main() {\n    std::cout << "Hello from C++17\\n";\n    return 0;\n}\n',
-  csharp:'using System;\n\ninternal static class Program\n{\n    private static void Main()\n    {\n        Console.WriteLine("Hello from C#");\n    }\n}\n'
+  csharp:'using System;\n\ninternal static class Program\n{\n    private static void Main()\n    {\n        Console.WriteLine("Hello from C#");\n    }\n}\n',
+  custom:"Write your own script or notes here. Choose Python or C++17 when you want a generated compiler/build package. Custom text is saved only; it is not executed.\n"
  })[kind];
- language.addEventListener("change",()=>{reqWrap.classList.toggle("hidden",language.value!=="python");setStatus("Language changed. Existing source was preserved; confirm it matches the selected language.");});
+ const languageTabs=[...document.querySelectorAll("[data-script-language]")];
+ const activateLanguage=kind=>{language.value=kind;languageTabs.forEach(button=>button.setAttribute("aria-selected",String(button.dataset.scriptLanguage===kind)));reqWrap.classList.toggle("hidden",kind!=="python");setStatus("Selected "+({python:"Python",cpp:"C++17",csharp:"C#",custom:"Custom Scripts"}[kind])+". Existing source was preserved; confirm it matches the selected format.");};
+ languageTabs.forEach(button=>button.addEventListener("click",()=>activateLanguage(button.dataset.scriptLanguage)));
+ language.addEventListener("change",()=>activateLanguage(language.value));
  $("sbFile").addEventListener("change",async event=>{
   const file=event.target.files&&event.target.files[0];if(!file)return;
   if(file.size>2*1024*1024){setStatus("File is larger than the 2 MB limit. Choose a smaller text source file.");event.target.value="";return;}
@@ -809,13 +815,14 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
   }else if(kind==="cpp"){
    files[file]=source();
    files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","where cl >nul 2>nul","if %errorlevel%==0 (cl /nologo /std:c++17 /EHsc /Zs \""+file+"\") else (where g++ >nul 2>nul && g++ -std=c++17 -fsyntax-only \""+file+"\")","if errorlevel 1 (echo TEST FAILED.& pause& exit /b 1)","echo TEST PASSED. Runtime behavior still needs manual testing.","pause"].join("\r\n")+"\r\n";
-  }else{
+  }else if(kind==="csharp"){
    files[file]=source();
    files[name+".csproj"]='<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net10.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>\n';
    files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","dotnet build \""+name+".csproj\" -c Release","if errorlevel 1 (echo TEST FAILED.& pause& exit /b 1)","echo TEST PASSED. Runtime behavior still needs manual testing.","pause"].join("\r\n")+"\r\n";
   }
+  }else{files[file]=source();files["README_CUSTOM.txt"]="Custom script export only. No language runtime or compiler was selected, so no test was run. Open the source in Notepad++ or the editor for its language and use that language’s official toolchain.\r\n";}
   zipDownload("TEST_"+name+"_files.zip",files);
-  setStatus("A single ZIP containing the source and test files was downloaded. Extract it on Windows and run TEST_"+name+".bat; this browser cannot run the compiler.");
+  setStatus(kind==="custom"?"Custom source and notes downloaded. No generic compiler or test can be selected for an unspecified language.":"A single ZIP containing the source and test files was downloaded. Extract it on Windows and run TEST_"+name+".bat; this browser cannot run the compiler.");
  });
  $("sbRun").addEventListener("click",()=>{
   if(!source().trim()){setStatus("Paste or import source code first.");return;}
@@ -826,11 +833,11 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
    files["RUN_SCRIPT.bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","where py >nul 2>nul","if %errorlevel%==0 (py \""+file+"\") else (python \""+file+"\")","if errorlevel 1 echo Script exited with an error.","pause"].join("\r\n")+"\r\n";
   }else if(kind==="cpp"){
    files["RUN_SCRIPT.bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","if not exist \""+name+".exe\" (echo Build the EXE first with BUILD_EXE.bat.& pause& exit /b 1)","start \"\" \"%~dp0"+name+".exe\""].join("\r\n")+"\r\n";
-  }else{
+  }else if(kind==="csharp"){
    files[name+".csproj"]='<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net10.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>\n';
    files["RUN_SCRIPT.bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","where dotnet >nul 2>nul || (echo Install the .NET 10 SDK first.& pause& exit /b 1)","dotnet run --project \""+name+".csproj\"","if errorlevel 1 echo Script exited with an error.","pause"].join("\r\n")+"\r\n";
   }
-  files["README_RUN.md"]="# Run "+name+"\n\nReview the source before running. This package does not execute code when downloaded.\n\n1. Extract the ZIP on your Windows PC.\n2. Install the language runtime/compiler listed in the Script Builder instructions.\n3. Double-click RUN_SCRIPT.bat. For C++, build the EXE first with BUILD_EXE.bat.\n4. To stop a console program, press Ctrl+C in its terminal window.\n";
+  if(kind==="custom"){files["README_RUN.txt"]="Custom script export only. This file is not run by the package. Open it in Notepad++ or a suitable editor and use the official runtime/compiler for its language.\r\n";}else{files["README_RUN.md"]="# Run "+name+"\n\nReview the source before running. This package does not execute code when downloaded.\n\n1. Extract the ZIP on your Windows PC.\n2. Install the language runtime/compiler listed in the Script Builder instructions.\n3. Double-click RUN_SCRIPT.bat. For C++, build the EXE first with BUILD_EXE.bat.\n4. To stop a console program, press Ctrl+C in its terminal window.\n";}
   zipDownload(name+"_run_package.zip",files);
   setStatus("Run package downloaded. Extract it on Windows, review the source, then double-click RUN_SCRIPT.bat. The browser does not execute the program.");
  });
@@ -856,19 +863,22 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
    bat.push("where dotnet >nul 2>nul || goto missing","dotnet publish \""+name+".csproj\" -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true || goto failed","echo EXE is in bin\\Release\\net10.0\\win-x64\\publish","pause","exit /b 0",":missing","echo Install the .NET 10 SDK or Visual Studio with .NET desktop development.","pause","exit /b 1",":failed","echo BUILD FAILED. Review the compiler messages above.","pause","exit /b 1");
    readme.push("## C# setup","1. Install Visual Studio with .NET desktop development, or install the .NET 10 SDK from https://dotnet.microsoft.com/download/dotnet/10.0.","2. Run BUILD_EXE.bat. It publishes a self-contained single-file Windows x64 executable.","3. Run TEST_"+name+".bat to compile-check the project.");
   }
+  if(kind==="custom"){bat.push("echo Custom language selected: no automatic compiler is configured.","echo Open the source in Notepad++ and use the appropriate official toolchain.","pause");readme.push("## Custom script","This package preserves your text source. No compiler or runtime is guessed or executed.");}
   files["BUILD_EXE.bat"]=bat.join("\r\n")+"\r\n";
   if(kind==="python"){
    files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","where py >nul 2>nul","if %errorlevel%==0 (py -m py_compile \""+file+"\") else (python -m py_compile \""+file+"\")","if errorlevel 1 goto failed","echo TEST PASSED. Runtime behavior still needs manual testing.","pause","exit /b 0",":failed","echo TEST FAILED. Check the Python syntax and installation.","pause","exit /b 1"].join("\r\n")+"\r\n";
   }else if(kind==="cpp"){
    files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","where cl >nul 2>nul","if %errorlevel%==0 (cl /nologo /std:c++17 /EHsc /Zs \""+file+"\") else (where g++ >nul 2>nul && g++ -std=c++17 -fsyntax-only \""+file+"\")","if errorlevel 1 goto failed","echo TEST PASSED. Runtime behavior still needs manual testing.","pause","exit /b 0",":failed","echo TEST FAILED. Check the compiler installation and source.","pause","exit /b 1"].join("\r\n")+"\r\n";
-  }else{
+  }else if(kind==="csharp"){
    files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","dotnet build \""+name+".csproj\" -c Release","if errorlevel 1 goto failed","echo TEST PASSED. Runtime behavior still needs manual testing.","pause","exit /b 0",":failed","echo TEST FAILED. Install the .NET 10 SDK and review the source.","pause","exit /b 1"].join("\r\n")+"\r\n";
   }
+  if(kind==="custom"){files["TEST_"+name+".bat"]=["@echo off","echo No compiler test is configured for a custom script.","echo Open the source in Notepad++ and select the correct language toolchain manually.","pause"].join("\r\n")+"\r\n";}
   readme.push("","## Safety and limits","- This ZIP does not run automatically when downloaded.","- Review source and dependencies; run builds only for code you trust.","- The browser does not execute code or verify the resulting EXE. Read compiler output and test the program locally.","- Do not use this project to steal credentials, exfiltrate tokens, evade security tools, or access systems without permission.","");
   files["README_BUILD.md"]=readme.join("\n");
   zipDownload(name+"_windows_project.zip",files);
-  setStatus("One project ZIP was downloaded with source, README, test script, dependencies, and EXE builder. Extract it on Windows, review the files, run TEST_"+name+".bat, then BUILD_EXE.bat. This page does not claim the EXE is built until Windows reports success.");
+  setStatus(kind==="custom"?"Custom source package downloaded. No executable was built because no language/compiler was specified.":"One project ZIP was downloaded with source, README, test script, dependencies, and EXE builder. Extract it on Windows, review the files, run TEST_"+name+".bat, then BUILD_EXE.bat. This page does not claim the EXE is built until Windows reports success.");
  });
+ $("sbOpenEditor").addEventListener("click",()=>{if(!source().trim()){setStatus("Write or import source first, then open the editor package.");return;}const name=projectName(),file=name+"."+extension(),files={};files[file]=source();files["OPEN_IN_NOTEPADPP.bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","set \"NPP=\"","if exist \"%ProgramFiles%\\Notepad++\\notepad++.exe\" set \"NPP=%ProgramFiles%\\Notepad++\\notepad++.exe\"","if not defined NPP if exist \"%ProgramFiles(x86)%\\Notepad++\\notepad++.exe\" set \"NPP=%ProgramFiles(x86)%\\Notepad++\\notepad++.exe\"","if not defined NPP for %%I in (notepad++.exe) do set \"NPP=%%~$PATH:I\"","if defined NPP (start \"\" \"%NPP%\" \""+file+"\") else (echo Notepad++ was not found. Opening Windows Notepad instead.& start \"\" notepad.exe \""+file+"\")"].join("\r\n")+"\r\n";zipDownload(name+"_notepadpp_editor.zip",files);setStatus("Downloaded source plus OPEN_IN_NOTEPADPP.bat. Extract the ZIP and run the BAT; it opens Notepad++ when installed, otherwise Windows Notepad.");});
  if(!editor.value)editor.value=starter(language.value);
  reqWrap.classList.toggle("hidden",language.value!=="python");
 })();
