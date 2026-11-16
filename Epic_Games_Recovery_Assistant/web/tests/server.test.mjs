@@ -109,6 +109,9 @@ test("separate Recovery Panel link redirects to its configured HTTPS application
   const response = await fetch(baseUrl + "/recovery-panel", { redirect: "manual" });
   assert.equal(response.status, 302);
   assert.equal(response.headers.get("location"), "https://panel.example.test/");
+  const legacyPath = await fetch(baseUrl + "/recovery-panel/public/index.html", { redirect: "manual" });
+  assert.equal(legacyPath.status, 302);
+  assert.equal(legacyPath.headers.get("location"), "https://panel.example.test/");
   assert.equal(response.headers.get("cache-control"), "no-store");
 });
 
@@ -177,10 +180,10 @@ test("main dashboard opens the companion dashboard through same-origin static ro
   const js = await fetch(baseUrl + "/discord-server-dashboard/dashboard.js");
   assert.equal(js.status, 200);
   assert.ok((js.headers.get("content-type") || "").includes("javascript"));
-  assert.match(dashboardHtml, /href="\/network-tools\.html"/);
-  assert.match(dashboardHtml, /href="\/network-lab\.html"/);
-  assert.match(dashboardHtml, /href="\/server-network-lab\.html"/);
-  assert.match(dashboardHtml, /href="\/recovery-panel"/);
+  assert.match(dashboardHtml, /href="\/Epic_Games_Recovery_Assistant\/web\/network-tools\.html"/);
+  assert.match(dashboardHtml, /href="\/Epic_Games_Recovery_Assistant\/web\/network-lab\.html"/);
+  assert.match(dashboardHtml, /href="\/Epic_Games_Recovery_Assistant\/web\/server-network-lab\.html"/);
+  assert.match(dashboardHtml, /href="\/recovery-panel\/public\/index\.html"/);
 });
 test("recovery form exposes structured non-secret customer and linked-platform fields", async () => {
   const response = await fetch(baseUrl);
