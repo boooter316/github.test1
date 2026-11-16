@@ -35,6 +35,7 @@ const files = new Map([
   ["/discord-server-dashboard/bot-builder.html", ["../../DISCORD-SERVER-DASHBOARD/bot-builder.html", "text/html; charset=utf-8"]],
   ["/discord-server-dashboard/cpp-bot/main.cpp", ["../../DISCORD-SERVER-DASHBOARD/cpp-bot/main.cpp", "text/plain; charset=utf-8"]],
   ["/discord-server-dashboard/cpp-bot/CMakeLists.txt", ["../../DISCORD-SERVER-DASHBOARD/cpp-bot/CMakeLists.txt", "text/plain; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/index.html", ["index.html", "text/html; charset=utf-8"]],
   ["/Epic_Games_Recovery_Assistant/web/network-tools.html", ["network-tools.html", "text/html; charset=utf-8"]],
   ["/Epic_Games_Recovery_Assistant/web/network-lab.html", ["network-lab.html", "text/html; charset=utf-8"]],
   ["/Epic_Games_Recovery_Assistant/web/server-network-lab.html", ["server-network-lab.html", "text/html; charset=utf-8"]],
@@ -360,7 +361,7 @@ const server = http.createServer(async (req, res) => {
   if (!entry) return json(res, 404, { error: "Not found." });
   try {
     let body = await readFile(path.join(ROOT, entry[0]));
-    if (url.pathname === "/" || url.pathname === "/index.html") {
+    if (url.pathname === "/" || url.pathname === "/index.html" || url.pathname === "/Epic_Games_Recovery_Assistant/web/index.html") {
       body = Buffer.from(body.toString("utf8").replace('<main class="wrap">', '<main class="wrap"><form method="post" action="/api/auth/logout" style="display:flex;justify-content:flex-end;margin-bottom:12px"><button type="submit" class="secondary" style="background:#7f1d1d;color:#fff">Sign out</button></form>').replace("</nav>", '<a class="tab" href="/network-tools.html" style="display:inline-block;text-decoration:none;text-align:center">IP &amp; Network Tools</a><a class="tab" href="/network-lab.html" style="display:inline-block;text-decoration:none;text-align:center">DigitalOcean &amp; VPS Lab</a><a class="tab" href="/server-network-lab.html" style="display:inline-block;text-decoration:none;text-align:center">Server Setup &amp; Packages</a></nav>'));
     }
     res.writeHead(200, {
