@@ -9,6 +9,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const serverPath = path.resolve(here, "../server.mjs");
 let child;
 let baseUrl;
+let sessionCookie;
+const nativeFetch = globalThis.fetch;
 
 async function unusedPort() {
   return await new Promise((resolve, reject) => {
@@ -32,6 +34,8 @@ before(async () => {
       WEB_ROOT: path.resolve(here, ".."),
       DEEPSEEK_API_KEY: "",
       CHAT_ACCESS_PASSWORD: "",
+      DASHBOARD_USERNAME: "test-dashboard-user",
+      DASHBOARD_PASSWORD: "test-dashboard-password",
       TELEGRAM_BOT_TOKEN: "",
       TELEGRAM_BOT_USERNAME: ""
     },
@@ -57,10 +61,42 @@ before(async () => {
   }
   child.kill();
   throw new Error(`Timed out waiting for web server startup: ${startupError}`);
+  });
+  const unauthenticated = await nativeFetch(baseUrl, { redirect: "manual" });
+  assert.equal(unauthenticated.status, 303);
+  assert.equal(unauthenticated.headers.get("location"), "/login.html");
+  const loginPage = await nativeFetch(baseUrl + "/login.html");
+  assert.equal(loginPage.status, 200);
+  assert.match(await loginPage.text(), /Dashboard sign in/);
+  const rejected = await nativeFetch(baseUrl + "/api/auth/login", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: "test-dashboard-user", password: "wrong-password" })
+  });
+  assert.equal(rejected.status, 401);
+  const accepted = await nativeFetch(baseUrl + "/api/auth/login", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: "test-dashboard-user", password: "test-dashboard-password" })
+  });
+  assert.equal(accepted.status, 200);
+  assert.match(accepted.headers.get("set-cookie") || "", /HttpOnly/);
+  sessionCookie = (accepted.headers.get("set-cookie") || "").split(";")[0];
+  globalThis.fetch = (input, init = {}) => {
+    const headers = new Headers(init.headers || {});
+    if (sessionCookie && !String(input).includes("/api/auth/login")) headers.set("Cookie", sessionCookie);
+    return nativeFetch(input, { ...init, headers });
+  };
 });
 
 after(() => {
   if (child && child.exitCode === null) child.kill();
+});
+
+test("dashboard session protects pages and APIs until valid sign-in", async () => {
+  const response = await fetch(baseUrl);
+  assert.equal(response.status, 200);
+  assert.match(await response.text(), /Sign out/);
+  const status = await fetch(baseUrl + "/api/integrations/status");
+  assert.equal(status.status, 200);
 });
 
 test("health endpoint returns a no-store success response", async () => {
