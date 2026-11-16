@@ -9,7 +9,7 @@
 <header><h1>Epic Games Recovery Assistant</h1><span class="muted">Private dashboard · Not affiliated with Epic Games</span></header><main>
 <div id="notice" role="status">Loading panel…</div>
 <section id="login" class="card hidden"><h2>Sign in to your panel</h2><p class="muted">This is your Recovery Assistant dashboard login—not an Epic Games login.</p><form id="loginForm"><label for="loginEmail">Panel email</label><input id="loginEmail" type="email" autocomplete="username" required><label for="loginPassword">Panel password</label><input id="loginPassword" type="password" autocomplete="current-password" required><button type="submit">Sign in</button></form><p class="muted">Administrator credentials are configured on the server. There is no public sign-up.</p></section>
-<section id="dashboard" class="hidden"><nav class="panel-tabs" role="tablist" aria-label="Recovery panel pages"><button type="button" id="recordsTabButton" role="tab" aria-selected="true">Recovery Records</button><button type="button" id="pdfScannerTabButton" role="tab" aria-selected="false">PDF Evidence Scanner</button><button type="button" id="requestsTabButton" role="tab" aria-selected="false">Fast Recovery Progress</button><a class="secondary" href="network-lab.html" style="display:inline-block;text-decoration:none;border-radius:10px;padding:11px 15px;font-weight:650">DigitalOcean &amp; VPS Lab</a><a class="secondary" href="server-network-lab.html" style="display:inline-block;text-decoration:none;border-radius:10px;padding:11px 15px;font-weight:650">Server Setup &amp; Packages</a></nav><section id="recordsTabPanel" role="tabpanel"><div class="row"><button id="logout" class="secondary">Sign out</button><button id="newCase">New recovery record</button><button id="exportAll">Export all records (JSON)</button><button id="exportText" class="secondary">Export readable file</button><button id="importBackup" class="secondary" type="button">Restore JSON backup</button><input id="importBackupFile" type="file" accept="application/json,.json" hidden></div>
+<section id="dashboard" class="hidden"><nav class="panel-tabs" role="tablist" aria-label="Recovery panel pages"><button type="button" id="recordsTabButton" role="tab" aria-selected="true">Recovery Records</button><button type="button" id="pdfScannerTabButton" role="tab" aria-selected="false">PDF Evidence Scanner</button><button type="button" id="identifierTabButton" role="tab" aria-selected="false">Identifier Evidence Scan</button><button type="button" id="requestsTabButton" role="tab" aria-selected="false">Fast Recovery Progress</button><a class="secondary" href="network-lab.html" style="display:inline-block;text-decoration:none;border-radius:10px;padding:11px 15px;font-weight:650">DigitalOcean &amp; VPS Lab</a><a class="secondary" href="server-network-lab.html" style="display:inline-block;text-decoration:none;border-radius:10px;padding:11px 15px;font-weight:650">Server Setup &amp; Packages</a></nav><section id="recordsTabPanel" role="tabpanel"><div class="row"><button id="logout" class="secondary">Sign out</button><button id="newCase">New recovery record</button><button id="exportAll">Export all records (JSON)</button><button id="exportText" class="secondary">Export readable file</button><button id="importBackup" class="secondary" type="button">Restore JSON backup</button><input id="importBackupFile" type="file" accept="application/json,.json" hidden></div>
 <div class="card"><h2>Recovery records</h2><p class="muted">Records stay in this browser on this device; they are not uploaded to the server or sent to Discord. Export a backup before clearing browser data or changing devices.</p><label for="recordSearch">Search your local records</label><input id="recordSearch" type="search" maxlength="120" placeholder="Search account ID, display name, status, or notes"><div id="records"></div></div>
 <form id="caseForm" class="card hidden"><h2 id="formTitle">New recovery record</h2><div class="grid">
 <div><label for="accountNumber">Epic Account ID / account number</label><input id="accountNumber" maxlength="100"></div><div><label for="displayName">Epic display name</label><input id="displayName" maxlength="100"></div><div><label for="accountEmail">Account email (optional)</label><input id="accountEmail" type="email" maxlength="254"></div><div><label for="caseStatus">Recovery status</label><select id="caseStatus"><option>Not started</option><option>In progress</option><option>Waiting for Epic</option><option>Resolved</option><option>Unsuccessful</option></select></div></div>
@@ -18,6 +18,7 @@
 <label for="errorMessage">Error message / failed step</label><textarea id="errorMessage" maxlength="4000" placeholder="Enter non-secret error text only."></textarea><label for="notes">Recovery notes and next steps</label><textarea id="notes" maxlength="8000"></textarea>
 <div class="warning muted">Use Epic’s official recovery process. This organizer cannot verify ownership, retrieve Epic account records, reset credentials, or bypass verification.</div><div class="row"><button type="submit">Save record on this device</button><button type="button" id="cancelEdit" class="secondary">Cancel</button></div></form>
 <div class="card"><h2>Official Epic Games links</h2><p><a href="https://www.epicgames.com/id/login" target="_blank" rel="noopener noreferrer">Epic Games official sign-in page</a></p><p><a href="https://www.epicgames.com/help/en-US/" target="_blank" rel="noopener noreferrer">Epic Games Player Support</a></p><p class="muted">Sign in only on the official epicgames.com domain. This dashboard never asks for your Epic password or verification codes.</p></div></section><section id="pdfScannerTabPanel" class="hidden" role="tabpanel" aria-labelledby="pdfScannerTabButton"><div class="card"><h2>Local PDF Evidence Scanner</h2><p class="muted">Choose PDF files from this device. Scans run manually when you press the button; there is no background or recurring scan. Text extraction and pattern checks run in this browser tab. The scanner reports page numbers and indicator categories only; it never displays or saves extracted document text or matched secret values.</p><div class="warning muted">This is an evidence organizer, not an ownership verifier. Image-only/scanned PDFs are not OCR-scanned. Encrypted or oversized PDFs may be skipped. Do not upload evidence or enter passwords, tokens, cookies, verification codes, or full payment-card details.</div><label for="panelPdfFiles">Select PDF files (maximum 10 files per batch, 20 MB each, and 500 pages per file)</label><input id="panelPdfFiles" type="file" accept="application/pdf,.pdf" multiple><div class="row"><button type="button" id="runPanelPdfScan">Scan PDFs locally</button><button type="button" id="clearPanelPdfScan" class="secondary">Clear</button><button type="button" id="downloadPanelPdfReport" class="secondary" disabled>Download TXT report</button></div><pre id="panelPdfResult" class="scan-output" role="status" aria-live="polite">No PDF scan has been run.</pre></div></section>
+<section id="identifierTabPanel" class="hidden" role="tabpanel" aria-labelledby="identifierTabButton"><div class="card"><h2>Local Account Identifier Evidence Scan</h2><p class="muted">Select PDFs or text-based files that you own or are authorized to review. This scan runs locally in this browser only. It counts email-address patterns, labelled Fortnite display-name/username fields, and labelled Epic Account ID fields. It reports file/page/line locations and counts only; it never displays, exports, stores, or uploads matched values.</p><div class="warning muted">This is a document index, not an Epic account lookup or ownership verification. It does not search browsers, devices, accounts, websites, or remote systems. Image-only PDFs are not OCR-scanned. Do not select password dumps, browser profiles, cookies, tokens, or authentication-code files.</div><label for="identifierFiles">Choose PDF, TXT, CSV, or JSON files (maximum 10 files per run; 20 MiB per file)</label><input id="identifierFiles" type="file" accept=".pdf,application/pdf,.txt,text/plain,.csv,text/csv,.json,application/json" multiple><div class="row"><button type="button" id="runIdentifierScan">Scan selected files locally</button><button type="button" id="clearIdentifierScan" class="secondary">Clear</button><button type="button" id="downloadIdentifierReport" class="secondary" disabled>Download counts report</button></div><pre id="identifierResult" class="scan-output" role="status" aria-live="polite">No identifier scan has been run.</pre></div></section>
 <section id="requestsTabPanel" class="hidden" role="tabpanel" aria-labelledby="requestsTabButton">
 <div class="card"><h2>Fast Recovery Progress</h2><p class="muted">New browser-tool submissions arrive here for your review. Approving a request only prepares it for manual submission through Epic's official recovery form; it does not contact Epic or access Epic's private database.</p>
 <div id="requestConfigNotice" class="warning muted">Encrypted database status will appear after loading.</div>
@@ -72,16 +73,18 @@ $("importBackupFile").addEventListener("change",async e=>{
  }catch(err){notice("Backup not restored: "+(err.message||"The file could not be read."));}
 });
 
-const panelTabButtons={records:$("recordsTabButton"),pdf:$("pdfScannerTabButton"),requests:$("requestsTabButton")};
+const panelTabButtons={records:$("recordsTabButton"),pdf:$("pdfScannerTabButton"),identifiers:$("identifierTabButton"),requests:$("requestsTabButton")};
 function showPanelTab(which){
  $("recordsTabPanel").classList.toggle("hidden",which!=="records");
  $("pdfScannerTabPanel").classList.toggle("hidden",which!=="pdf");
+ $("identifierTabPanel").classList.toggle("hidden",which!=="identifiers");
  $("requestsTabPanel").classList.toggle("hidden",which!=="requests");
  Object.entries(panelTabButtons).forEach(([key,button])=>button.setAttribute("aria-selected",String(key===which)));
  if(which==="requests")loadRequests();
 }
 panelTabButtons.records.addEventListener("click",()=>showPanelTab("records"));
 panelTabButtons.pdf.addEventListener("click",()=>showPanelTab("pdf"));
+panelTabButtons.identifiers.addEventListener("click",()=>showPanelTab("identifiers"));
 panelTabButtons.requests.addEventListener("click",()=>showPanelTab("requests"));
 let selectedRequestId=null;
 let requestCache=[];
@@ -199,6 +202,59 @@ $("runPanelPdfScan").addEventListener("click",async()=>{
 });
 $("clearPanelPdfScan").addEventListener("click",()=>{$("panelPdfFiles").value="";$("panelPdfResult").textContent="Cleared. No scan has been run.";panelPdfReport="";$("downloadPanelPdfReport").disabled=true});
 $("downloadPanelPdfReport").addEventListener("click",()=>{if(!panelPdfReport)return;download("local-pdf-evidence-report.txt",panelPdfReport,"text/plain;charset=utf-8")});
+
+
+let identifierReport="";
+const MAX_IDENTIFIER_FILES=10,MAX_IDENTIFIER_BYTES=20*1024*1024;
+function identifierCounts(text){
+ const email=[...text.matchAll(/\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b/gi)].length;
+ const fortnite=[...text.matchAll(/(?:fortnite\\s+(?:display\\s*name|username)|display\\s*name|username)\\s*[:=|—-]\\s*[^\\r\\n,;]{2,40}/gi)].length;
+ const epicLabel=[...text.matchAll(/(?:epic\\s*(?:games\\s*)?(?:account\\s*)?(?:id|identifier)|account\\s*id)\\s*[:=#|—-]\\s*[A-Z0-9-]{8,40}/gi)].length;
+ const epicUuid=[...text.matchAll(/\\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\b/gi)].length;
+ return {email,fortnite,epic:Math.max(epicLabel,epicUuid)};
+}
+function countLines(text){
+ const lines=text.split(/\\r?\\n/),summary={email:0,fortnite:0,epic:0},locations=[];
+ lines.forEach((line,index)=>{const counts=identifierCounts(line);if(counts.email||counts.fortnite||counts.epic){summary.email+=counts.email;summary.fortnite+=counts.fortnite;summary.epic+=counts.epic;locations.push({line:index+1,counts});}});
+ return {summary,locations};
+}
+$("runIdentifierScan").addEventListener("click",async()=>{
+ const files=[...$("identifierFiles").files],out=["LOCAL ACCOUNT IDENTIFIER EVIDENCE INDEX","Generated UTC: "+new Date().toISOString(),"Selected files: "+files.length,"","Matched values are intentionally excluded. Counts and locations only."];
+ if(!files.length){$("identifierResult").textContent="Choose files first.";return}
+ if(files.length>MAX_IDENTIFIER_FILES){$("identifierResult").textContent="Select no more than 10 files per run.";return}
+ if(!window.pdfjsLib){$("identifierResult").textContent="PDF/text scanner engine did not load. Reload while connected to the internet.";return}
+ window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+ for(const file of files){
+  out.push("FILE: "+file.name);
+  if(file.size>MAX_IDENTIFIER_BYTES){out.push("Skipped: file exceeds 20 MiB.","");continue}
+  const ext=file.name.split(".").pop().toLowerCase();let total={email:0,fortnite:0,epic:0},scanned=0;
+  try{
+   if(ext==="pdf"||file.type==="application/pdf"){
+    const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+    const pages=Math.min(doc.numPages,500);
+    for(let n=1;n<=pages;n++){
+     $("identifierResult").textContent="Scanning "+file.name+" · page "+n+" of "+pages+" locally…";
+     const page=await doc.getPage(n),content=await page.getTextContent(),text=content.items.map(x=>x.str||"").join(" ");
+     if(!text.trim())continue;
+     const counts=identifierCounts(text);total.email+=counts.email;total.fortnite+=counts.fortnite;total.epic+=counts.epic;scanned++;
+     if(counts.email||counts.fortnite||counts.epic)out.push("Page "+n+": email patterns="+counts.email+", Fortnite name labels="+counts.fortnite+", Epic ID patterns="+counts.epic);
+    }
+    if(doc.numPages>pages)out.push("Page limit: only first "+pages+" of "+doc.numPages+" pages inspected.");
+   }else if(["txt","csv","json"].includes(ext)){
+    const text=await file.text();if(text.length>2*1024*1024)throw new Error("Text file exceeds 2 MiB decoded-text limit.");
+    const result=countLines(text);total=result.summary;scanned=text.split(/\\r?\\n/).length;
+    result.locations.slice(0,100).forEach(hit=>out.push("Line "+hit.line+": email patterns="+hit.counts.email+", Fortnite name labels="+hit.counts.fortnite+", Epic ID patterns="+hit.counts.epic));
+    if(result.locations.length>100)out.push("Additional matching lines omitted from report.");
+   }else{out.push("Skipped: supported formats are PDF, TXT, CSV, and JSON.","");continue}
+   out.push("Totals: email patterns="+total.email+", Fortnite name labels="+total.fortnite+", Epic ID patterns="+total.epic+"; inspected units="+scanned);
+  }catch(e){out.push("Not inspected: file may be encrypted, malformed, or unsupported ("+String(e.message||"read error").slice(0,120)+").")}
+  out.push("");
+ }
+ out.push("Limitations: pattern matching can produce false positives and miss unusual formats. Fortnite names are counted only when text is labelled as a username/display name; Epic IDs are counted when labelled or UUID-shaped. No live account lookup or ownership decision is performed. Scanning stays in this browser; matched values are not shown or retained.");
+ identifierReport=out.join("\\n");$("identifierResult").textContent=identifierReport;$("downloadIdentifierReport").disabled=false;
+});
+$("clearIdentifierScan").addEventListener("click",()=>{$("identifierFiles").value="";$("identifierResult").textContent="Cleared. No identifier scan has been run.";identifierReport="";$("downloadIdentifierReport").disabled=true});
+$("downloadIdentifierReport").addEventListener("click",()=>{if(identifierReport)download("local-account-identifier-index.txt",identifierReport,"text/plain;charset=utf-8")});
 
 window.addEventListener("error",()=>{api("/api/client-error",{method:"POST",body:"{}"}).catch(()=>{});notice("A dashboard error occurred. Refresh the page; if it continues, check server logs.")});init();
 </script><section class="card" aria-labelledby="setupDocsTitle"><h2 id="setupDocsTitle">Setup and project guides</h2><p class="muted">The Recovery Panel is a separate Node.js app. Its records stay in this browser on this device; they do not sync automatically with the main browser multitool.</p><p><a href="https://github.com/boooter316/github.test1/blob/main/docs/SETUP_GUIDE.md" target="_blank" rel="noopener">Open complete setup guide</a></p><p><a href="network-lab.html">Open DigitalOcean, VPN, Proxy, Kali &amp; PuTTY setup tabs</a></p><p><a href="server-network-lab.html">Open machine requirements, package installation, and step-by-step setup tabs</a></p><p><a href="https://github.com/boooter316/github.test1/blob/main/docs/DIGITALOCEAN_NETWORK_LAB.md" target="_blank" rel="noopener">Open network lab guide on GitHub</a></p><p><a href="https://github.com/boooter316/github.test1/blob/main/docs/PROJECT_STRUCTURE.md" target="_blank" rel="noopener">Open project structure map</a></p><p><a href="https://github.com/boooter316/github.test1/blob/main/recovery-panel/README.md" target="_blank" rel="noopener">Open Recovery Panel README</a></p></section><section class="project-checklist" aria-labelledby="projectChecklistTitle">
