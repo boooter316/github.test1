@@ -7,7 +7,7 @@ A private, independently maintained recovery organizer and defensive diagnostics
 Use these two independent ZIP links. The first downloads the current `main` branch. The second downloads the separately preserved `uploaded-zip-copy` branch snapshot. Neither link replaces the other.
 
 - **Current main project:** [Download main ZIP](https://github.com/boooter316/github.test1/archive/refs/heads/main.zip)
-- **Separate uploaded-project copy:** [Download uploaded copy ZIP](https://github.com/boooter316/github.test1/archive/refs/heads/uploaded-zip-copy.zip)
+- **Independent snapshot of main:** [Download snapshot ZIP](https://github.com/boooter316/github.test1/archive/refs/heads/uploaded-zip-copy.zip)
 
 The browser dashboard also has a **Project Downloads** navigation tab with both links.
 
