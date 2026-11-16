@@ -819,7 +819,6 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
    files[file]=source();
    files[name+".csproj"]='<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net10.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>\n';
    files["TEST_"+name+".bat"]=["@echo off","setlocal","cd /d \"%~dp0\"","dotnet build \""+name+".csproj\" -c Release","if errorlevel 1 (echo TEST FAILED.& pause& exit /b 1)","echo TEST PASSED. Runtime behavior still needs manual testing.","pause"].join("\r\n")+"\r\n";
-  }
   }else{files[file]=source();files["README_CUSTOM.txt"]="Custom script export only. No language runtime or compiler was selected, so no test was run. Open the source in Notepad++ or the editor for its language and use that language’s official toolchain.\r\n";}
   zipDownload("TEST_"+name+"_files.zip",files);
   setStatus(kind==="custom"?"Custom source and notes downloaded. No generic compiler or test can be selected for an unspecified language.":"A single ZIP containing the source and test files was downloaded. Extract it on Windows and run TEST_"+name+".bat; this browser cannot run the compiler.");
@@ -858,7 +857,7 @@ document.getElementById("builderGenerate").addEventListener("click",()=>{
   }else if(kind==="cpp"){
    bat.push("where cl >nul 2>nul","if %errorlevel%==0 (cl /nologo /std:c++17 /EHsc /O2 /Fe:\""+name+".exe\" \""+file+"\") else (where g++ >nul 2>nul && g++ -std=c++17 -O2 -Wall -Wextra \""+file+"\" -o \""+name+".exe\")","if errorlevel 1 goto failed","echo EXE created: "+name+".exe","pause","exit /b 0",":failed","echo Install Visual Studio with the C++ workload or MSYS2 GCC, then retry.","pause","exit /b 1");
    readme.push("## C++17 setup","1. Recommended: install Visual Studio with the Desktop development with C++ workload (MSVC).","2. Alternatively install MSYS2 and its GCC toolchain.","3. Run BUILD_EXE.bat from the Visual Studio Developer Command Prompt for MSVC, or a terminal with g++ on PATH.","4. Run TEST_"+name+".bat for a syntax-only check.");
-  }else{
+  }else if(kind==="csharp"){
    files[name+".csproj"]='<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net10.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>\n';
    bat.push("where dotnet >nul 2>nul || goto missing","dotnet publish \""+name+".csproj\" -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true || goto failed","echo EXE is in bin\\Release\\net10.0\\win-x64\\publish","pause","exit /b 0",":missing","echo Install the .NET 10 SDK or Visual Studio with .NET desktop development.","pause","exit /b 1",":failed","echo BUILD FAILED. Review the compiler messages above.","pause","exit /b 1");
    readme.push("## C# setup","1. Install Visual Studio with .NET desktop development, or install the .NET 10 SDK from https://dotnet.microsoft.com/download/dotnet/10.0.","2. Run BUILD_EXE.bat. It publishes a self-contained single-file Windows x64 executable.","3. Run TEST_"+name+".bat to compile-check the project.");
