@@ -71,6 +71,8 @@ jobs:
         working-directory: recovery-panel
         run: |
           node --check server.js
+          node --check public/identifier-scanner.js
+          node -e "const fs=require('node:fs');const h=fs.readFileSync('public/index.html','utf8');for(const id of ['identifierTabButton','identifierTabPanel','runIdentifierScan','downloadIdentifierReport'])if(!h.includes(id))throw new Error('Missing identifier scanner UI control: '+id)"
           npm install --no-audit --no-fund
           npm run check
           npm audit --omit=dev --audit-level=high
