@@ -4,6 +4,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 import ipaddress
+import json
 import socket
 import sys
 
@@ -17,14 +18,35 @@ ALLOWED_PREFIXES = (
 ALLOWED_SUFFIXES = {".html", ".htm", ".css", ".js", ".jpg", ".jpeg", ".png", ".svg", ".ico", ".webp", ".woff", ".woff2"}
 PRIVATE_V4 = tuple(ipaddress.ip_network(n) for n in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"))
 PRIVATE_V6 = (ipaddress.ip_network("fc00::/7"),)
+ACCESS_CONFIG = Path(__file__).with_name("approved_devices.json")
+
+def approved_ips():
+    """Reload exact private IP allowlist on every request so revocations apply immediately."""
+    try:
+        data = json.loads(ACCESS_CONFIG.read_text(encoding="utf-8"))
+        raw_ips = data.get("allowed_ips", [])
+        if not isinstance(raw_ips, list):
+            return set()
+        approved = set()
+        for raw in raw_ips:
+            if not isinstance(raw, str):
+                continue
+            try:
+                ip = ipaddress.ip_address(raw.strip().split("%", 1)[0])
+            except ValueError:
+                continue
+            if ip.is_loopback or ip.is_private:
+                approved.add(str(ip))
+        return approved
+    except (OSError, json.JSONDecodeError, AttributeError):
+        return set()
 
 def allowed_client(raw):
     try:
         ip = ipaddress.ip_address(raw.split("%", 1)[0])
         if ip.is_loopback:
             return True
-        nets = PRIVATE_V4 if ip.version == 4 else PRIVATE_V6
-        return any(ip in n for n in nets)
+        return str(ip) in approved_ips()
     except ValueError:
         return False
 
@@ -104,7 +126,8 @@ def private_addresses():
 if __name__ == "__main__":
     print("\nDISCORD SERVER DASHBOARD — PRIVATE READ-ONLY HOST")
     print("No internet connection is required when devices share the same LAN.")
-    print("Only private subnet clients are accepted; uploads and remote commands are disabled.")
+    print("Only exact IP addresses in approved_devices.json are accepted; uploads and remote commands are disabled.")
+    print("Edit approved_devices.json to add or revoke a trusted device IP. Empty list = local PC only.")
     print("Open on this PC: http://127.0.0.1:%d/DISCORD-SERVER-DASHBOARD/" % PORT)
     for address in private_addresses():
         if ":" not in address:
