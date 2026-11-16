@@ -104,9 +104,8 @@ std::vector<std::string> indicators(const std::string& page) {
         {"epic_or_fortnite_reference", std::regex(R"(\b(epic games|epic account|fortnite|order id|transaction id)\b)", std::regex::icase)},
         {"date_reference", std::regex(R"(\b(20[0-9]{2}[-/][0-9]{1,2}[-/][0-9]{1,2}|jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sep(tember)?|oct(ober)?|nov(ember)?|dec(ember)?)\b)", std::regex::icase)},
         {"account_identifier_label", std::regex(R"(\b(account id|account number|display name|username)\b)", std::regex::icase)},
-        {"fortnite_display_name_label", std::regex(R"(\b(fortnite\s+)?(display\s*name|username)\s*[:=])", std::regex::icase)},
+        {"fortnite_display_name_label", std::regex(R"(\bfortnite\s+(display\s*name|username)\s*[:=])", std::regex::icase)},
         {"epic_account_id_label", std::regex(R"(\b(epic\s*(games\s*)?(account\s*)?(id|identifier)|account\s*id)\s*[:=#])", std::regex::icase)},
-        {"epic_account_id_uuid", std::regex(R"(\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b)", std::regex::icase)}
     };
     static const std::vector<std::regex> sensitive = {
         std::regex(R"(\b(password|passwd|passcode)\s*[:=]\s*\S+)", std::regex::icase),
