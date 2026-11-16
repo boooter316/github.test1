@@ -116,7 +116,7 @@ test("recovery form exposes structured non-secret customer and linked-platform f
   for (const field of ["firstName", "lastName", "connectedAccounts", "changeRequestType", "submitForAdminReview"]) {
     assert.ok(body.includes('id="' + field + '"'), "Missing recovery field: " + field);
   }
-  assert.match(body, /public username and public profile ID/i);
+  assert.match(body, /public platform names, usernames, and profile IDs/i);
   assert.match(body, /Never paste passwords, cookies, tokens, or recovery codes/i);
   assert.match(body, /administrator review/i);
 });
