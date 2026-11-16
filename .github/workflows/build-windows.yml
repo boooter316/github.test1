@@ -34,6 +34,13 @@ jobs:
             & (Join-Path $vcpkgRoot 'bootstrap-vcpkg.bat') -disableMetrics
             if ($LASTEXITCODE -ne 0) { throw 'Unable to bootstrap vcpkg.' }
           }
+          # Hosted runners may provide a shallow vcpkg checkout. Fetch the exact
+          # manifest baseline commit so vcpkg can read its version database.
+          $baseline = '0df93a05b9de080129e653ec4776d7e14a1b2e4f'
+          git -C $vcpkgRoot fetch --depth=1 origin $baseline
+          if ($LASTEXITCODE -ne 0) { throw 'Unable to fetch the pinned vcpkg baseline.' }
+          git -C $vcpkgRoot cat-file -e "${baseline}:versions/baseline.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned vcpkg baseline version database is unavailable.' }
           & (Join-Path $vcpkgRoot 'vcpkg.exe') version
           if ($LASTEXITCODE -ne 0) { throw 'vcpkg version check failed.' }
           $toolchain = Join-Path $vcpkgRoot 'scripts/buildsystems/vcpkg.cmake'
