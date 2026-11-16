@@ -43,9 +43,23 @@ The main browser web server also needs RECOVERY_PANEL_INTAKE_URL set to the priv
 
 Never commit passwords, password hashes, session secrets, or webhook URLs. Never send Epic account data, IP addresses, email addresses, recovery notes, evidence, or submitted error text to Discord.
 
+## Dependency maintenance
+
+The direct runtime dependencies are pinned to the reviewed stable releases: Express 5.3.0, express-rate-limit 8.7.4, express-session 1.19.0, Helmet 8.3.0, and dotenv 18.0.10. These versions were checked against the npm registry on 2026-11-16; no direct dependency bump was indicated. CI installs the committed dependency tree with `npm ci`, runs the panel tests, and audits production dependencies. When updating packages, update `package.json` and `package-lock.json` together, then run the same checks before merging.
+
 ## Run locally
 
-    npm install
+Requirements:
+- Node.js 26 LTS or newer (includes npm; use the Node.js installer or your operating-system package manager).
+- No separate SQLite installation is required; the panel uses Node.js's built-in `node:sqlite` module.
+- A terminal opened in the `recovery-panel` directory.
+
+Install the exact dependency tree recorded in `package-lock.json`:
+
+    npm ci
+
+Start the panel:
+
     npm start
 
 Open http://localhost:3000 on the same computer. For phone access, the server must be reachable on a trusted network. Do not expose an unencrypted HTTP login to the public internet.
@@ -54,7 +68,7 @@ Open http://localhost:3000 on the same computer. For phone access, the server mu
 
 Run `npm test` for the panel integration test. It starts the server with temporary SQLite databases and synthetic account details, then checks bearer-token intake, secret-field rejection, administrator login, review transitions, approved export, audit history, logout, and session persistence across a server restart. CI runs this test through `npm run check`.
 
-The direct dependency versions in `package.json` are pinned, but this repository does not currently commit a `package-lock.json`. Use `npm install` for setup; `npm ci` is not available until a lockfile is generated, reviewed, and committed. CI installs with `npm install` and runs the production dependency audit. Transitive dependency resolution is not fully reproducible yet; this change does not silently replace dependencies or claim that all packages are current.
+The direct dependency versions in `package.json` are pinned and `package-lock.json` records the complete npm dependency tree and integrity hashes. Use `npm ci` for repeatable installs; it removes any existing `node_modules` directory and installs exactly what the lockfile records. To intentionally change dependency versions, edit `package.json` and run `npm install`, review the resulting lockfile diff, then run `npm ci`, `npm run check`, and `npm audit --omit=dev --audit-level=high` before committing both manifest files.
 
 For the repository-wide component map and Windows/browser/mobile setup steps, see [the project setup guide](../docs/SETUP_GUIDE.md) and [project structure](../docs/PROJECT_STRUCTURE.md).
 
@@ -80,7 +94,7 @@ The panel links to Epic's official pages; it does not imitate them, collect Epic
 
 - Missing configuration: set all three required administrator environment variables and restart.
 - Sign-in fails: verify the admin email and exact scrypt salt:hash value.
-- Page will not load: run npm install, confirm Node.js 26+, then npm start and inspect the server terminal.
+- Page will not load: run npm ci, confirm Node.js 26+, then npm start and inspect the server terminal.
 - Discord notifications do not arrive: verify the secret is an HTTPS Discord webhook URL for a server you control. Notifications are optional.
 - iPhone export: use Safari and check Files > Downloads. The dashboard creates a file on demand; it does not email or upload records.
 

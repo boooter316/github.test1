@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js 26 LTS
         uses: actions/setup-node@v7.1.0
         with:
@@ -157,7 +159,7 @@ jobs:
           node --check server.js
           node --check public/identifier-scanner.js
           node -e "const fs=require('node:fs');const h=fs.readFileSync('public/index.html','utf8');for(const id of ['identifierTabButton','identifierTabPanel','runIdentifierScan','downloadIdentifierReport'])if(!h.includes(id))throw new Error('Missing identifier scanner UI control: '+id)"
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npm run check
           npm audit --omit=dev --audit-level=high
       - name: Run standalone web server regression tests
