@@ -36,6 +36,9 @@ const files = new Map([
   ["/discord-server-dashboard/cpp-bot/main.cpp", ["../../DISCORD-SERVER-DASHBOARD/cpp-bot/main.cpp", "text/plain; charset=utf-8"]],
   ["/discord-server-dashboard/cpp-bot/CMakeLists.txt", ["../../DISCORD-SERVER-DASHBOARD/cpp-bot/CMakeLists.txt", "text/plain; charset=utf-8"]],
   ["/network_tools.ps1", ["network_tools.ps1", "text/plain; charset=utf-8"]],
+  ["/network_security_snapshot.ps1", ["network_security_snapshot.ps1", "text/plain; charset=utf-8"]],
+  ["/project_vulnerability_audit.ps1", ["project_vulnerability_audit.ps1", "text/plain; charset=utf-8"]],
+  ["/ghostface-bg.jpg", ["ghostface-bg.jpg", "image/jpeg"]],
   ["/SETUP_AND_USAGE.txt", ["SETUP_AND_USAGE.txt", "text/plain; charset=utf-8"]],
   ["/FAZE_JARVIS_SETUP.md", ["FAZE_JARVIS_SETUP.md", "text/markdown; charset=utf-8"]],
   ["/TELEGRAM_FORTNITE_SETUP.md", ["TELEGRAM_FORTNITE_SETUP.md", "text/markdown; charset=utf-8"]]
