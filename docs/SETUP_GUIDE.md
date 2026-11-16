@@ -105,7 +105,7 @@ The Recovery Panel uses Node's built-in node:sqlite module (Node 26+) for both t
 
 ## 7. Account Identifier Evidence Scan
 
-The Recovery Panel's Account Identifier Evidence Scan accepts selected PDF, TXT, CSV, and JSON files. It runs locally in the browser and reports counts and page/line locations for email-address patterns, explicitly labelled Fortnite display-name/username fields, and explicitly labelled Epic Account ID fields. It does not display or export matched values, upload files, search the device, or query Epic. The scan is limited to 10 files per run and 20 MiB per file; text files have a 2 MiB decoded-text cap. Image-only PDFs are not OCR-scanned. Matching is heuristic and can miss unusual labels or produce false positives.
+The Recovery Panel's Account Identifier Evidence Scan accepts selected PDF, TXT, CSV, and JSON files. It runs locally in the browser and reports counts and page/line locations for email-address patterns, explicitly labelled Fortnite display-name/username fields, and explicitly labelled Epic Account ID fields. It does not display or export matched values, upload files, search the device, or query Epic. The scan is limited to 10 files per run and 20 MiB per file; text files have a 2 MiB decoded-text cap. Image-only PDFs are not OCR-scanned. Matching is heuristic and can miss unusual labels or produce false positives. Fortnite username counts require an explicit `Fortnite username` or `Fortnite display name` label; Epic ID counts require an explicit account-ID label. Unlabelled UUIDs and ordinary generic usernames are not treated as Epic/Fortnite identifiers.
 
 ## 8. Network tools and multitool safety
 
