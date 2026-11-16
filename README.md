@@ -2,6 +2,15 @@
 
 A private, independently maintained recovery organizer and defensive diagnostics toolkit. It is not affiliated with Epic Games, Discord, Microsoft, or other service providers.
 
+## Separate project downloads
+
+Use these two independent ZIP links. The first downloads the current `main` branch. The second downloads the separately preserved `uploaded-zip-copy` branch snapshot. Neither link replaces the other.
+
+- **Current main project:** [Download main ZIP](https://github.com/boooter316/github.test1/archive/refs/heads/main.zip)
+- **Separate uploaded-project copy:** [Download uploaded copy ZIP](https://github.com/boooter316/github.test1/archive/refs/heads/uploaded-zip-copy.zip)
+
+The browser dashboard also has a **Project Downloads** navigation tab with both links.
+
 ## Start here
 
 - **Windows desktop app:** open `Epic_Games_Recovery_Assistant/OPEN_PROJECT.bat` after extracting the project on Windows 10/11. This builds and launches the native C++17 desktop dashboard. It does not start the browser website.
