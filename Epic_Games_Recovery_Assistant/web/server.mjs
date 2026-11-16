@@ -30,6 +30,7 @@ const files = new Map([
   ["/discord-server-dashboard/index.html", ["../../DISCORD-SERVER-DASHBOARD/index.html", "text/html; charset=utf-8"]],
   ["/discord-server-dashboard/dashboard.css", ["../../DISCORD-SERVER-DASHBOARD/dashboard.css", "text/css; charset=utf-8"]],
   ["/discord-server-dashboard/dashboard.js", ["../../DISCORD-SERVER-DASHBOARD/dashboard.js", "text/javascript; charset=utf-8"]],
+  ["/discord-server-dashboard/bot-builder.html", ["../../DISCORD-SERVER-DASHBOARD/bot-builder.html", "text/html; charset=utf-8"]],
   ["/network_tools.ps1", ["network_tools.ps1", "text/plain; charset=utf-8"]],
   ["/SETUP_AND_USAGE.txt", ["SETUP_AND_USAGE.txt", "text/plain; charset=utf-8"]],
   ["/FAZE_JARVIS_SETUP.md", ["FAZE_JARVIS_SETUP.md", "text/markdown; charset=utf-8"]],
