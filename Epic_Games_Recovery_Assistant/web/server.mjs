@@ -14,6 +14,7 @@ const sessions = new Map();
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const TELEGRAM_BOT_USERNAME = (process.env.TELEGRAM_BOT_USERNAME || "").replace(/^@/, "");
 const RECOVERY_PANEL_INTAKE_URL = process.env.RECOVERY_PANEL_INTAKE_URL || "";
+const RECOVERY_PANEL_URL = process.env.RECOVERY_PANEL_URL || "";
 const RECOVERY_INTAKE_TOKEN = process.env.RECOVERY_INTAKE_TOKEN || "";
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || "";
 const TELEGRAM_CONFIGURED = Boolean(TELEGRAM_BOT_TOKEN && /^[A-Za-z0-9_]{5,32}$/.test(TELEGRAM_BOT_USERNAME));
@@ -34,7 +35,20 @@ const files = new Map([
   ["/discord-server-dashboard/bot-builder.html", ["../../DISCORD-SERVER-DASHBOARD/bot-builder.html", "text/html; charset=utf-8"]],
   ["/discord-server-dashboard/cpp-bot/main.cpp", ["../../DISCORD-SERVER-DASHBOARD/cpp-bot/main.cpp", "text/plain; charset=utf-8"]],
   ["/discord-server-dashboard/cpp-bot/CMakeLists.txt", ["../../DISCORD-SERVER-DASHBOARD/cpp-bot/CMakeLists.txt", "text/plain; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/index.html", ["index.html", "text/html; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/network-tools.html", ["network-tools.html", "text/html; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/network-lab.html", ["network-lab.html", "text/html; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/server-network-lab.html", ["server-network-lab.html", "text/html; charset=utf-8"]],
+  ["/workspace-controls.js", ["workspace-controls.js", "text/javascript; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/workspace-controls.js", ["workspace-controls.js", "text/javascript; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/SETUP_AND_USAGE.txt", ["SETUP_AND_USAGE.txt", "text/plain; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1", ["network_security_snapshot.ps1", "text/plain; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/project_vulnerability_audit.ps1", ["project_vulnerability_audit.ps1", "text/plain; charset=utf-8"]],
+  ["/Epic_Games_Recovery_Assistant/web/network_tools.ps1", ["network_tools.ps1", "text/plain; charset=utf-8"]],
   ["/network_tools.ps1", ["network_tools.ps1", "text/plain; charset=utf-8"]],
+  ["/network_security_snapshot.ps1", ["network_security_snapshot.ps1", "text/plain; charset=utf-8"]],
+  ["/project_vulnerability_audit.ps1", ["project_vulnerability_audit.ps1", "text/plain; charset=utf-8"]],
+  ["/ghostface-bg.jpg", ["ghostface-bg.jpg", "image/jpeg"]],
   ["/SETUP_AND_USAGE.txt", ["SETUP_AND_USAGE.txt", "text/plain; charset=utf-8"]],
   ["/FAZE_JARVIS_SETUP.md", ["FAZE_JARVIS_SETUP.md", "text/markdown; charset=utf-8"]],
   ["/TELEGRAM_FORTNITE_SETUP.md", ["TELEGRAM_FORTNITE_SETUP.md", "text/markdown; charset=utf-8"]]
@@ -159,6 +173,23 @@ const server = http.createServer(async (req, res) => {
   } else if (!hasDashboardSession(req)) {
     if (url.pathname.startsWith("/api/")) return json(res, 401, { error: "Sign in to the dashboard to continue." });
     res.writeHead(303, { "Location": "/login.html", "Cache-Control": "no-store" });
+    return res.end();
+  }
+  if (req.method === "GET" && ["/recovery-panel", "/recovery-panel/public/index.html"].includes(url.pathname)) {
+    let target = null;
+    try { target = new URL(RECOVERY_PANEL_URL); } catch {}
+    const localHttp = target && target.protocol === "http:" &&
+      ["localhost", "127.0.0.1", "[::1]"].includes(target.hostname);
+    if (!target || (target.protocol !== "https:" && !localHttp) || target.username || target.password) {
+      return json(res, 503, {
+        error: "The Recovery Panel is a separate application. Configure RECOVERY_PANEL_URL with its HTTPS address on the dashboard server."
+      });
+    }
+    res.writeHead(302, {
+      "Location": target.toString(),
+      "Cache-Control": "no-store",
+      "Referrer-Policy": "no-referrer"
+    });
     return res.end();
   }
   if (req.method === "POST" && url.pathname === "/api/discord/webhook/test") {
@@ -330,7 +361,7 @@ const server = http.createServer(async (req, res) => {
   if (!entry) return json(res, 404, { error: "Not found." });
   try {
     let body = await readFile(path.join(ROOT, entry[0]));
-    if (url.pathname === "/" || url.pathname === "/index.html") {
+    if (url.pathname === "/" || url.pathname === "/index.html" || url.pathname === "/Epic_Games_Recovery_Assistant/web/index.html") {
       body = Buffer.from(body.toString("utf8").replace('<main class="wrap">', '<main class="wrap"><form method="post" action="/api/auth/logout" style="display:flex;justify-content:flex-end;margin-bottom:12px"><button type="submit" class="secondary" style="background:#7f1d1d;color:#fff">Sign out</button></form>').replace("</nav>", '<a class="tab" href="/network-tools.html" style="display:inline-block;text-decoration:none;text-align:center">IP &amp; Network Tools</a><a class="tab" href="/network-lab.html" style="display:inline-block;text-decoration:none;text-align:center">DigitalOcean &amp; VPS Lab</a><a class="tab" href="/server-network-lab.html" style="display:inline-block;text-decoration:none;text-align:center">Server Setup &amp; Packages</a></nav>'));
     }
     res.writeHead(200, {
@@ -338,7 +369,7 @@ const server = http.createServer(async (req, res) => {
       "Cache-Control": "no-store",
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "no-referrer",
-      "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://telegram.org; frame-src 'self' https://oauth.telegram.org; worker-src 'self' blob: https://cdnjs.cloudflare.com; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'",
+      "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://telegram.org; frame-src 'self' https://oauth.telegram.org; worker-src 'self' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'",
       "X-Frame-Options": "SAMEORIGIN"
     });
     res.end(body);

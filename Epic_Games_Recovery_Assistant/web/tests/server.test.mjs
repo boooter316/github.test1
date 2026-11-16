@@ -39,7 +39,8 @@ before(async () => {
       CHAT_ACCESS_PASSWORD: "",
       DASHBOARD_USERS_FILE: usersFile,
       TELEGRAM_BOT_TOKEN: "",
-      TELEGRAM_BOT_USERNAME: ""
+      TELEGRAM_BOT_USERNAME: "",
+      RECOVERY_PANEL_URL: "https://panel.example.test/"
     },
     stdio: ["ignore", "pipe", "pipe"]
   });
@@ -104,6 +105,16 @@ test("dashboard session protects pages and APIs until valid sign-in", async () =
   assert.equal(status.status, 200);
 });
 
+test("separate Recovery Panel link redirects to its configured HTTPS application", async () => {
+  const response = await fetch(baseUrl + "/recovery-panel", { redirect: "manual" });
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("location"), "https://panel.example.test/");
+  const legacyPath = await fetch(baseUrl + "/recovery-panel/public/index.html", { redirect: "manual" });
+  assert.equal(legacyPath.status, 302);
+  assert.equal(legacyPath.headers.get("location"), "https://panel.example.test/");
+  assert.equal(response.headers.get("cache-control"), "no-store");
+});
+
 test("health endpoint returns a no-store success response", async () => {
   const response = await fetch(`${baseUrl}/healthz`);
   assert.equal(response.status, 200);
@@ -145,6 +156,8 @@ test("main page is served with browser security headers", async () => {
   const response = await fetch(baseUrl);
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-security-policy") || "", /default-src 'self'/);
+  assert.match(response.headers.get("content-security-policy") || "", /script-src[^;]*cdn\.jsdelivr\.net/);
+  assert.match(response.headers.get("content-security-policy") || "", /worker-src[^;]*cdn\.jsdelivr\.net/);
   assert.equal(response.headers.get("x-frame-options"), "SAMEORIGIN");
   assert.ok((response.headers.get("content-security-policy") || "").includes("frame-ancestors 'self'"));
   assert.equal(response.headers.get("x-content-type-options"), "nosniff");
@@ -159,13 +172,22 @@ test("main dashboard opens the companion dashboard through same-origin static ro
   const page = await fetch(baseUrl + "/discord-server-dashboard/index.html");
   assert.equal(page.status, 200);
   assert.ok((page.headers.get("content-type") || "").includes("text/html"));
-  assert.match(await page.text(), /DISCORD SERVER DASHBOARD/);
+  const dashboardHtml = await page.text();
+  assert.match(dashboardHtml, /DISCORD SERVER DASHBOARD/);
   const css = await fetch(baseUrl + "/discord-server-dashboard/dashboard.css");
   assert.equal(css.status, 200);
   assert.ok((css.headers.get("content-type") || "").includes("text/css"));
   const js = await fetch(baseUrl + "/discord-server-dashboard/dashboard.js");
   assert.equal(js.status, 200);
   assert.ok((js.headers.get("content-type") || "").includes("javascript"));
+  assert.match(dashboardHtml, /href="\/Epic_Games_Recovery_Assistant\/web\/network-tools\.html"/);
+  assert.match(dashboardHtml, /href="\/Epic_Games_Recovery_Assistant\/web\/network-lab\.html"/);
+  assert.match(dashboardHtml, /href="\/Epic_Games_Recovery_Assistant\/web\/server-network-lab\.html"/);
+  assert.match(dashboardHtml, /href="\/recovery-panel\/public\/index\.html"/);
+  assert.match(dashboardHtml, /href="\/Epic_Games_Recovery_Assistant\/web\/index\.html"/);
+  const mainAlias = await fetch(baseUrl + "/Epic_Games_Recovery_Assistant/web/index.html");
+  assert.equal(mainAlias.status, 200);
+  assert.match(await mainAlias.text(), /Sign out/);
 });
 test("recovery form exposes structured non-secret customer and linked-platform fields", async () => {
   const response = await fetch(baseUrl);
@@ -196,6 +218,30 @@ test("main navigation links to the separate DigitalOcean VPS lab", async () => {
   const body = await response.text();
   assert.match(body, /href="\/network-lab\.html"/);
   assert.match(body, /DigitalOcean &amp; VPS Lab/);
+});
+
+test("main dashboard image and PowerShell helper assets are served through explicit routes", async () => {
+  for (const [route, type] of [
+    ["/ghostface-bg.jpg", "image/jpeg"],
+    ["/network_security_snapshot.ps1", "text/plain"],
+    ["/project_vulnerability_audit.ps1", "text/plain"],
+    ["/network_tools.ps1", "text/plain"],
+    ["/workspace-controls.js", "text/javascript"],
+    ["/network_security.js", "text/javascript"],
+    ["/Epic_Games_Recovery_Assistant/web/workspace-controls.js", "text/javascript"],
+    ["/Epic_Games_Recovery_Assistant/web/SETUP_AND_USAGE.txt", "text/plain"],
+    ["/Epic_Games_Recovery_Assistant/web/network_security_snapshot.ps1", "text/plain"],
+    ["/Epic_Games_Recovery_Assistant/web/project_vulnerability_audit.ps1", "text/plain"],
+    ["/Epic_Games_Recovery_Assistant/web/network_tools.ps1", "text/plain"],
+    ["/Epic_Games_Recovery_Assistant/web/network-tools.html", "text/html"],
+    ["/Epic_Games_Recovery_Assistant/web/network-lab.html", "text/html"],
+    ["/Epic_Games_Recovery_Assistant/web/server-network-lab.html", "text/html"]
+  ]) {
+    const response = await fetch(baseUrl + route);
+    assert.equal(response.status, 200, route + " should be served");
+    assert.ok((response.headers.get("content-type") || "").includes(type), route + " content type");
+    assert.ok((await response.arrayBuffer()).byteLength > 0, route + " should not be empty");
+  }
 });
 
 test("server package setup guide is routed and exposes machine-specific instructions", async () => {
