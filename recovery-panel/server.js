@@ -8,6 +8,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const { DatabaseSync } = require("node:sqlite");
 const path = require("node:path");
+const { createDiscordNotifier } = require("./discord-webhook");
 const app = express();
 const production = process.env.NODE_ENV === "production";
 const port = Number(process.env.PORT || 3000);
@@ -172,12 +173,7 @@ function validPassword(candidate) {
   const p=passwordRecord.split(":"); if(p.length!==2 || !/^[a-f0-9]{32}$/i.test(p[0]) || !/^[a-f0-9]{128}$/i.test(p[1])) return false;
   return safeEqual(crypto.scryptSync(String(candidate),p[0],64).toString("hex"),p[1].toLowerCase());
 }
-async function notify(event) {
-  const hook=process.env.DISCORD_WEBHOOK_URL; if(!hook) return;
-  try { const u=new URL(hook); if(u.protocol!=="https:" || u.hostname!=="discord.com" || !u.pathname.startsWith("/api/webhooks/")) return;
-    await fetch(hook,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({content:"Recovery Assistant panel: "+event})});
-  } catch (_) {}
-}
+const notify = createDiscordNotifier({ url: process.env.DISCORD_WEBHOOK_URL });
 function auth(req,res,next){ if(req.session && req.session.authenticated===true) return next(); res.status(401).json({error:"Please sign in to the Recovery Assistant panel."}); }
 app.post("/api/intake", intakeLimiter, (req,res) => {
   if (!recoveryDb || intakeToken.length < 32) return res.status(503).json({error:"Recovery intake is not configured. Contact the panel administrator."});
