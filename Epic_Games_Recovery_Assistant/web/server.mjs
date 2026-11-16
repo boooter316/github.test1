@@ -14,6 +14,7 @@ const sessions = new Map();
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const TELEGRAM_BOT_USERNAME = (process.env.TELEGRAM_BOT_USERNAME || "").replace(/^@/, "");
 const RECOVERY_PANEL_INTAKE_URL = process.env.RECOVERY_PANEL_INTAKE_URL || "";
+const RECOVERY_PANEL_URL = process.env.RECOVERY_PANEL_URL || "";
 const RECOVERY_INTAKE_TOKEN = process.env.RECOVERY_INTAKE_TOKEN || "";
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || "";
 const TELEGRAM_CONFIGURED = Boolean(TELEGRAM_BOT_TOKEN && /^[A-Za-z0-9_]{5,32}$/.test(TELEGRAM_BOT_USERNAME));
@@ -159,6 +160,23 @@ const server = http.createServer(async (req, res) => {
   } else if (!hasDashboardSession(req)) {
     if (url.pathname.startsWith("/api/")) return json(res, 401, { error: "Sign in to the dashboard to continue." });
     res.writeHead(303, { "Location": "/login.html", "Cache-Control": "no-store" });
+    return res.end();
+  }
+  if (req.method === "GET" && url.pathname === "/recovery-panel") {
+    let target = null;
+    try { target = new URL(RECOVERY_PANEL_URL); } catch {}
+    const localHttp = target && target.protocol === "http:" &&
+      ["localhost", "127.0.0.1", "[::1]"].includes(target.hostname);
+    if (!target || (target.protocol !== "https:" && !localHttp) || target.username || target.password) {
+      return json(res, 503, {
+        error: "The Recovery Panel is a separate application. Configure RECOVERY_PANEL_URL with its HTTPS address on the dashboard server."
+      });
+    }
+    res.writeHead(302, {
+      "Location": target.toString(),
+      "Cache-Control": "no-store",
+      "Referrer-Policy": "no-referrer"
+    });
     return res.end();
   }
   if (req.method === "POST" && url.pathname === "/api/discord/webhook/test") {
