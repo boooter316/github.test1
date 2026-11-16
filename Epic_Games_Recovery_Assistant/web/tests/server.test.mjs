@@ -109,6 +109,18 @@ test("main page is served with browser security headers", async () => {
   assert.match(await response.text(), /Recovery Assistant/i);
 });
 
+test("recovery form exposes structured non-secret customer and linked-platform fields", async () => {
+  const response = await fetch(baseUrl);
+  assert.equal(response.status, 200);
+  const body = await response.text();
+  for (const field of ["firstName", "lastName", "connectedAccounts", "changeRequestType", "submitForAdminReview"]) {
+    assert.ok(body.includes('id="' + field + '"'), "Missing recovery field: " + field);
+  }
+  assert.match(body, /public username and public profile ID/i);
+  assert.match(body, /Never paste passwords, cookies, tokens, or recovery codes/i);
+  assert.match(body, /administrator review/i);
+});
+
 test("DigitalOcean network lab page is served with restrictive browser security headers", async () => {
   const response = await fetch(`${baseUrl}/network-lab.html`);
   assert.equal(response.status, 200);
