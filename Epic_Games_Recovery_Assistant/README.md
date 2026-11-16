@@ -17,7 +17,7 @@ The main executable is \`Epic_Games_Recovery_Assistant.exe\`. The companion PDF 
 
 ## Native C++ PDF evidence scanner
 
-The PDF scanner is implemented in C++17. It uses Poppler's \`pdftotext.exe\` only as the PDF text-extraction engine; scanning, page splitting, indicator matching, and report generation are performed by the C++ program. Poppler must be installed and its \`bin\` directory must be on PATH. The setup helper can install the MSYS2 UCRT64 Poppler package when MSYS2 is present.
+The PDF scanner is implemented in C++17. It uses Poppler's \`pdftotext.exe\` only as the PDF text-extraction engine; scanning, page splitting, indicator matching, and report generation are performed by the C++ program. Poppler must be installed and its \`bin\` directory must be on PATH. The setup helper can install the MSYS2 UCRT64 Poppler package when MSYS2 is present. The native scanner limits each run to 10 PDFs, 20 MiB per file, 32 MiB of extracted text per file, and 500 pages per file; OCR is not performed.
 
 The scanner processes extracted text in memory, never prints or writes document text or matched secret values, and reports only page numbers and indicator categories. It has a 50 MiB input limit and a 2,000-page limit. It does not perform OCR; image-only pages are marked as not readable. It is an evidence organizer, not proof of account ownership or Epic verification.
 
