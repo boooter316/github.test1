@@ -76,7 +76,8 @@ jobs:
         run: |
           python3 -m py_compile DISCORD-SERVER-DASHBOARD/private_lan_server.py
           python3 -m unittest discover -s DISCORD-SERVER-DASHBOARD/tests -v
-          node -e "const fs=require('node:fs');const h=fs.readFileSync('Epic_Games_Recovery_Assistant/web/index.html','utf8');const s=fs.readFileSync('Epic_Games_Recovery_Assistant/web/server.mjs','utf8');for(const id of ['discordDashboardTabButton','discordDashboardTab'])if(!h.includes(id))throw new Error('Missing companion dashboard tab: '+id);for(const route of ['/discord-server-dashboard/index.html','/discord-server-dashboard/dashboard.css','/discord-server-dashboard/dashboard.js'])if(!s.includes(route))throw new Error('Missing dashboard asset route: '+route);if(!s.includes(\"frame-ancestors 'self'\"))throw new Error('Dashboard iframe CSP must allow same-origin embedding')"\n      - name: Validate Node.js server entry points and Recovery Panel dependencies
+          node -e "const fs=require('node:fs');const h=fs.readFileSync('Epic_Games_Recovery_Assistant/web/index.html','utf8');const s=fs.readFileSync('Epic_Games_Recovery_Assistant/web/server.mjs','utf8');for(const id of ['discordDashboardTabButton','discordDashboardTab'])if(!h.includes(id))throw new Error('Missing companion dashboard tab: '+id);for(const route of ['/discord-server-dashboard/index.html','/discord-server-dashboard/dashboard.css','/discord-server-dashboard/dashboard.js'])if(!s.includes(route))throw new Error('Missing dashboard asset route: '+route);if(!s.includes(\"frame-ancestors 'self'\"))throw new Error('Dashboard iframe CSP must allow same-origin embedding')"
+      - name: Validate Node.js server entry points and Recovery Panel dependencies
         working-directory: recovery-panel
         run: |
           node --check server.js
