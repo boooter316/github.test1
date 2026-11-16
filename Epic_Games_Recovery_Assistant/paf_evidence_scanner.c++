@@ -93,13 +93,20 @@ void wipeText(std::string& value) {
 bool has(const std::string& text, const std::regex& pattern) {
     return std::regex_search(text, pattern);
 }
+std::size_t countMatches(const std::string& text, const std::regex& pattern) {
+    return static_cast<std::size_t>(std::distance(
+        std::sregex_iterator(text.begin(), text.end(), pattern), std::sregex_iterator()));
+}
 std::vector<std::string> indicators(const std::string& page) {
+    static const std::regex emailPattern(R"(\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b)", std::regex::icase);
     static const std::vector<std::pair<std::string, std::regex>> terms = {
         {"purchase_or_order", std::regex(R"(\b(purchase|order|receipt|transaction|invoice|payment)\b)", std::regex::icase)},
         {"epic_or_fortnite_reference", std::regex(R"(\b(epic games|epic account|fortnite|order id|transaction id)\b)", std::regex::icase)},
         {"date_reference", std::regex(R"(\b(20[0-9]{2}[-/][0-9]{1,2}[-/][0-9]{1,2}|jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sep(tember)?|oct(ober)?|nov(ember)?|dec(ember)?)\b)", std::regex::icase)},
         {"account_identifier_label", std::regex(R"(\b(account id|account number|display name|username)\b)", std::regex::icase)},
-        {"email_address_present", std::regex(R"(\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b)", std::regex::icase)}
+        {"fortnite_display_name_label", std::regex(R"(\b(fortnite\s+)?(display\s*name|username)\s*[:=])", std::regex::icase)},
+        {"epic_account_id_label", std::regex(R"(\b(epic\s*(games\s*)?(account\s*)?(id|identifier)|account\s*id)\s*[:=#])", std::regex::icase)},
+        {"epic_account_id_uuid", std::regex(R"(\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b)", std::regex::icase)}
     };
     static const std::vector<std::regex> sensitive = {
         std::regex(R"(\b(password|passwd|passcode)\s*[:=]\s*\S+)", std::regex::icase),
@@ -108,6 +115,8 @@ std::vector<std::string> indicators(const std::string& page) {
         std::regex(R"(\b(?:[0-9][ -]*?){13,19}\b)")
     };
     std::vector<std::string> found;
+    const auto emailCount = countMatches(page, emailPattern);
+    if (emailCount) found.push_back("email_address_patterns=" + std::to_string(emailCount));
     for (const auto& term : terms) if (has(page, term.second)) found.push_back(term.first);
     for (const auto& pattern : sensitive) {
         if (has(page, pattern)) { found.push_back("possible_sensitive_value_present"); break; }
