@@ -183,3 +183,12 @@ test("central dashboard lists every independently selectable browser tool", asyn
     assert.ok(body.includes(label), "Missing visible launcher label: " + label);
   }
 });
+
+test("browser PDF evidence scanner enforces bounded local-only scan limits", async () => {
+  const response = await fetch(baseUrl);
+  const body = await response.text();
+  assert.match(body, /10 files per batch, 20 MB each, and 500 pages per file/);
+  assert.match(body, /Select no more than 10 PDFs per scan batch/);
+  assert.match(body, /Scans run manually when you press the button/);
+  assert.match(body, /No document text or matched secret values are included/);
+});
