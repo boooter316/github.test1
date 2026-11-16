@@ -70,6 +70,7 @@ jobs:
           node --check /tmp/web-network-tools-inline.js
           node --check /tmp/public-index-inline.js
           node --check DISCORD-SERVER-DASHBOARD/dashboard.js
+          node --test DISCORD-SERVER-DASHBOARD/tests/dashboard.test.js
           node - <<'NODE'
           const fs = require("node:fs");
           const source = fs.readFileSync("DISCORD-SERVER-DASHBOARD/dashboard.js", "utf8");
