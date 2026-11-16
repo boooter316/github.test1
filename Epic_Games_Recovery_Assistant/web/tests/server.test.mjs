@@ -221,7 +221,10 @@ test("main dashboard image and PowerShell helper assets are served through expli
     ["/ghostface-bg.jpg", "image/jpeg"],
     ["/network_security_snapshot.ps1", "text/plain"],
     ["/project_vulnerability_audit.ps1", "text/plain"],
-    ["/network_tools.ps1", "text/plain"]
+    ["/network_tools.ps1", "text/plain"],
+    ["/Epic_Games_Recovery_Assistant/web/network-tools.html", "text/html"],
+    ["/Epic_Games_Recovery_Assistant/web/network-lab.html", "text/html"],
+    ["/Epic_Games_Recovery_Assistant/web/server-network-lab.html", "text/html"]
   ]) {
     const response = await fetch(baseUrl + route);
     assert.equal(response.status, 200, route + " should be served");
