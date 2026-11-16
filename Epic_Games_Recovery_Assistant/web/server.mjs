@@ -118,6 +118,9 @@ const server = http.createServer(async (req, res) => {
     if (!input || input.consent !== true || !input.payload || typeof input.payload !== "object" || Array.isArray(input.payload)) {
       return json(res, 400, { error: "Review the privacy notice and confirm consent before submitting." });
     }
+    const allowedRecoveryFields = new Set(["accountId","display","oldDisplay","email","oldEmail","firstName","lastName","country","incident","error","date","firstSeen","details","mfaAccess","twoStepMethods","connectedAccounts","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome","changeRequestType","requestedEmail","requestedDisplayName"]);
+    const unknownRecoveryFields = Object.keys(input.payload).filter(key => !allowedRecoveryFields.has(key));
+    if (unknownRecoveryFields.length) return json(res, 400, { error: "Unsupported recovery field(s): " + unknownRecoveryFields.join(", ") });
     let endpoint;
     try {
       endpoint = new URL("/api/intake", RECOVERY_PANEL_INTAKE_URL);
