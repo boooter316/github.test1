@@ -59,8 +59,8 @@ before(async () => {
     }
     await new Promise(resolve => setTimeout(resolve, 100));
   }
-  child.kill();
-  throw new Error(`Timed out waiting for web server startup: ${startupError}`);
+  const startupCheck = await nativeFetch(`${baseUrl}/healthz`);
+  if (!startupCheck.ok) { child.kill(); throw new Error(`Timed out waiting for web server startup: ${startupError}`); }
   const unauthenticated = await nativeFetch(baseUrl, { redirect: "manual" });
   assert.equal(unauthenticated.status, 303);
   assert.equal(unauthenticated.headers.get("location"), "/login.html");
