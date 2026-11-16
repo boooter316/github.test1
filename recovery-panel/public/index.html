@@ -213,8 +213,8 @@ $("runIdentifierScan").addEventListener("click",async()=>{
  const files=[...$("identifierFiles").files],out=["LOCAL ACCOUNT IDENTIFIER EVIDENCE INDEX","Generated UTC: "+new Date().toISOString(),"Selected files: "+files.length,"","Matched values are intentionally excluded. Counts and locations only."];
  if(!files.length){$("identifierResult").textContent="Choose files first.";return}
  if(files.length>MAX_IDENTIFIER_FILES){$("identifierResult").textContent="Select no more than 10 files per run.";return}
- if(!window.pdfjsLib){$("identifierResult").textContent="PDF/text scanner engine did not load. Reload while connected to the internet.";return}
- window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+ if(files.some(file=>file.name.toLowerCase().endsWith(".pdf"))&&!window.pdfjsLib){$("identifierResult").textContent="PDF engine did not load. Connect to the internet and reload to scan PDFs; TXT/CSV/JSON scans do not require the PDF engine.";return}
+ if(window.pdfjsLib)window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
  for(const file of files){
   out.push("FILE: "+file.name);
   if(file.size>MAX_IDENTIFIER_BYTES){out.push("Skipped: file exceeds 20 MiB.","");continue}
