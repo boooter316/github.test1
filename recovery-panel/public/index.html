@@ -5,7 +5,8 @@
 
 
 .project-checklist{margin:24px auto;padding:18px;max-width:920px;border:1px solid #64748b;border-radius:14px;background:rgba(10,15,25,.92);color:#f8fafc}.project-checklist h2{margin:0 0 10px}.project-checklist p{color:#cbd5e1}.project-checklist label{display:flex;gap:10px;align-items:center;margin:10px 0;color:#f8fafc}.project-checklist input{width:auto;min-width:18px;min-height:18px;accent-color:#22c55e}
-</style></head><body>
+</style><script src="/identifier-scanner.js" defer></script>
+</head><body>
 <header><h1>Epic Games Recovery Assistant</h1><span class="muted">Private dashboard · Not affiliated with Epic Games</span></header><main>
 <div id="notice" role="status">Loading panel…</div>
 <section id="login" class="card hidden"><h2>Sign in to your panel</h2><p class="muted">This is your Recovery Assistant dashboard login—not an Epic Games login.</p><form id="loginForm"><label for="loginEmail">Panel email</label><input id="loginEmail" type="email" autocomplete="username" required><label for="loginPassword">Panel password</label><input id="loginPassword" type="password" autocomplete="current-password" required><button type="submit">Sign in</button></form><p class="muted">Administrator credentials are configured on the server. There is no public sign-up.</p></section>
@@ -206,18 +207,8 @@ $("downloadPanelPdfReport").addEventListener("click",()=>{if(!panelPdfReport)ret
 
 let identifierReport="";
 const MAX_IDENTIFIER_FILES=10,MAX_IDENTIFIER_BYTES=20*1024*1024;
-function identifierCounts(text){
- const email=[...text.matchAll(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi)].length;
- const fortnite=[...text.matchAll(/(?:fortnite\s+(?:display\s*name|username)|display\s*name|username)\s*[:=|—-]\s*[^\r\n,;]{2,40}/gi)].length;
- const epicLabel=[...text.matchAll(/(?:epic\s*(?:games\s*)?(?:account\s*)?(?:id|identifier)|account\s*id)\s*[:=#|—-]\s*[A-Z0-9-]{8,40}/gi)].length;
- const epicUuid=[...text.matchAll(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi)].length;
- return {email,fortnite,epic:Math.max(epicLabel,epicUuid)};
-}
-function countLines(text){
- const lines=text.split(/\r?\n/),summary={email:0,fortnite:0,epic:0},locations=[];
- lines.forEach((line,index)=>{const counts=identifierCounts(line);if(counts.email||counts.fortnite||counts.epic){summary.email+=counts.email;summary.fortnite+=counts.fortnite;summary.epic+=counts.epic;locations.push({line:index+1,counts});}});
- return {summary,locations};
-}
+function identifierCounts(text){return window.RecoveryIdentifierScanner.identifierCounts(text)}
+function countLines(text){return window.RecoveryIdentifierScanner.countLines(text)}
 $("runIdentifierScan").addEventListener("click",async()=>{
  const files=[...$("identifierFiles").files],out=["LOCAL ACCOUNT IDENTIFIER EVIDENCE INDEX","Generated UTC: "+new Date().toISOString(),"Selected files: "+files.length,"","Matched values are intentionally excluded. Counts and locations only."];
  if(!files.length){$("identifierResult").textContent="Choose files first.";return}
