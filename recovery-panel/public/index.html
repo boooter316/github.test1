@@ -64,7 +64,7 @@ $("runPanelPdfScan").addEventListener("click",async()=>{
  const files=[...$("panelPdfFiles").files],out=["LOCAL PDF EVIDENCE INDICATOR REPORT","Generated: "+new Date().toISOString(),"Selected files: "+files.length,"","No document text or matched secret values are included."];
  if(!files.length){$("panelPdfResult").textContent="Choose one or more PDF files first.";return}
  if(!window.pdfjsLib){$("panelPdfResult").textContent="PDF engine did not load. Check the internet connection and reload this page.";return}
- window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+ window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.mjs";
  for(const file of files){
   if(window.__panelPdfCancelRequested){out.push("Scan stopped by user.");break;}
   out.push("FILE: "+file.name);
