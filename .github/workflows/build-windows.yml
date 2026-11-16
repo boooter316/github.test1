@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - "DISCORD-SERVER-DASHBOARD/**"
       - "Epic_Games_Recovery_Assistant/**"
       - ".github/workflows/build-windows.yml"
   push:
