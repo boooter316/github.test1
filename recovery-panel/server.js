@@ -5,6 +5,8 @@ const session = require("express-session");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const crypto = require("node:crypto");
+const fs = require("node:fs");
+const { DatabaseSync } = require("node:sqlite");
 const path = require("node:path");
 const app = express();
 const production = process.env.NODE_ENV === "production";
@@ -12,6 +14,26 @@ const port = Number(process.env.PORT || 3000);
 const adminEmail = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
 const passwordRecord = process.env.ADMIN_PASSWORD_SCRYPT || "";
 const sessionSecret = process.env.SESSION_SECRET || "";
+const intakeToken = process.env.RECOVERY_INTAKE_TOKEN || "";
+const dataKeyHex = process.env.RECOVERY_DATA_KEY || "";
+const dbPath = path.resolve(process.env.RECOVERY_DB_PATH || path.join(__dirname, "data", "recovery-requests.sqlite"));
+let recoveryDb = null;
+if (/^[a-f0-9]{64}$/i.test(dataKeyHex)) {
+  fs.mkdirSync(path.dirname(dbPath), { recursive: true, mode: 0o700 });
+  recoveryDb = new DatabaseSync(dbPath, { timeout: 5000 });
+  recoveryDb.exec("PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;");
+  recoveryDb.exec(`CREATE TABLE IF NOT EXISTS recovery_requests (
+    id TEXT PRIMARY KEY, reference TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+    status TEXT NOT NULL, encrypted_payload TEXT NOT NULL, admin_note TEXT NOT NULL DEFAULT '',
+    epic_reference TEXT NOT NULL DEFAULT '', submitted_at TEXT NOT NULL DEFAULT ''
+  );
+  CREATE TABLE IF NOT EXISTS recovery_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, request_id TEXT NOT NULL, event_type TEXT NOT NULL,
+    actor TEXT NOT NULL, note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL,
+    FOREIGN KEY(request_id) REFERENCES recovery_requests(id) ON DELETE CASCADE
+  );`);
+  try { fs.chmodSync(dbPath, 0o600); } catch (_) {}
+}
 if (!adminEmail || !passwordRecord.includes(":") || sessionSecret.length < 32) {
   console.error("Set ADMIN_EMAIL, ADMIN_PASSWORD_SCRYPT (salt:hex scrypt hash), and SESSION_SECRET (32+ chars).");
   process.exit(1);
@@ -41,6 +63,35 @@ app.use(session({
   cookie: { httpOnly: true, sameSite: "strict", secure: production, maxAge: 2 * 60 * 60 * 1000 }
 }));
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 8, standardHeaders: "draft-7", legacyHeaders: false });
+const intakeLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 6, standardHeaders: "draft-7", legacyHeaders: false });
+const allowedIntakeFields = new Set(["accountId","display","oldDisplay","email","oldEmail","country","incident","error","date","firstSeen","details","mfaAccess","twoStepMethods","linked","appeal","platform","platformId","caseId","noticeDate","requestedOutcome"]);
+function encryptPayload(value) {
+  const iv = crypto.randomBytes(12), cipher = crypto.createCipheriv("aes-256-gcm", Buffer.from(dataKeyHex, "hex"), iv);
+  const encrypted = Buffer.concat([cipher.update(JSON.stringify(value), "utf8"), cipher.final()]);
+  return [iv.toString("hex"), cipher.getAuthTag().toString("hex"), encrypted.toString("hex")].join(":");
+}
+function decryptPayload(value) {
+  const [ivHex, tagHex, dataHex] = String(value).split(":");
+  const decipher = crypto.createDecipheriv("aes-256-gcm", Buffer.from(dataKeyHex, "hex"), Buffer.from(ivHex, "hex"));
+  decipher.setAuthTag(Buffer.from(tagHex, "hex"));
+  return JSON.parse(Buffer.concat([decipher.update(Buffer.from(dataHex, "hex")), decipher.final()]).toString("utf8"));
+}
+function cleanIntakePayload(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("Invalid recovery details.");
+  const output = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (!allowedIntakeFields.has(key)) continue;
+    if (key === "twoStepMethods") {
+      if (!Array.isArray(value) || value.length > 8 || value.some(v => typeof v !== "string" || v.length > 80)) throw new Error("Invalid authentication-method list.");
+      output[key] = value.map(v => v.trim());
+    } else {
+      if (typeof value !== "string" || value.length > (key === "details" || key === "appeal" ? 3000 : 500)) throw new Error("A recovery field is too long or invalid.");
+      output[key] = value.trim();
+    }
+  }
+  if (!output.accountId && !output.display && !output.email && !output.oldEmail) throw new Error("Provide at least an account ID, display name, or account email.");
+  return output;
+}
 function safeEqual(a,b) { const x=Buffer.from(String(a)), y=Buffer.from(String(b)); return x.length===y.length && crypto.timingSafeEqual(x,y); }
 function validPassword(candidate) {
   const p=passwordRecord.split(":"); if(p.length!==2 || !/^[a-f0-9]{32}$/i.test(p[0]) || !/^[a-f0-9]{128}$/i.test(p[1])) return false;
@@ -53,6 +104,53 @@ async function notify(event) {
   } catch (_) {}
 }
 function auth(req,res,next){ if(req.session && req.session.authenticated===true) return next(); res.status(401).json({error:"Please sign in to the Recovery Assistant panel."}); }
+app.post("/api/intake", intakeLimiter, (req,res) => {
+  if (!recoveryDb || intakeToken.length < 32) return res.status(503).json({error:"Recovery intake is not configured. Contact the panel administrator."});
+  if (!safeEqual(String(req.headers.authorization || ""), "Bearer " + intakeToken)) return res.status(401).json({error:"Intake service authentication failed."});
+  if (req.body?.consent !== true || String(req.body?.website || "").trim()) return res.status(400).json({error:"Submission consent is required and automated submissions are not accepted."});
+  let payload;
+  try { payload = cleanIntakePayload(req.body.payload); } catch (e) { return res.status(400).json({error:e.message}); }
+  const now = new Date().toISOString(), id = crypto.randomUUID();
+  const reference = "RR-" + now.slice(0,10).replace(/-/g,"") + "-" + crypto.randomBytes(4).toString("hex").toUpperCase();
+  try {
+    recoveryDb.prepare("INSERT INTO recovery_requests (id,reference,created_at,updated_at,status,encrypted_payload) VALUES (?,?,?,?,?,?)")
+      .run(id,reference,now,now,"pending-review",encryptPayload(payload));
+    recoveryDb.prepare("INSERT INTO recovery_events (request_id,event_type,actor,note,created_at) VALUES (?,?,?,?,?)")
+      .run(id,"submitted","customer","New request received for administrator review.",now);
+    return res.status(201).json({ok:true,reference,status:"pending-review",message:"Your request was received for administrator review. This does not submit it to Epic."});
+  } catch (e) { console.error("Recovery intake save failed:",e.message); return res.status(500).json({error:"The recovery request could not be saved. Please try again later."}); }
+});
+app.get("/api/recovery-requests", auth, (req,res) => {
+  if (!recoveryDb) return res.status(503).json({error:"Encrypted recovery database is not configured."});
+  const rows = recoveryDb.prepare("SELECT id,reference,created_at,updated_at,status,epic_reference,submitted_at FROM recovery_requests ORDER BY created_at DESC LIMIT 500").all();
+  const counts = recoveryDb.prepare("SELECT status,COUNT(*) AS count FROM recovery_requests GROUP BY status").all();
+  res.set("Cache-Control","no-store").json({requests:rows,counts,configured:true});
+});
+app.get("/api/recovery-requests/:id", auth, (req,res) => {
+  if (!recoveryDb) return res.status(503).json({error:"Encrypted recovery database is not configured."});
+  const row = recoveryDb.prepare("SELECT * FROM recovery_requests WHERE id=?").get(req.params.id);
+  if (!row) return res.status(404).json({error:"Recovery request not found."});
+  let payload; try { payload = decryptPayload(row.encrypted_payload); } catch (_) { return res.status(500).json({error:"This request could not be decrypted. Check the configured data key."}); }
+  const events = recoveryDb.prepare("SELECT event_type,actor,note,created_at FROM recovery_events WHERE request_id=? ORDER BY id DESC").all(row.id);
+  res.set("Cache-Control","no-store").json({request:{id:row.id,reference:row.reference,created_at:row.created_at,updated_at:row.updated_at,status:row.status,payload,admin_note:row.admin_note,epic_reference:row.epic_reference,submitted_at:row.submitted_at,events}});
+});
+app.patch("/api/recovery-requests/:id", auth, (req,res) => {
+  if (!recoveryDb) return res.status(503).json({error:"Encrypted recovery database is not configured."});
+  const row = recoveryDb.prepare("SELECT * FROM recovery_requests WHERE id=?").get(req.params.id);
+  if (!row) return res.status(404).json({error:"Recovery request not found."});
+  const statuses = new Set(["needs-information","approved","rejected","submitted-to-epic","waiting-for-epic","resolved"]);
+  const status = String(req.body?.status || "");
+  const note = typeof req.body?.admin_note === "string" ? req.body.admin_note.trim().slice(0,2000) : row.admin_note;
+  const epicReference = typeof req.body?.epic_reference === "string" ? req.body.epic_reference.trim().slice(0,120) : row.epic_reference;
+  if (!statuses.has(status)) return res.status(400).json({error:"Choose a valid review status."});
+  if (status === "submitted-to-epic" && row.status !== "approved" && row.status !== "submitted-to-epic") return res.status(409).json({error:"Approve the request before recording an Epic submission."});
+  if (status === "waiting-for-epic" && row.status !== "submitted-to-epic" && row.status !== "waiting-for-epic") return res.status(409).json({error:"Record the official submission before marking it as waiting for Epic."});
+  if (status === "submitted-to-epic" && !epicReference) return res.status(400).json({error:"Enter the official Epic recovery reference after you submit it."});
+  const now = new Date().toISOString(), submittedAt = status === "submitted-to-epic" ? (row.submitted_at || now) : row.submitted_at;
+  recoveryDb.prepare("UPDATE recovery_requests SET updated_at=?,status=?,admin_note=?,epic_reference=?,submitted_at=? WHERE id=?").run(now,status,note,epicReference,submittedAt,row.id);
+  recoveryDb.prepare("INSERT INTO recovery_events (request_id,event_type,actor,note,created_at) VALUES (?,?,?,?,?)").run(row.id,status,"administrator",note || "Status updated by administrator.",now);
+  res.json({ok:true,status,updated_at:now});
+});
 app.post("/api/login",loginLimiter,(req,res,next)=>{
   const email=String(req.body?.email||"").trim().toLowerCase(), password=String(req.body?.password||"");
   const emailMatches=safeEqual(email,adminEmail);
