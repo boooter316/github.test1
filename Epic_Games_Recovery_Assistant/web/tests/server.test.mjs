@@ -117,14 +117,14 @@ test("main dashboard opens the companion dashboard through same-origin static ro
   assert.match(mainHtml, /discordDashboardTab/);
   const page = await fetch(baseUrl + "/discord-server-dashboard/index.html");
   assert.equal(page.status, 200);
-  assert.match(page.headers.get("content-type") || "", /text\\/html/);
+  assert.ok((page.headers.get("content-type") || "").includes("text/html"));
   assert.match(await page.text(), /DISCORD SERVER DASHBOARD/);
   const css = await fetch(baseUrl + "/discord-server-dashboard/dashboard.css");
   assert.equal(css.status, 200);
-  assert.match(css.headers.get("content-type") || "", /text\\/css/);
+  assert.ok((css.headers.get("content-type") || "").includes("text/css"));
   const js = await fetch(baseUrl + "/discord-server-dashboard/dashboard.js");
   assert.equal(js.status, 200);
-  assert.match(js.headers.get("content-type") || "", /javascript/);
+  assert.ok((js.headers.get("content-type") || "").includes("javascript"));
 });
 test("recovery form exposes structured non-secret customer and linked-platform fields", async () => {
   const response = await fetch(baseUrl);
