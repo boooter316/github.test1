@@ -12,6 +12,7 @@ on:
     paths:
       - "DISCORD-SERVER-DASHBOARD/**"
       - "Epic_Games_Recovery_Assistant/**"
+      - "recovery-panel/**"
       - ".github/workflows/build-windows.yml"
 permissions:
   contents: read
