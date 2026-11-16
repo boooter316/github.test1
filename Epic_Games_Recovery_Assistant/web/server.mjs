@@ -59,7 +59,7 @@ function allowedRate(ip) {
 }
 function getSessionId(req) {
   const cookie = String(req.headers.cookie || "");
-  const match = cookie.match(/(?:^|;\\s*)dashboard_session=([a-f0-9]{64})(?:;|$)/);
+  const match = cookie.match(/(?:^|;\s*)dashboard_session=([a-f0-9]{64})(?:;|$)/);
   return match ? match[1] : "";
 }
 function hasDashboardSession(req) {
@@ -121,7 +121,7 @@ const server = http.createServer(async (req, res) => {
       let input; try { input = await readBody(req); } catch { return json(res, 400, { error: "Enter a valid username and password." }); }
       if (!input || typeof input.username !== "string" || typeof input.password !== "string") return json(res, 400, { error: "Enter a valid username and password." });
       const username = input.username.trim();
-      if (!/^[A-Za-z0-9._-]{3,32}$/.test(username)) return json(res, 400, { error: "Username must be 3–32 characters and use letters, numbers, dots, underscores, or hyphens." });
+      if (!/^[^\u0000-\u001f\u007f]{3,64}$/.test(username)) return json(res, 400, { error: "Username must be 3–64 characters and cannot contain control characters." });
       if (input.password.length < 12 || input.password.length > 256) return json(res, 400, { error: "Password must be at least 12 characters and no more than 256 characters." });
       try { await saveDashboardUser(username, input.password); }
       catch (error) { if (error.code === "EEXIST") return json(res, 403, { error: "A dashboard account has already been registered." }); throw error; }

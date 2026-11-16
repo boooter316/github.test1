@@ -66,6 +66,8 @@ before(async () => {
   const unauthenticated = await nativeFetch(baseUrl, { redirect: "manual" });
   assert.equal(unauthenticated.status, 303);
   assert.equal(unauthenticated.headers.get("location"), "/login.html");
+  const protectedApi = await nativeFetch(baseUrl + "/api/integrations/status");
+  assert.equal(protectedApi.status, 401);
   const loginPage = await nativeFetch(baseUrl + "/login.html");
   assert.equal(loginPage.status, 200);
   assert.match(await loginPage.text(), /Dashboard account/);

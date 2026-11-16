@@ -11,6 +11,7 @@ ENV PORT=8080
 EXPOSE 8080
 RUN mkdir -p /data && chown node:node /data
 ENV DASHBOARD_USERS_FILE=/data/dashboard-users.json
+VOLUME ["/data"]
 USER node
 CMD ["node", "/app/server.mjs"]
 COPY FAZE_JARVIS_SETUP.md /app/FAZE_JARVIS_SETUP.md
