@@ -184,6 +184,10 @@ test("main dashboard opens the companion dashboard through same-origin static ro
   assert.match(dashboardHtml, /href="\/Epic_Games_Recovery_Assistant\/web\/network-lab\.html"/);
   assert.match(dashboardHtml, /href="\/Epic_Games_Recovery_Assistant\/web\/server-network-lab\.html"/);
   assert.match(dashboardHtml, /href="\/recovery-panel\/public\/index\.html"/);
+  assert.match(dashboardHtml, /href="\/Epic_Games_Recovery_Assistant\/web\/index\.html"/);
+  const mainAlias = await fetch(baseUrl + "/Epic_Games_Recovery_Assistant/web/index.html");
+  assert.equal(mainAlias.status, 200);
+  assert.match(await mainAlias.text(), /Sign out/);
 });
 test("recovery form exposes structured non-secret customer and linked-platform fields", async () => {
   const response = await fetch(baseUrl);
