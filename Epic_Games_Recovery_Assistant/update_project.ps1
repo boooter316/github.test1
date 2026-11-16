@@ -17,7 +17,7 @@ function Status([string]$Message) { if (-not $Quiet) { Write-Host $Message } }
 try {
     if (-not (Get-Command gh -ErrorAction SilentlyContinue)) { throw "Install GitHub CLI from https://cli.github.com/ and run 'gh auth login' once." }
     & gh auth status *> $null
-    if ($LASTEXITCODE -ne 0) { throw "Run 'gh auth login' with an account that can access this private repository." }
+    if ($LASTEXITCODE -ne 0) { throw "Run 'gh auth login' with a GitHub account that can read this public repository and download its Actions artifacts." }
     if (-not (Test-Path -LiteralPath $ProjectRoot -PathType Container)) { throw "Project folder was not found: $ProjectRoot" }
     New-Item -ItemType Directory -Force -Path $WorkRoot, $BackupRoot | Out-Null
 
