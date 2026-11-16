@@ -7,7 +7,7 @@ A separate, self-hosted dashboard. It is an independent organizer and is not aff
 - Server-side administrator sign-in; no public sign-up.
 - Session cookies, login rate limiting, security headers, and scrypt password verification.
 - Mobile-friendly dashboard for iPhone and desktop.
-- Separate Recovery Records and PDF Evidence Scanner tabs, plus linked DigitalOcean/private-network and server package-setup lab pages.
+- Recovery Records, PDF Evidence Scanner, and Fast Recovery Progress tabs, plus linked DigitalOcean/private-network and server package-setup lab pages.
 - Local PDF text inspection with page-level evidence indicators; document text and matched secret values are never displayed or included in reports.
 - PDF scan reports can be downloaded as TXT from the panel.
 - Epic Account ID/account-number field, display name, optional account email, case status, support reference, non-secret error text, and notes.
@@ -16,11 +16,11 @@ A separate, self-hosted dashboard. It is an independent organizer and is not aff
 - Instant local search across recovery-record fields; search stays in the browser and does not send record contents to the server.
 - Optional generic Discord notifications for panel sign-in, sign-out, and general dashboard errors. No account data or error contents are sent.
 
-Recovery records are stored in browser local storage on the device and are not uploaded to the server or Discord. The PDF scanner also processes selected files in the browser; it does not upload evidence. Image-only PDFs are not OCR-scanned, and encrypted or unreadable files may be skipped. PDF.js is loaded from its CDN, so the browser needs internet access to load the scanner engine. Export backups before clearing browser data or changing devices.
+Manually created Recovery Records are stored in browser local storage on the device. Consented browser-tool intake requests are stored separately in the panel's encrypted server-side SQLite database and are never sent to Discord. The PDF scanner also processes selected files in the browser; it does not upload evidence. Image-only PDFs are not OCR-scanned, and encrypted or unreadable files may be skipped. PDF.js is loaded from its CDN, so the browser needs internet access to load the scanner engine. Export backups before clearing browser data or changing devices.
 
 ## Requirements and setup
 
-Requires Node.js 26 LTS or newer. The panel's CI installs the pinned direct dependencies, checks server syntax, and runs an npm audit for high/critical production advisories. Generate a scrypt password hash from a strong unique panel password:
+Requires Node.js 26 LTS or newer. The request queue uses Node's built-in node:sqlite module; no SQLite npm dependency is needed. The panel's CI installs the pinned direct dependencies, checks server syntax, and runs an npm audit for high/critical production advisories. Generate a scrypt password hash from a strong unique panel password:
 
     node -e "const c=require('node:crypto');const s=c.randomBytes(16).toString('hex');const h=c.scryptSync('REPLACE_WITH_A_LONG_UNIQUE_PANEL_PASSWORD',s,64).toString('hex');console.log(s+':'+h)"
 
