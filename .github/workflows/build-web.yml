@@ -172,7 +172,6 @@ jobs:
       - name: Commit generated Recovery Panel lockfile to the pull request branch
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         env:
-          GH_TOKEN: ${{ github.token }}
           HEAD_BRANCH: ${{ github.head_ref }}
         run: |
           git config user.name "github-actions[bot]"
@@ -182,7 +181,7 @@ jobs:
             echo "Recovery Panel lockfile is already committed."
           else
             git commit -m "build: add npm-generated Recovery Panel lockfile"
-            git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:${HEAD_BRANCH}"
+            git push origin "HEAD:${HEAD_BRANCH}"
           fi
       - name: Run standalone web server regression tests
         working-directory: Epic_Games_Recovery_Assistant/web
