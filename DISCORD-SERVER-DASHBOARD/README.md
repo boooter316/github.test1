@@ -5,7 +5,9 @@ A local-first dashboard shell for the existing `boooter316/github.test1` project
 ## What is included
 
 - Dashboard landing page and mobile-responsive sidebar.
-- Existing Main Tools page embedding the original browser dashboard at `Epic_Games_Recovery_Assistant/web/index.html`.
+- Existing Main Tools page with a safe link back to the original browser dashboard.
+- A companion **DISCORD Server Dashboard** tab embedded in the main browser dashboard at `/discord-server-dashboard/index.html`.
+- Explicit same-origin static routes for the companion dashboard HTML, CSS and JavaScript; the main web server does not expose the repository tree.
 - Project folder import and file browser.
 - Browser-based text source editor with direct save support in browsers that expose the File System Access API; otherwise it downloads an edited copy.
 - Separate Python, C++ and custom-script workspaces.
@@ -43,6 +45,6 @@ The editor accepts text source only and limits the in-browser editor to files up
 
 ## Preserving the original tools
 
-The original dashboard is embedded under **Existing Main Tools** and remains available separately. Existing server-dependent functions (for example optional AI or provider integrations) still need their original Node.js backend and configuration; this static viewer does not start that backend. Existing tools remain in their original folders and are not copied or deleted.
+The original dashboard remains available separately and now includes a **DISCORD Server Dashboard** tab that opens this companion workspace. The companion dashboard links back to the main dashboard in a separate tab to avoid recursive iframe embedding. Existing server-dependent functions (for example optional AI or provider integrations) still need their original Node.js backend and configuration; the static LAN viewer does not start that backend. Existing tools remain in their original folders and are not copied or deleted.
 
 This dashboard intentionally does not reproduce credential theft, token/session extraction, crypto clipping, injection, stress attacks, RAT/C2 command execution, or remote script execution.
