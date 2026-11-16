@@ -15,6 +15,7 @@ const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const TELEGRAM_BOT_USERNAME = (process.env.TELEGRAM_BOT_USERNAME || "").replace(/^@/, "");
 const RECOVERY_PANEL_INTAKE_URL = process.env.RECOVERY_PANEL_INTAKE_URL || "";
 const RECOVERY_INTAKE_TOKEN = process.env.RECOVERY_INTAKE_TOKEN || "";
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || "";
 const TELEGRAM_CONFIGURED = Boolean(TELEGRAM_BOT_TOKEN && /^[A-Za-z0-9_]{5,32}$/.test(TELEGRAM_BOT_USERNAME));
 const files = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
@@ -30,6 +31,9 @@ const files = new Map([
   ["/discord-server-dashboard/index.html", ["../../DISCORD-SERVER-DASHBOARD/index.html", "text/html; charset=utf-8"]],
   ["/discord-server-dashboard/dashboard.css", ["../../DISCORD-SERVER-DASHBOARD/dashboard.css", "text/css; charset=utf-8"]],
   ["/discord-server-dashboard/dashboard.js", ["../../DISCORD-SERVER-DASHBOARD/dashboard.js", "text/javascript; charset=utf-8"]],
+  ["/discord-server-dashboard/bot-builder.html", ["../../DISCORD-SERVER-DASHBOARD/bot-builder.html", "text/html; charset=utf-8"]],
+  ["/discord-server-dashboard/cpp-bot/main.cpp", ["../../DISCORD-SERVER-DASHBOARD/cpp-bot/main.cpp", "text/plain; charset=utf-8"]],
+  ["/discord-server-dashboard/cpp-bot/CMakeLists.txt", ["../../DISCORD-SERVER-DASHBOARD/cpp-bot/CMakeLists.txt", "text/plain; charset=utf-8"]],
   ["/network_tools.ps1", ["network_tools.ps1", "text/plain; charset=utf-8"]],
   ["/SETUP_AND_USAGE.txt", ["SETUP_AND_USAGE.txt", "text/plain; charset=utf-8"]],
   ["/FAZE_JARVIS_SETUP.md", ["FAZE_JARVIS_SETUP.md", "text/markdown; charset=utf-8"]],
@@ -156,6 +160,40 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname.startsWith("/api/")) return json(res, 401, { error: "Sign in to the dashboard to continue." });
     res.writeHead(303, { "Location": "/login.html", "Cache-Control": "no-store" });
     return res.end();
+  }
+  if (req.method === "POST" && url.pathname === "/api/discord/webhook/test") {
+    if (!DISCORD_WEBHOOK_URL) return json(res, 503, { error: "Webhook is not configured. Set DISCORD_WEBHOOK_URL in the server environment, then restart the dashboard." });
+    if (!allowedRate("discord-webhook-test:" + (req.socket.remoteAddress || "unknown"))) {
+      return json(res, 429, { error: "Webhook test rate limit reached. Wait one minute before trying again." });
+    }
+    let webhook;
+    try {
+      webhook = new URL(DISCORD_WEBHOOK_URL);
+      if (webhook.protocol !== "https:" ||
+          !["discord.com", "discordapp.com"].includes(webhook.hostname) ||
+          !/^\/api\/webhooks\/\d+\/[A-Za-z0-9._-]+$/.test(webhook.pathname) ||
+          webhook.search || webhook.hash || webhook.username || webhook.password) {
+        return json(res, 503, { error: "DISCORD_WEBHOOK_URL must be a valid HTTPS Discord webhook URL." });
+      }
+    } catch {
+      return json(res, 503, { error: "DISCORD_WEBHOOK_URL is not a valid URL." });
+    }
+    try {
+      const delivery = await fetch(webhook, {
+        method: "POST",
+        redirect: "error",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: "Discord Bot Builder connection test: webhook delivery is working.",
+          allowed_mentions: { parse: [] }
+        }),
+        signal: AbortSignal.timeout(10000)
+      });
+      if (!delivery.ok) return json(res, 502, { error: "Discord rejected the test message (HTTP " + delivery.status + "). Check that the webhook is active." });
+      return json(res, 200, { delivered: true, message: "Test message delivered to the configured Discord webhook." });
+    } catch {
+      return json(res, 502, { error: "Could not deliver the webhook test. Check the server's outbound connection and webhook configuration." });
+    }
   }
   if (req.method === "GET" && url.pathname === "/api/integrations/status") {
     return json(res, 200, {
