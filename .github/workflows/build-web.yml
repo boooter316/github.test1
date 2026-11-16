@@ -73,7 +73,7 @@ jobs:
               print(f"{source_path}: {len(scripts)} inline script block(s) passed Node.js syntax validation")
           PY
           node --check DISCORD-SERVER-DASHBOARD/dashboard.js
-          node --test DISCORD-SERVER-DASHBOARD/tests/dashboard.test.js
+          node --test DISCORD-SERVER-DASHBOARD/tests/*.test.js
           node - <<'NODE'
           const fs = require("node:fs");
           const source = fs.readFileSync("DISCORD-SERVER-DASHBOARD/dashboard.js", "utf8");
