@@ -983,7 +983,7 @@ document.getElementById("runPdfEvidenceScan").addEventListener("click",async()=>
  const result=document.getElementById("pdfEvidenceResult");
  if(!files.length){result.textContent="Choose one or more PDF files first.";return}
  if(!window.pdfjsLib){result.textContent="PDF engine did not load. Check the internet connection and reload this page.";return}
- window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+ window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.mjs";
  for(const file of files){
   if(window.__pdfEvidenceCancelRequested){out.push("Scan stopped by user.");break;}
   out.push("FILE: "+file.name);
@@ -1011,7 +1011,7 @@ document.getElementById("downloadPdfEvidenceReport").addEventListener("click",()
 
 async function extractPdfText(file){
   if(!window.pdfjsLib)throw new Error("PDF text engine did not load; connect to the internet and retry.");
-  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.mjs";
   const data=new Uint8Array(await file.arrayBuffer());
   const pdf=await window.pdfjsLib.getDocument({data}).promise;
   const pages=[];
