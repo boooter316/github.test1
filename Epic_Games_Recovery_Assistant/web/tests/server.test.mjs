@@ -209,3 +209,22 @@ test("browser PDF evidence scanner enforces bounded local-only scan limits", asy
   assert.match(body, /Scans run manually when you press the button/);
   assert.match(body, /No document text or matched secret values are included/);
 });
+
+
+test("PDF and account status center exposes local-only PDF, account, and recovery trackers", async () => {
+  const response = await fetch(baseUrl);
+  assert.equal(response.status, 200);
+  const body = await response.text();
+  for (const id of [
+    "statusCenterTabButton", "statusCenterTab", "pdfTrackerList",
+    "trackerAccount", "trackerAccountStatus", "saveAccountUpdate",
+    "accountUpdateList", "recoveryLabel", "recoveryStage",
+    "saveRecoveryProgress", "recoveryTrackerList", "clearPdfTracker"
+  ]) {
+    assert.ok(body.includes('id="' + id + '"'), "Missing status center control: " + id);
+  }
+  assert.match(body, /recoveryAssistantStatusCenterV1/);
+  assert.match(body, /trackPdfScan\(file,/);
+  assert.match(body, /do not sync between devices or verify account status/i);
+  assert.match(body, /Never enter passwords, session cookies, access tokens, one-time codes, recovery codes/i);
+});

@@ -51,6 +51,7 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 <nav class="tabs no-print" aria-label="Application pages">
 <button type="button" class="tab active" id="dashboardTabButton" aria-selected="true">Dashboard</button>
 <button type="button" class="tab secondary" id="recoveryTabButton" aria-selected="false">Recovery Assistant</button>
+<button type="button" class="tab secondary" id="statusCenterTabButton" aria-selected="false">PDF &amp; Account Tracker</button>
 <button type="button" class="tab secondary" id="fazeJarvisTabButton" aria-selected="false">Faze Jarvis AI</button>
 <button type="button" class="tab secondary" id="securityTabButton" aria-selected="false">Discord Security Scanner</button>
 <button type="button" class="tab secondary" id="fortniteTabButton" aria-selected="false">Pro Multi-Platform Scanner</button>
@@ -68,18 +69,30 @@ small{color:#637083}.foot{font-size:.86rem}@media print{body{background:#fff}.wr
 </nav><div id="globalTaskControls" class="panel no-print" style="position:sticky;top:8px;z-index:20;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px">
 <strong>Task controls</strong><button type="button" id="globalStopButton" class="secondary">Stop current task</button><span id="globalStopStatus" class="hint" role="status">No stop request active.</span>
 </div>
+<section class="panel hidden" id="statusCenterTab">
+<h2>PDF &amp; Account Status Center</h2>
+<p class="hint">A separate workspace for PDF scan history, account status updates, and recovery progress. Records are stored in this browser on this device. They are user-entered tracking notes, not live provider verification.</p>
+<div class="risk"><strong>Security:</strong> Only record non-secret labels, statuses, dates, and notes. Never enter passwords, session cookies, access tokens, one-time codes, recovery codes, payment details, or private keys. This tracker does not sign in to accounts or perform recovery actions.</div>
+<div class="grid">
+ <section class="panel"><h3>PDF scan tracker</h3><p class="hint">Run scans in the existing PDF Evidence Scanner tab. Each completed scan is listed here by filename, size, result, and time.</p><div id="pdfTrackerList" class="scanner-result" aria-live="polite">No PDF scans tracked yet.</div><button type="button" class="secondary" id="clearPdfTracker">Clear PDF history</button><button type="button" class="secondary" id="openPdfScanner">Open PDF scanner</button></section>
+ <section class="panel"><h3>Account status tracker</h3><label for="trackerAccount">Account / service label</label><input id="trackerAccount" maxlength="80" placeholder="e.g. Epic Games — main account"><label for="trackerAccountStatus">Current status</label><select id="trackerAccountStatus"><option>Unknown / not checked</option><option>Active (user-reported)</option><option>Locked (user-reported)</option><option>Suspended (user-reported)</option><option>Recovery requested</option><option>Waiting for support</option><option>Action required</option><option>Resolved (user-reported)</option></select><label for="trackerAccountNote">Update note</label><textarea id="trackerAccountNote" maxlength="600" rows="3" placeholder="Non-secret update or next step"></textarea><button type="button" id="saveAccountUpdate">Save account update</button><div id="accountUpdateList" class="scanner-result" aria-live="polite">No account updates yet.</div><button type="button" class="secondary" id="clearAccountUpdates">Clear account update history</button></section>
+</div>
+<section class="panel"><h3>Recovery progress tracker</h3><div class="grid"><div><label for="recoveryLabel">Account / case label</label><input id="recoveryLabel" maxlength="80" placeholder="e.g. Epic account recovery"><label for="recoveryStage">Recovery stage</label><select id="recoveryStage"><option>Not started</option><option>Preparing evidence</option><option>Submitted to official support</option><option>Waiting for support</option><option>More information requested</option><option>Follow-up needed</option><option>Resolved</option><option>Closed</option></select><label for="recoveryNext">Next action / note</label><textarea id="recoveryNext" maxlength="600" rows="3" placeholder="e.g. Wait for official support response"></textarea><button type="button" id="saveRecoveryProgress">Save recovery progress</button></div><div><h4>Tracked recovery cases</h4><div id="recoveryTrackerList" class="scanner-result" aria-live="polite">No recovery cases tracked yet.</div><button type="button" class="secondary" id="clearRecoveryTracker">Clear recovery tracker</button></div></div></section>
+<p class="hint">Local storage note: tracker records remain in this browser until cleared. They do not sync between devices or verify account status with any provider.</p>
+</section>
 <section id="serverNetworkLabTab" class="hidden"><section class="panel"><h2>Server &amp; Networking Lab</h2><p class="hint">Separate guides for DigitalOcean VPS administration, private VPN and proxy design, Kali Linux, VirtualBox, PuTTY/SSH, and installation requirements.</p><iframe title="Server and Networking Lab" src="server-network-lab.html" loading="lazy" style="width:100%;height:1050px;border:0;border-radius:10px;background:#f4f6fa"></iframe></section></section>
 <section id="discordDashboardTab" class="hidden"><section class="panel"><h2>DISCORD SERVER DASHBOARD</h2><p class="hint">Open the companion project workspace from inside your main dashboard. It uses the same dark navy and neon interface and keeps project editing local to the device you are using.</p><iframe title="DISCORD SERVER DASHBOARD" src="/discord-server-dashboard/index.html" loading="lazy" style="display:block;width:100%;height:calc(100vh - 220px);min-height:720px;border:1px solid #26334d;border-radius:14px;background:#080b14"></iframe><p class="hint">For private viewing from another device, run the companion dashboard's START_PRIVATE_DASHBOARD.cmd on your Windows computer and connect from the same trusted Wi-Fi/LAN.</p></section></section>
 <section id="dashboardTab">
 <section class="panel dashboard-hero">
 <div><h2>All Tools &amp; Projects</h2><p>Your workspace at a glance. Search the tools, then open each independent workspace from its own card. Existing tools and their features remain separate and intact.</p></div>
-<div class="dashboard-stats" aria-label="Dashboard overview"><div class="dashboard-stat"><strong>14</strong><span>Browser workspaces</span></div><div class="dashboard-stat"><strong>3</strong><span>Standalone lab pages</span></div></div>
+<div class="dashboard-stats" aria-label="Dashboard overview"><div class="dashboard-stat"><strong>15</strong><span>Browser workspaces</span></div><div class="dashboard-stat"><strong>3</strong><span>Standalone lab pages</span></div></div>
 </section>
 <section class="panel">
 <div class="dashboard-toolbar"><label for="dashboardToolSearch">Find a tool</label><input id="dashboardToolSearch" type="search" placeholder="Search tools and projects…" autocomplete="off"><span id="dashboardToolCount" class="hint" role="status">14 workspaces</span></div>
 <p class="hint">Choose a card to open its separate workspace. This dashboard does not merge private data or automatically connect third-party accounts.</p>
 <div class="grid dashboard-grid">
 <div class="panel tool-card" data-tool-card><h3>Recovery Assistant</h3><p class="hint">Recovery Form, Ticket Manager, and Setup &amp; Help subtabs for preparing factual support requests and local records.</p><button type="button" class="secondary" data-open-page="recovery">Open Recovery Assistant</button></div>
+<div class="panel tool-card" data-tool-card><h3>PDF &amp; Account Tracker</h3><p class="hint">Track local PDF scan outcomes, user-entered account updates, and recovery progress.</p><button type="button" class="secondary" data-open-page="statusCenter">Open PDF &amp; Account Tracker</button></div>
 <div class="panel tool-card" data-tool-card><h3>Faze Jarvis AI</h3><p class="hint">Optional AI chat through the server-side DeepSeek integration. Requires administrator configuration.</p><button type="button" class="secondary" data-open-page="fazeJarvis">Open Faze Jarvis AI</button></div>
 <div class="panel tool-card" data-tool-card><h3>Discord Security Scanner</h3><p class="hint">Local defensive file review with secret-value redaction. It does not extract or validate login tokens.</p><button type="button" class="secondary" data-open-page="security">Open Discord Security Scanner</button></div>
 <div class="panel tool-card" data-tool-card><h3>Pro Multi-Tool</h3><p class="hint">Multi-Platform Scanner, VPN &amp; Proxy, IP Evidence Checker, Ownership Packet, Fortnite Diagnostics, and Network Security &amp; Wireshark subtabs.</p><button type="button" class="secondary" data-open-page="fortnite">Open Pro Multi-Tool</button></div>
@@ -609,6 +622,7 @@ updateTicketLimitStatus();
 const pageTabs={
  dashboard:{button:document.getElementById("dashboardTabButton"),panel:document.getElementById("dashboardTab")},
  recovery:{button:document.getElementById("recoveryTabButton"),panel:document.getElementById("recoveryTab")},
+ statusCenter:{button:document.getElementById("statusCenterTabButton"),panel:document.getElementById("statusCenterTab")},
  fazeJarvis:{button:document.getElementById("fazeJarvisTabButton"),panel:document.getElementById("fazeJarvisTab")},
  security:{button:document.getElementById("securityTabButton"),panel:document.getElementById("securityTab")},
  fortnite:{button:document.getElementById("fortniteTabButton"),panel:document.getElementById("fortniteTab")},
@@ -1013,6 +1027,22 @@ function inspectFortniteText(s,sourceName){
   return findings;
 }
 
+// Local-only PDF/account/recovery tracker. It stores metadata and user-entered notes, never document text or login secrets.
+const trackerStoreKey="recoveryAssistantStatusCenterV1";
+let trackerData={pdf:[],accounts:[],recoveries:[]};
+try{const saved=JSON.parse(localStorage.getItem(trackerStoreKey)||"{}");trackerData={pdf:Array.isArray(saved.pdf)?saved.pdf:[],accounts:Array.isArray(saved.accounts)?saved.accounts:[],recoveries:Array.isArray(saved.recoveries)?saved.recoveries:[]};}catch(_){trackerData={pdf:[],accounts:[],recoveries:[]};}
+function saveTracker(){try{localStorage.setItem(trackerStoreKey,JSON.stringify(trackerData));}catch(_){alert("Could not save tracker data. Browser storage may be full or disabled.");}}
+function renderTrackerList(id,items,empty,formatter){const node=document.getElementById(id);node.replaceChildren();if(!items.length){node.textContent=empty;return;}items.slice().reverse().forEach(item=>{const line=document.createElement("div");line.style.padding="7px 0";line.style.borderBottom="1px solid #dce2ea";line.textContent=formatter(item);node.appendChild(line);});}
+function renderStatusCenter(){renderTrackerList("pdfTrackerList",trackerData.pdf,"No PDF scans tracked yet.",x=>`${x.name} — ${x.status} · ${x.time} · ${x.size}`);renderTrackerList("accountUpdateList",trackerData.accounts,"No account updates yet.",x=>`${x.label} — ${x.status} · ${x.time}${x.note?" · "+x.note:""}`);renderTrackerList("recoveryTrackerList",trackerData.recoveries,"No recovery cases tracked yet.",x=>`${x.label} — ${x.stage} · ${x.time}${x.next?" · Next: "+x.next:""}`);}
+function trackPdfScan(file,status){trackerData.pdf.push({name:file.name.slice(0,180),size:(file.size/1024/1024).toFixed(2)+" MB",status,time:new Date().toLocaleString()});trackerData.pdf=trackerData.pdf.slice(-100);saveTracker();renderStatusCenter();}
+renderStatusCenter();
+document.getElementById("saveAccountUpdate").addEventListener("click",()=>{const label=document.getElementById("trackerAccount").value.trim();if(!label){alert("Enter an account or service label first.");return;}trackerData.accounts.push({label:label.slice(0,80),status:document.getElementById("trackerAccountStatus").value,note:document.getElementById("trackerAccountNote").value.trim().slice(0,600),time:new Date().toLocaleString()});trackerData.accounts=trackerData.accounts.slice(-150);saveTracker();renderStatusCenter();document.getElementById("trackerAccountNote").value="";});
+document.getElementById("saveRecoveryProgress").addEventListener("click",()=>{const label=document.getElementById("recoveryLabel").value.trim();if(!label){alert("Enter an account or case label first.");return;}trackerData.recoveries.push({label:label.slice(0,80),stage:document.getElementById("recoveryStage").value,next:document.getElementById("recoveryNext").value.trim().slice(0,600),time:new Date().toLocaleString()});trackerData.recoveries=trackerData.recoveries.slice(-150);saveTracker();renderStatusCenter();document.getElementById("recoveryNext").value="";});
+document.getElementById("clearPdfTracker").addEventListener("click",()=>{if(confirm("Clear all PDF scan history on this device?")){trackerData.pdf=[];saveTracker();renderStatusCenter();}});
+document.getElementById("clearAccountUpdates").addEventListener("click",()=>{if(confirm("Clear all account update history on this device?")){trackerData.accounts=[];saveTracker();renderStatusCenter();}});
+document.getElementById("clearRecoveryTracker").addEventListener("click",()=>{if(confirm("Clear all recovery tracking records on this device?")){trackerData.recoveries=[];saveTracker();renderStatusCenter();}});
+document.getElementById("openPdfScanner").addEventListener("click",()=>showTab("pdfEvidence"));
+
 let pdfEvidenceReport="";
 function pdfEvidenceCategories(text){
  const rules=[
@@ -1034,8 +1064,8 @@ document.getElementById("runPdfEvidenceScan").addEventListener("click",async()=>
  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.mjs";
  for(const file of files){
   out.push("FILE: "+file.name);
-  if(!file.name.toLowerCase().endsWith(".pdf")){out.push("Skipped: file name does not end in .pdf.","");continue}
-  if(file.size>20*1024*1024){out.push("Skipped: file exceeds 20 MB.","");continue}
+  if(!file.name.toLowerCase().endsWith(".pdf")){out.push("Skipped: file name does not end in .pdf.","");trackPdfScan(file,"Skipped — not a PDF");continue}
+  if(file.size>20*1024*1024){out.push("Skipped: file exceeds 20 MB.","");trackPdfScan(file,"Skipped — over 20 MB");continue}
   try{
    const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
    const maxPages=Math.min(doc.numPages,500);let readable=0,indicators=0;
@@ -1047,8 +1077,9 @@ document.getElementById("runPdfEvidenceScan").addEventListener("click",async()=>
     if(labels.length){indicators+=labels.length;out.push("Page "+pageNo+": "+labels.join("; "))}
    }
    out.push("Pages: "+doc.numPages+" | Text-readable pages: "+readable+" | Indicator matches: "+indicators);
+   trackPdfScan(file,indicators?"Scanned — indicators found: "+indicators:"Scanned — no indicators found");
    if(doc.numPages>maxPages)out.push("Page limit reached: first "+maxPages+" of "+doc.numPages+" pages checked; remaining pages not inspected.");
-  }catch(_){out.push("Not inspected: PDF may be encrypted, damaged, or unreadable.")}
+  }catch(_){out.push("Not inspected: PDF may be encrypted, damaged, or unreadable.");trackPdfScan(file,"Not inspected — unreadable, encrypted, or damaged")}
   out.push("");
  }
  out.push("Limitations: indicators are keyword/pattern matches, not proof of ownership or authenticity. Scanned-image pages are not OCR-scanned. PDF extraction runs in this browser; no PDF content is uploaded by this scanner.");
